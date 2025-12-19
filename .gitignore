@@ -1,3 +1,7 @@
+.next/ 
+build/
+dist/
+
 # Logs
 logs
 *.log

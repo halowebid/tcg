@@ -1,0 +1,34 @@
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core"
+
+import { users } from "./users"
+
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "gacha_pull",
+  "card_purchase",
+  "reward_claim",
+  "admin_adjustment",
+  "milestone_reward",
+])
+
+export const transactions = pgTable("transactions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: transactionTypeEnum("type").default("card_purchase").notNull(),
+  coinsChange: integer("coins_change").default(0).notNull(),
+  gemsChange: integer("gems_change").default(0).notNull(),
+  description: text("description").notNull(),
+  referenceId: uuid("reference_id"),
+  createdBy: text("created_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+})

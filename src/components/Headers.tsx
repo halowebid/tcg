@@ -1,43 +1,44 @@
 import React from "react"
+import Link from "next/link"
 
 // --- Type 1: Public Header ---
 export const PublicHeader: React.FC = () => {
   return (
     <header className="border-border-dark bg-background-dark/95 sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b px-6 py-3 backdrop-blur-md lg:px-10">
       <div className="flex items-center gap-8">
-        <div className="flex items-center gap-4 text-white">
+        <Link href="/" className="flex items-center gap-4 text-white">
           <div className="text-primary size-8">
             <span className="material-symbols-outlined text-4xl">style</span>
           </div>
           <h2 className="text-xl font-bold tracking-tight text-white">
             CardGacha
           </h2>
-        </div>
+        </Link>
         <div className="hidden items-center gap-8 lg:flex">
-          <a
-            href="#"
+          <Link
+            href="/marketplace"
             className="hover:text-primary text-sm font-medium text-white transition-colors"
           >
             Marketplace
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/gacha"
             className="hover:text-primary text-sm font-medium text-white transition-colors"
           >
             Gacha
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/collection"
             className="hover:text-primary text-sm font-medium text-white transition-colors"
           >
-            Sets
-          </a>
-          <a
-            href="#"
+            Collection
+          </Link>
+          <Link
+            href="/admin"
             className="hover:text-primary text-sm font-medium text-white transition-colors"
           >
-            Community
-          </a>
+            Admin
+          </Link>
         </div>
       </div>
 
