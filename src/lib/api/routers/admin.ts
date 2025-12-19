@@ -1,5 +1,5 @@
 import { router, adminProcedure } from "../trpc"
-import { userProfiles, pullHistory, transactions } from "@/lib/db/schema"
+import { userProfiles, pullHistory, transactions, gachaEvents } from "@/lib/db/schema"
 import { sql, desc, eq } from "drizzle-orm"
 import { getCached, setCached } from "@/lib/cache/redis"
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
@@ -103,6 +103,109 @@ export const adminRouter = router({
         .set({ isBanned: input.banned, updatedAt: new Date() })
         .where(eq(userProfiles.userId, input.userId))
 
+      return { success: true }
+    }),
+
+  getUserTransactions: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        limit: z.number().min(1).max(100).default(20),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userTransactions = await ctx.db.query.transactions.findMany({
+        where: eq(transactions.userId, input.userId),
+        orderBy: [desc(transactions.createdAt)],
+        limit: input.limit,
+      })
+
+      return userTransactions
+    }),
+
+  getAllEvents: adminProcedure.query(async ({ ctx }) => {
+    const events = await ctx.db.query.gachaEvents.findMany({
+      orderBy: [desc(gachaEvents.createdAt)],
+    })
+    return events
+  }),
+
+  getEventById: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const event = await ctx.db.query.gachaEvents.findFirst({
+        where: eq(gachaEvents.id, input.id),
+      })
+
+      if (!event) {
+        throw new Error("Event not found")
+      }
+
+      return event
+    }),
+
+  createEvent: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100),
+        description: z.string(),
+        bannerUrl: z.string().url(),
+        startDate: z.date(),
+        endDate: z.date(),
+        packPriceCoins: z.number().int().positive(),
+        packPriceGems: z.number().int().positive().optional(),
+        commonRate: z.string(),
+        rareRate: z.string(),
+        epicRate: z.string(),
+        legendaryRate: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [event] = await ctx.db.insert(gachaEvents).values({
+        ...input,
+        isActive: true,
+      }).returning()
+
+      return event
+    }),
+
+  updateEvent: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().min(1).max(100).optional(),
+        description: z.string().optional(),
+        bannerUrl: z.string().url().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        packPriceCoins: z.number().int().positive().optional(),
+        packPriceGems: z.number().int().positive().optional(),
+        commonRate: z.string().optional(),
+        rareRate: z.string().optional(),
+        epicRate: z.string().optional(),
+        legendaryRate: z.string().optional(),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input
+
+      const [updated] = await ctx.db
+        .update(gachaEvents)
+        .set({
+          ...data,
+          updatedAt: new Date(),
+        })
+        .where(eq(gachaEvents.id, id))
+        .returning()
+
+      return updated
+    }),
+
+  deleteEvent: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(gachaEvents).where(eq(gachaEvents.id, input.id))
       return { success: true }
     }),
 })

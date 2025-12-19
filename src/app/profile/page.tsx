@@ -2,6 +2,24 @@
 
 import { useState } from "react"
 import { trpc } from "@/lib/trpc/client"
+import { toast } from "sonner"
+import { z } from "zod"
+
+const profileSchema = z.object({
+  displayName: z
+    .string()
+    .min(2, "Display name must be at least 2 characters")
+    .max(50, "Display name must be less than 50 characters")
+    .optional()
+    .or(z.literal("")),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be less than 20 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+    .optional()
+    .or(z.literal("")),
+})
 
 export default function ProfilePage() {
   const { data: profile, isLoading: profileLoading } =
@@ -10,16 +28,17 @@ export default function ProfilePage() {
     trpc.users.getWallet.useQuery()
   const updateProfile = trpc.users.updateProfile.useMutation({
     onSuccess: () => {
-      alert("Profile updated successfully!")
+      toast.success("Profile updated successfully!")
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Update failed: ${error.message}`)
+      toast.error(`Update failed: ${error.message}`)
     },
   })
 
   const [displayName, setDisplayName] = useState("")
   const [username, setUsername] = useState("")
+  const [errors, setErrors] = useState<{ displayName?: string; username?: string }>({})
 
   const isLoading = profileLoading || walletLoading
 
@@ -49,6 +68,29 @@ export default function ProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate form data
+    const result = profileSchema.safeParse({
+      displayName: displayName || undefined,
+      username: username || undefined,
+    })
+
+    if (!result.success) {
+      const fieldErrors: { displayName?: string; username?: string } = {}
+      result.error.issues.forEach((err) => {
+        if (err.path[0] === "displayName") {
+          fieldErrors.displayName = err.message
+        }
+        if (err.path[0] === "username") {
+          fieldErrors.username = err.message
+        }
+      })
+      setErrors(fieldErrors)
+      toast.error("Please fix the validation errors")
+      return
+    }
+
+    setErrors({})
     updateProfile.mutate({
       displayName: displayName || undefined,
       username: username || undefined,
@@ -95,20 +137,30 @@ export default function ProfilePage() {
                   Display Name
                 </label>
                 <input
-                  className="bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white"
+                  className={`bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white ${
+                    errors.displayName ? "border-red-500" : ""
+                  }`}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Enter display name"
                 />
+                {errors.displayName && (
+                  <p className="mt-1 text-xs text-red-500">{errors.displayName}</p>
+                )}
               </div>
               <div>
                 <label className="text-text-secondary text-sm">Username</label>
                 <input
-                  className="bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white"
+                  className={`bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white ${
+                    errors.username ? "border-red-500" : ""
+                  }`}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter username"
                 />
+                {errors.username && (
+                  <p className="mt-1 text-xs text-red-500">{errors.username}</p>
+                )}
               </div>
               <button
                 type="submit"

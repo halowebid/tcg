@@ -3,6 +3,18 @@
 import { useRouter } from "next/navigation"
 import { trpc } from "@/lib/trpc/client"
 import { useState } from "react"
+import { toast } from "sonner"
+import { z } from "zod"
+
+const cardSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  description: z.string().max(500, "Description must be less than 500 characters").optional(),
+  imageUrl: z.string().url("Must be a valid URL"),
+  rarity: z.enum(["common", "rare", "epic", "legendary"]),
+  attackPower: z.number().int().min(0, "Attack power must be 0 or greater"),
+  defensePower: z.number().int().min(0, "Defense power must be 0 or greater"),
+  marketValue: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number").optional(),
+})
 
 export default function AdminCreateCardPage() {
   const router = useRouter()
@@ -15,23 +27,37 @@ export default function AdminCreateCardPage() {
     defensePower: 0,
     marketValue: "",
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const createMutation = trpc.cards.create.useMutation({
     onSuccess: () => {
-      alert("Card created successfully!")
+      toast.success("Card created successfully!")
       router.push("/admin/inventory")
     },
     onError: (error) => {
-      alert(`Create failed: ${error.message}`)
+      toast.error(`Create failed: ${error.message}`)
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name || !formData.imageUrl) {
-      alert("Name and Image URL are required!")
+    
+    // Validate form data
+    const result = cardSchema.safeParse(formData)
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {}
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message
+        }
+      })
+      setErrors(fieldErrors)
+      toast.error("Please fix the validation errors")
       return
     }
+
+    setErrors({})
     createMutation.mutate(formData)
   }
 
@@ -72,28 +98,36 @@ export default function AdminCreateCardPage() {
                   Card Name <span className="text-primary">*</span>
                 </label>
                 <input
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1"
+                  className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
+                    errors["name"] ? "border-red-500" : ""
+                  }`}
                   placeholder="e.g. Celestial Paladin"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  required
                 />
+                {errors["name"] && (
+                  <p className="mt-1 text-xs text-red-500">{errors["name"]}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-white">
                   Image URL <span className="text-primary">*</span>
                 </label>
                 <input
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1"
+                  className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
+                    errors["imageUrl"] ? "border-red-500" : ""
+                  }`}
                   placeholder="https://example.com/image.jpg"
                   value={formData.imageUrl}
                   onChange={(e) =>
                     setFormData({ ...formData, imageUrl: e.target.value })
                   }
-                  required
                 />
+                {errors["imageUrl"] && (
+                  <p className="mt-1 text-xs text-red-500">{errors["imageUrl"]}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-white">Rarity</label>

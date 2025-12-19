@@ -8,6 +8,20 @@
       "when": 1766144347652,
       "tag": "0000_little_ronan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766164913029,
+      "tag": "0001_faithful_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766165870764,
+      "tag": "0002_broad_wasp",
+      "breakpoints": true
     }
   ]
 }

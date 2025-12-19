@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { router, protectedProcedure } from "../trpc"
 import { cards, userProfiles, transactions, userCards } from "@/lib/db/schema"
-import { eq, and } from "drizzle-orm"
+import { eq, and, ne, or } from "drizzle-orm"
 import { invalidatePattern } from "@/lib/cache/redis"
 
 export const marketplaceRouter = router({
@@ -101,5 +101,32 @@ export const marketplaceRouter = router({
       await invalidatePattern(`user:wallet:${userId}`)
 
       return { success: true }
+    }),
+
+  getRelatedCards: protectedProcedure
+    .input(z.object({ cardId: z.string(), limit: z.number().min(1).max(10).default(4) }))
+    .query(async ({ ctx, input }) => {
+      const card = await ctx.db.query.cards.findFirst({
+        where: eq(cards.id, input.cardId),
+      })
+
+      if (!card) {
+        throw new Error("Card not found")
+      }
+
+      // Get cards with same rarity or same set, excluding the current card
+      const relatedCards = await ctx.db.query.cards.findMany({
+        where: and(
+          ne(cards.id, input.cardId),
+          eq(cards.isActive, true),
+          or(
+            eq(cards.rarity, card.rarity),
+            card.setId ? eq(cards.setId, card.setId) : undefined
+          )
+        ),
+        limit: input.limit,
+      })
+
+      return relatedCards
     }),
 })

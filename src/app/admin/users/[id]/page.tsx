@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { trpc } from "@/lib/trpc/client"
 import { DashboardHeader } from "@/components/Headers"
+import { ConfirmModal } from "@/components/ui"
+import { toast } from "sonner"
 
 export default function AdminUserEditPage() {
   const params = useParams()
@@ -13,35 +15,39 @@ export default function AdminUserEditPage() {
   const [coinsChange, setCoinsChange] = useState("")
   const [gemsChange, setGemsChange] = useState("")
   const [reason, setReason] = useState("")
+  const [banConfirm, setBanConfirm] = useState(false)
 
   const { data: user, isLoading, error } = trpc.admin.getUserById.useQuery({ userId })
+  const { data: transactions } = trpc.admin.getUserTransactions.useQuery({ userId, limit: 20 })
 
   const updateWalletMutation = trpc.admin.updateUserWallet.useMutation({
     onSuccess: () => {
-      alert("Wallet updated successfully!")
+      toast.success("Wallet updated successfully!")
       setCoinsChange("")
       setGemsChange("")
       setReason("")
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Failed to update wallet: ${error.message}`)
+      toast.error(`Failed to update wallet: ${error.message}`)
     },
   })
 
   const banMutation = trpc.admin.banUser.useMutation({
     onSuccess: () => {
-      alert(user?.isBanned ? "User unbanned successfully!" : "User banned successfully!")
+      toast.success(user?.isBanned ? "User unbanned successfully!" : "User banned successfully!")
+      setBanConfirm(false)
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Failed to ban/unban user: ${error.message}`)
+      toast.error(`Failed to ban/unban user: ${error.message}`)
+      setBanConfirm(false)
     },
   })
 
   const handleUpdateWallet = (type: "coins" | "gems") => {
     if (!reason.trim()) {
-      alert("Please provide a reason for the wallet adjustment")
+      toast.error("Please provide a reason for the wallet adjustment")
       return
     }
 
@@ -49,7 +55,7 @@ export default function AdminUserEditPage() {
     const gems = type === "gems" ? parseInt(gemsChange) || 0 : 0
 
     if (coins === 0 && gems === 0) {
-      alert("Please enter a valid amount")
+      toast.error("Please enter a valid amount")
       return
     }
 
@@ -62,10 +68,10 @@ export default function AdminUserEditPage() {
   }
 
   const handleBanToggle = () => {
-    if (!confirm(user?.isBanned ? "Are you sure you want to unban this user?" : "Are you sure you want to ban this user?")) {
-      return
-    }
+    setBanConfirm(true)
+  }
 
+  const confirmBan = () => {
     banMutation.mutate({
       userId,
       banned: !user?.isBanned,
@@ -284,9 +290,80 @@ export default function AdminUserEditPage() {
                 </div>
               </div>
             </div>
+
+            <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
+              <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
+                <span className="material-symbols-outlined text-primary">
+                  history
+                </span>
+                Activity Log
+              </h3>
+              {transactions && transactions.length > 0 ? (
+                <div className="space-y-2">
+                  {transactions.map((tx) => (
+                    <div
+                      key={tx.id}
+                      className="bg-background-dark border-border-dark flex items-start justify-between rounded-lg border p-3"
+                    >
+                      <div className="flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className={`text-xs font-bold uppercase ${
+                            tx.type === "admin_adjustment" ? "text-purple-400" :
+                            tx.type === "gacha_pull" ? "text-blue-400" :
+                            tx.type === "card_purchase" ? "text-green-400" :
+                            tx.type === "milestone_reward" ? "text-yellow-400" :
+                            "text-gray-400"
+                          }`}>
+                            {tx.type.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-text-secondary text-xs">
+                            {new Date(tx.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-text-secondary text-sm">
+                          {tx.description || "No description"}
+                        </p>
+                      </div>
+                      <div className="ml-4 text-right">
+                        {tx.coinsChange !== 0 && (
+                          <div className={`text-sm font-bold ${
+                            tx.coinsChange > 0 ? "text-green-400" : "text-red-400"
+                          }`}>
+                            {tx.coinsChange > 0 ? "+" : ""}{tx.coinsChange} Coins
+                          </div>
+                        )}
+                        {tx.gemsChange !== 0 && (
+                          <div className={`text-sm font-bold ${
+                            tx.gemsChange > 0 ? "text-green-400" : "text-red-400"
+                          }`}>
+                            {tx.gemsChange > 0 ? "+" : ""}{tx.gemsChange} Gems
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-secondary text-center py-8">No activity yet</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={banConfirm}
+        onClose={() => setBanConfirm(false)}
+        onConfirm={confirmBan}
+        title={user?.isBanned ? "Unban User" : "Ban User"}
+        message={
+          user?.isBanned
+            ? "Are you sure you want to unban this user? They will regain access to the platform."
+            : "Are you sure you want to ban this user? They will lose access to the platform."
+        }
+        confirmText={user?.isBanned ? "Unban" : "Ban"}
+        cancelText="Cancel"
+      />
     </div>
   )
 }

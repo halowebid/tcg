@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation"
 import { trpc } from "@/lib/trpc/client"
 import { useState } from "react"
+import { ConfirmModal } from "@/components/ui"
+import { toast } from "sonner"
 
 export default function AdminInventoryPage() {
   const router = useRouter()
@@ -11,6 +13,10 @@ export default function AdminInventoryPage() {
   const [rarityFilter, setRarityFilter] = useState<
     "common" | "rare" | "epic" | "legendary" | undefined
   >(undefined)
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; cardId: string | null }>({
+    isOpen: false,
+    cardId: null,
+  })
 
   const { data, isLoading } = trpc.cards.list.useQuery({
     page,
@@ -20,17 +26,23 @@ export default function AdminInventoryPage() {
 
   const deleteMutation = trpc.cards.delete.useMutation({
     onSuccess: () => {
-      alert("Card deleted successfully!")
+      toast.success("Card deleted successfully!")
+      setDeleteConfirm({ isOpen: false, cardId: null })
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Delete failed: ${error.message}`)
+      toast.error(`Delete failed: ${error.message}`)
+      setDeleteConfirm({ isOpen: false, cardId: null })
     },
   })
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this card?")) {
-      deleteMutation.mutate({ id })
+    setDeleteConfirm({ isOpen: true, cardId: id })
+  }
+
+  const confirmDelete = () => {
+    if (deleteConfirm.cardId) {
+      deleteMutation.mutate({ id: deleteConfirm.cardId })
     }
   }
 
@@ -226,6 +238,16 @@ export default function AdminInventoryPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, cardId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Card"
+        message="Are you sure you want to delete this card? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   )
 }

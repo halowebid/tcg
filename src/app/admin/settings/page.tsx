@@ -1,10 +1,33 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { DashboardHeader } from "@/components/Headers"
+import { trpc } from "@/lib/trpc/client"
+import { toast } from "sonner"
+import { z } from "zod"
+
+const settingsSchema = z.object({
+  gameTitle: z.string().min(1, "Game title is required").max(100, "Must be less than 100 characters"),
+  supportEmail: z.string().email("Must be a valid email address"),
+  maintenanceMode: z.boolean(),
+  currencyName: z.string().min(1, "Currency name is required").max(50, "Must be less than 50 characters"),
+  premiumCurrencyName: z.string().min(1, "Premium currency name is required").max(50, "Must be less than 50 characters"),
+  exchangeRate: z.number().int().positive("Exchange rate must be a positive number"),
+})
 
 export default function AdminSettingsPage() {
-  const [settings, setSettings] = useState({
+  const { data: settings, isLoading } = trpc.settings.get.useQuery()
+  const updateMutation = trpc.settings.update.useMutation({
+    onSuccess: () => {
+      toast.success("Settings updated successfully!")
+      window.location.reload()
+    },
+    onError: (error) => {
+      toast.error(`Failed to update settings: ${error.message}`)
+    },
+  })
+
+  const [formData, setFormData] = useState({
     gameTitle: "TCG Gacha System",
     supportEmail: "support@tcg-gacha.com",
     maintenanceMode: false,
@@ -12,10 +35,50 @@ export default function AdminSettingsPage() {
     premiumCurrencyName: "Gems",
     exchangeRate: 100,
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        gameTitle: settings.gameTitle,
+        supportEmail: settings.supportEmail,
+        maintenanceMode: settings.maintenanceMode,
+        currencyName: settings.currencyName,
+        premiumCurrencyName: settings.premiumCurrencyName,
+        exchangeRate: settings.exchangeRate,
+      })
+    }
+  }, [settings])
 
   const handleSave = () => {
-    // TODO: Implement settings save when backend router is created
-    alert("Settings functionality requires a backend router to be implemented first.\n\nTo implement:\n1. Create system_settings table in database\n2. Add settings router in /src/lib/api/routers/settings.ts\n3. Add getSettings and updateSettings procedures\n4. Export in /src/lib/api/root.ts")
+    // Validate form data
+    const result = settingsSchema.safeParse(formData)
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {}
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message
+        }
+      })
+      setErrors(fieldErrors)
+      toast.error("Please fix the validation errors")
+      return
+    }
+
+    setErrors({})
+    updateMutation.mutate(formData)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="text-text-secondary">Loading settings...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -23,21 +86,6 @@ export default function AdminSettingsPage() {
       <DashboardHeader title="System Settings" />
       <div className="custom-scrollbar overflow-y-auto p-8">
         <div className="max-w-4xl space-y-8 pb-10">
-          {/* Notice Banner */}
-          <div className="bg-yellow-500/10 border-yellow-500/20 rounded-xl border p-4">
-            <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-yellow-500">
-                info
-              </span>
-              <div>
-                <h4 className="font-bold text-yellow-500">Settings Backend Not Implemented</h4>
-                <p className="text-text-secondary mt-1 text-sm">
-                  This page requires a settings router to be created. Currently showing default values only.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* General */}
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
@@ -50,29 +98,39 @@ export default function AdminSettingsPage() {
                   Game Title
                 </label>
                 <input
-                  className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                  value={settings.gameTitle}
-                  onChange={(e) => setSettings({ ...settings, gameTitle: e.target.value })}
+                  className={`bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white ${
+                    errors["gameTitle"] ? "border-red-500" : ""
+                  }`}
+                  value={formData.gameTitle}
+                  onChange={(e) => setFormData({ ...formData, gameTitle: e.target.value })}
                 />
+                {errors["gameTitle"] && (
+                  <p className="mt-1 text-xs text-red-500">{errors["gameTitle"]}</p>
+                )}
               </div>
               <div>
                 <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                   Support Email
                 </label>
                 <input
-                  className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                  value={settings.supportEmail}
-                  onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
+                  className={`bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white ${
+                    errors["supportEmail"] ? "border-red-500" : ""
+                  }`}
+                  value={formData.supportEmail}
+                  onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
                 />
+                {errors["supportEmail"] && (
+                  <p className="mt-1 text-xs text-red-500">{errors["supportEmail"]}</p>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="border-border-dark flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-white/5">
                   <input
                     type="checkbox"
                     className="text-primary focus:ring-primary bg-background-dark size-5 rounded border-gray-600"
-                    checked={settings.maintenanceMode}
+                    checked={formData.maintenanceMode}
                     onChange={(e) =>
-                      setSettings({ ...settings, maintenanceMode: e.target.checked })
+                      setFormData({ ...formData, maintenanceMode: e.target.checked })
                     }
                   />
                   <div>
@@ -99,8 +157,8 @@ export default function AdminSettingsPage() {
                 </label>
                 <input
                   className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                  value={settings.currencyName}
-                  onChange={(e) => setSettings({ ...settings, currencyName: e.target.value })}
+                  value={formData.currencyName}
+                  onChange={(e) => setFormData({ ...formData, currencyName: e.target.value })}
                 />
               </div>
               <div>
@@ -109,9 +167,9 @@ export default function AdminSettingsPage() {
                 </label>
                 <input
                   className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                  value={settings.premiumCurrencyName}
+                  value={formData.premiumCurrencyName}
                   onChange={(e) =>
-                    setSettings({ ...settings, premiumCurrencyName: e.target.value })
+                    setFormData({ ...formData, premiumCurrencyName: e.target.value })
                   }
                 />
               </div>
@@ -123,9 +181,9 @@ export default function AdminSettingsPage() {
                   <input
                     type="number"
                     className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                    value={settings.exchangeRate}
+                    value={formData.exchangeRate}
                     onChange={(e) =>
-                      setSettings({ ...settings, exchangeRate: parseInt(e.target.value) || 0 })
+                      setFormData({ ...formData, exchangeRate: parseInt(e.target.value) || 0 })
                     }
                   />
                   <span className="font-bold text-white">Coins</span>
@@ -168,9 +226,10 @@ export default function AdminSettingsPage() {
           <div className="flex justify-end pt-4">
             <button
               onClick={handleSave}
-              className="bg-primary hover:bg-primary-hover text-background-dark shadow-primary/20 rounded-xl px-8 py-3 font-bold shadow-lg transition-transform active:scale-95"
+              disabled={updateMutation.isPending}
+              className="bg-primary hover:bg-primary-hover text-background-dark shadow-primary/20 rounded-xl px-8 py-3 font-bold shadow-lg transition-transform active:scale-95 disabled:opacity-50"
             >
-              Save Changes
+              {updateMutation.isPending ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>

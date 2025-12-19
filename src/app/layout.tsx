@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { TRPCReactProvider } from "@/lib/trpc/client"
 import { PublicHeader } from "@/components/Headers"
+import { Toaster } from "@/components/ui"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({
           <main className="custom-scrollbar overflow-y-auto">
             {children}
           </main>
+          <Toaster />
         </TRPCReactProvider>
       </body>
     </html>

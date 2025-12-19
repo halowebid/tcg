@@ -1,26 +1,32 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { trpc } from "@/lib/trpc/client"
+import { ConfirmModal } from "@/components/ui"
+import { toast } from "sonner"
 
 function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const cardId = searchParams.get("cardId")
+  const [showOrderConfirm, setShowOrderConfirm] = useState(false)
 
   const { data: card, isLoading } = trpc.cards.getById.useQuery(
     { id: cardId || "" },
     { enabled: !!cardId }
   )
+  const { data: wallet } = trpc.users.getWallet.useQuery()
 
   const purchaseMutation = trpc.marketplace.purchase.useMutation({
     onSuccess: () => {
-      alert("Purchase completed successfully!")
+      setShowOrderConfirm(false)
+      toast.success("Purchase completed successfully!")
       router.push("/collection")
     },
     onError: (error) => {
-      alert(`Purchase failed: ${error.message}`)
+      setShowOrderConfirm(false)
+      toast.error(`Purchase failed: ${error.message}`)
     },
   })
 
@@ -62,13 +68,30 @@ function CheckoutContent() {
   const price = card.marketValue ? parseFloat(card.marketValue) : 100
   const tax = price * 0.0 // No tax for now
   const total = price + tax
+  const canAfford = (wallet?.coins ?? 0) >= total
 
   const handleCheckout = () => {
+    setShowOrderConfirm(true)
+  }
+
+  const handleConfirmOrder = () => {
     purchaseMutation.mutate({ cardId: card.id })
   }
 
   return (
     <div className="flex justify-center px-4 py-8">
+      <ConfirmModal
+        isOpen={showOrderConfirm}
+        onClose={() => setShowOrderConfirm(false)}
+        onConfirm={handleConfirmOrder}
+        title="Confirm Order"
+        message={`Place order for "${card.name}"?\n\nTotal: ${total} Coins${!canAfford ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
+        confirmText="Place Order"
+        cancelText="Cancel"
+        variant="primary"
+        isLoading={purchaseMutation.isPending}
+      />
+      
       <div className="flex w-full max-w-[1200px] flex-col gap-12 lg:flex-row">
         <div className="flex-1">
           <h1 className="mb-8 text-3xl font-bold text-white">Checkout</h1>

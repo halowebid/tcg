@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { trpc } from "@/lib/trpc/client"
 import { DashboardHeader } from "@/components/Headers"
+import { toast } from "sonner"
 
 export default function AdminMilestonesPage() {
   const router = useRouter()
@@ -13,22 +14,22 @@ export default function AdminMilestonesPage() {
 
   const createMutation = trpc.milestones.create.useMutation({
     onSuccess: () => {
-      alert("Milestone created successfully!")
+      toast.success("Milestone created successfully!")
       setShowCreateForm(false)
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Failed to create milestone: ${error.message}`)
+      toast.error(`Failed to create milestone: ${error.message}`)
     },
   })
 
   const updateMutation = trpc.milestones.update.useMutation({
     onSuccess: () => {
-      alert("Milestone updated successfully!")
+      toast.success("Milestone updated successfully!")
       window.location.reload()
     },
     onError: (error) => {
-      alert(`Failed to update milestone: ${error.message}`)
+      toast.error(`Failed to update milestone: ${error.message}`)
     },
   })
 
