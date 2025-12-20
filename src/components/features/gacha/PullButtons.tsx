@@ -26,10 +26,15 @@ export function PullButtons({
   return (
     <div className="space-y-2">
       <div className="text-sm">
-        <div>Single Pull: {singlePullPrice.coins} coins / {singlePullPrice.gems} gems</div>
-        <div>10x Pull: {tenPullPrice.coins} coins / {tenPullPrice.gems} gems</div>
+        <div>
+          Single Pull: {singlePullPrice.coins} coins / {singlePullPrice.gems}{" "}
+          gems
+        </div>
+        <div>
+          10x Pull: {tenPullPrice.coins} coins / {tenPullPrice.gems} gems
+        </div>
       </div>
-      <div className="space-y-2 mt-2">
+      <div className="mt-2 space-y-2">
         <Button
           className="w-full"
           onClick={onSinglePull}

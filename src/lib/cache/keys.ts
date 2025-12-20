@@ -1,6 +1,6 @@
 export const CACHE_KEYS = {
   CARDS_LIST: (page: number, rarity?: string, setId?: string) =>
-    `cards:list:${page}:${rarity || "all"}:${setId || "all"}`,
+    `cards:list:${page}:${rarity ?? "all"}:${setId ?? "all"}`,
   CARD_DETAILS: (id: string) => `cards:details:${id}`,
   ACTIVE_EVENTS: "events:active",
   EVENT_DETAILS: (id: string) => `events:details:${id}`,

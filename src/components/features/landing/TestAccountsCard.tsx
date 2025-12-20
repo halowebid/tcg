@@ -15,12 +15,12 @@ const testAccounts = [
 
 export function TestAccountsCard() {
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 text-center">
-      <h2 className="text-3xl font-bold mb-4">Test Accounts</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="rounded-lg border border-gray-700 bg-gray-800 p-8 text-center">
+      <h2 className="mb-4 text-3xl font-bold">Test Accounts</h2>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {testAccounts.map((account) => (
           <div key={account.type}>
-            <h3 className={`text-xl font-semibold mb-2 ${account.colorClass}`}>
+            <h3 className={`mb-2 text-xl font-semibold ${account.colorClass}`}>
               {account.type}
             </h3>
             <p className="text-gray-300">Email: {account.email}</p>

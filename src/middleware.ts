@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
+
 import { auth } from "@/lib/auth"
 
 export async function middleware(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   // Check if current path requires authentication
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   )
 
   if (isProtectedRoute) {

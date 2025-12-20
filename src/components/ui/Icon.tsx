@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef, forwardRef } from "react"
+import { forwardRef, type ComponentPropsWithoutRef } from "react"
 
 interface IconProps extends ComponentPropsWithoutRef<"span"> {
   name: string

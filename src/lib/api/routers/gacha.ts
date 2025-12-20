@@ -1,17 +1,18 @@
+import { and, eq, gte, lte } from "drizzle-orm"
 import { z } from "zod"
-import { router, publicProcedure, protectedProcedure } from "../trpc"
+
+import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { getCached, invalidatePattern, setCached } from "@/lib/cache/redis"
 import {
-  gachaEvents,
-  eventFeaturedCards,
   cards,
+  eventFeaturedCards,
+  gachaEvents,
   pullHistory,
+  transactions,
   userCards,
   userProfiles,
-  transactions,
 } from "@/lib/db/schema"
-import { eq, and, lte, gte } from "drizzle-orm"
-import { getCached, setCached, invalidatePattern } from "@/lib/cache/redis"
-import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { protectedProcedure, publicProcedure, router } from "../trpc"
 
 export const gachaRouter = router({
   getActiveEvents: publicProcedure.query(async ({ ctx }) => {
@@ -24,7 +25,7 @@ export const gachaRouter = router({
       where: and(
         eq(gachaEvents.isActive, true),
         lte(gachaEvents.startDate, now),
-        gte(gachaEvents.endDate, now)
+        gte(gachaEvents.endDate, now),
       ),
     })
 
@@ -75,7 +76,7 @@ export const gachaRouter = router({
       z.object({
         eventId: z.string(),
         useGems: z.boolean().default(false),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
@@ -96,7 +97,9 @@ export const gachaRouter = router({
         throw new Error("User profile not found")
       }
 
-      const cost = input.useGems ? (event.packPriceGems || 0) : event.packPriceCoins
+      const cost = input.useGems
+        ? (event.packPriceGems ?? 0)
+        : event.packPriceCoins
 
       if (input.useGems && cost === 0) {
         throw new Error("Gems not accepted for this event")
@@ -162,7 +165,7 @@ export const gachaRouter = router({
       z.object({
         eventId: z.string(),
         useGems: z.boolean().default(false),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
@@ -183,7 +186,9 @@ export const gachaRouter = router({
         throw new Error("User profile not found")
       }
 
-      const costPerPull = input.useGems ? (event.packPriceGems || 0) : event.packPriceCoins
+      const costPerPull = input.useGems
+        ? (event.packPriceGems ?? 0)
+        : event.packPriceCoins
       const totalCost = costPerPull * 10
 
       if (input.useGems && costPerPull === 0) {
@@ -199,7 +204,9 @@ export const gachaRouter = router({
       }
 
       const selectedCards = await Promise.all(
-        Array.from({ length: 10 }, () => selectRandomCard(ctx.db, input.eventId, event))
+        Array.from({ length: 10 }, () =>
+          selectRandomCard(ctx.db, input.eventId, event),
+        ),
       )
 
       const sessionId = crypto.randomUUID()
@@ -250,7 +257,15 @@ export const gachaRouter = router({
     }),
 })
 
-async function selectRandomCard(db: any, eventId: string, event: any) {
+async function selectRandomCard(
+  db: typeof import("@/lib/db").db,
+  eventId: string,
+  event: {
+    legendaryRate: string
+    epicRate: string
+    rareRate: string
+  },
+) {
   const random = Math.random()
 
   let selectedRarity: string
@@ -271,8 +286,11 @@ async function selectRandomCard(db: any, eventId: string, event: any) {
 
   const availableCards = await db.query.cards.findMany({
     where: and(
-      eq(cards.rarity, selectedRarity as "common" | "rare" | "epic" | "legendary"),
-      eq(cards.isActive, true)
+      eq(
+        cards.rarity,
+        selectedRarity as "common" | "rare" | "epic" | "legendary",
+      ),
+      eq(cards.isActive, true),
     ),
   })
 
@@ -284,15 +302,21 @@ async function selectRandomCard(db: any, eventId: string, event: any) {
     where: eq(eventFeaturedCards.eventId, eventId),
   })
 
-  const featuredCardIds = featuredCards.map((fc: any) => fc.cardId)
+  const featuredCardIds = featuredCards.map(
+    (fc: typeof eventFeaturedCards.$inferSelect) => fc.cardId,
+  )
 
-  const weightedCards = availableCards.map((card: any) => {
+  type Card = typeof cards.$inferSelect
+  const weightedCards = availableCards.map((card: Card) => {
     const isFeatured = featuredCardIds.includes(card.id)
     const weight = parseFloat(card.dropWeight) * (isFeatured ? 2.0 : 1.0)
     return { card, weight }
   })
 
-  const totalWeight = weightedCards.reduce((sum: number, wc: any) => sum + wc.weight, 0)
+  const totalWeight = weightedCards.reduce(
+    (sum: number, wc: { weight: number; card: Card }) => sum + wc.weight,
+    0,
+  )
   let randomWeight = Math.random() * totalWeight
 
   for (const wc of weightedCards) {

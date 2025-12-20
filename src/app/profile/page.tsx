@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { trpc } from "@/lib/trpc/client"
 import { toast } from "sonner"
 import { z } from "zod"
+
+import { trpc } from "@/lib/trpc/client"
 
 const profileSchema = z.object({
   displayName: z
@@ -16,7 +17,10 @@ const profileSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(20, "Username must be less than 20 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores",
+    )
     .optional()
     .or(z.literal("")),
 })
@@ -38,7 +42,10 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState("")
   const [username, setUsername] = useState("")
-  const [errors, setErrors] = useState<{ displayName?: string; username?: string }>({})
+  const [errors, setErrors] = useState<{
+    displayName?: string
+    username?: string
+  }>({})
 
   const isLoading = profileLoading || walletLoading
 
@@ -68,7 +75,7 @@ export default function ProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate form data
     const result = profileSchema.safeParse({
       displayName: displayName || undefined,
@@ -103,7 +110,7 @@ export default function ProfilePage() {
         <div className="bg-surface-dark border-border-dark mb-8 flex flex-col items-center gap-8 rounded-2xl border p-8 md:flex-row">
           <div className="relative">
             <div className="border-primary h-32 w-32 rounded-full border-4 bg-gradient-to-br from-orange-500 to-yellow-500"></div>
-            <button className="bg-primary absolute bottom-0 right-0 rounded-full p-2 text-white">
+            <button className="bg-primary absolute right-0 bottom-0 rounded-full p-2 text-white">
               <span className="material-symbols-outlined text-sm">edit</span>
             </button>
           </div>
@@ -145,7 +152,9 @@ export default function ProfilePage() {
                   placeholder="Enter display name"
                 />
                 {errors.displayName && (
-                  <p className="mt-1 text-xs text-red-500">{errors.displayName}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.displayName}
+                  </p>
                 )}
               </div>
               <div>
@@ -178,12 +187,14 @@ export default function ProfilePage() {
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Coins</span>
                 <span className="font-bold text-white">
-                  {wallet?.coins || 0}
+                  {wallet?.coins ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Gems</span>
-                <span className="font-bold text-white">{wallet?.gems || 0}</span>
+                <span className="font-bold text-white">
+                  {wallet?.gems ?? 0}
+                </span>
               </div>
               <div className="border-border-dark border-t pt-4">
                 <div className="flex justify-between text-sm">

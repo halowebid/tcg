@@ -1,9 +1,10 @@
-import { z } from "zod"
-import { router, protectedProcedure } from "../trpc"
-import { userCards } from "@/lib/db/schema"
 import { eq, sql } from "drizzle-orm"
-import { getCached, setCached } from "@/lib/cache/redis"
+import { z } from "zod"
+
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { getCached, setCached } from "@/lib/cache/redis"
+import { userCards } from "@/lib/db/schema"
+import { protectedProcedure, router } from "../trpc"
 
 export const collectionRouter = router({
   getUserCards: protectedProcedure.query(async ({ ctx }) => {
@@ -57,8 +58,8 @@ export const collectionRouter = router({
     ])
 
     return {
-      totalCards: Number(totalCards[0]?.count || 0),
-      uniqueCards: Number(uniqueCards[0]?.count || 0),
+      totalCards: Number(totalCards[0]?.count ?? 0),
+      uniqueCards: Number(uniqueCards[0]?.count ?? 0),
     }
   }),
 })

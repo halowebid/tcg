@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui"
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui"
 
 interface User {
   userId: string
@@ -15,7 +21,11 @@ interface UserManagementTableProps {
   isPending: boolean
 }
 
-export function UserManagementTable({ users, onBanUser, isPending }: UserManagementTableProps) {
+export function UserManagementTable({
+  users,
+  onBanUser,
+  isPending,
+}: UserManagementTableProps) {
   return (
     <Card>
       <CardHeader>
@@ -26,12 +36,12 @@ export function UserManagementTable({ users, onBanUser, isPending }: UserManagem
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-2">Username</th>
-                <th className="text-left py-2">Level</th>
-                <th className="text-left py-2">Coins</th>
-                <th className="text-left py-2">Gems</th>
-                <th className="text-left py-2">Status</th>
-                <th className="text-left py-2">Actions</th>
+                <th className="py-2 text-left">Username</th>
+                <th className="py-2 text-left">Level</th>
+                <th className="py-2 text-left">Coins</th>
+                <th className="py-2 text-left">Gems</th>
+                <th className="py-2 text-left">Status</th>
+                <th className="py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -42,7 +52,11 @@ export function UserManagementTable({ users, onBanUser, isPending }: UserManagem
                   <td className="py-2">{user.coins}</td>
                   <td className="py-2">{user.gems}</td>
                   <td className="py-2">
-                    <span className={user.isBanned ? "text-red-600" : "text-green-600"}>
+                    <span
+                      className={
+                        user.isBanned ? "text-red-600" : "text-green-600"
+                      }
+                    >
                       {user.isBanned ? "Banned" : "Active"}
                     </span>
                   </td>

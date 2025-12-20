@@ -26,7 +26,7 @@ export default function MilestonesPage() {
 
   // Create a map of user progress by milestone ID
   const progressMap = new Map(
-    userProgress?.map((p) => [p.milestoneId, p]) || []
+    userProgress?.map((p) => [p.milestoneId, p]) ?? [],
   )
 
   // Mock user level and XP for the header (this would come from user profile in real app)
@@ -41,7 +41,7 @@ export default function MilestonesPage() {
           Collector Status
         </h1>
         <div className="bg-surface-dark border-border-dark relative mb-8 flex flex-col items-center gap-8 overflow-hidden rounded-xl border p-8 md:flex-row">
-          <div className="bg-primary pointer-events-none absolute right-0 top-0 h-full w-1/2 rounded-l-full opacity-10"></div>
+          <div className="bg-primary pointer-events-none absolute top-0 right-0 h-full w-1/2 rounded-l-full opacity-10"></div>
           <div className="border-primary/20 bg-background-dark relative z-10 flex h-32 w-32 items-center justify-center rounded-full border-4">
             <span className="material-symbols-outlined text-primary text-6xl">
               military_tech
@@ -73,8 +73,8 @@ export default function MilestonesPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {milestones?.map((milestone) => {
             const progress = progressMap.get(milestone.id)
-            const isCompleted = progress?.isCompleted || false
-            const isClaimed = progress?.isClaimed || false
+            const isCompleted = progress?.isCompleted ?? false
+            const isClaimed = progress?.isClaimed ?? false
             const canClaim = isCompleted && !isClaimed
 
             return (
@@ -84,7 +84,7 @@ export default function MilestonesPage() {
               >
                 <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
                   <span className="material-symbols-outlined z-10 text-4xl text-white">
-                    {milestone.icon || "emoji_events"}
+                    {milestone.icon ?? "emoji_events"}
                   </span>
                   <div
                     className={`absolute inset-0 ${
@@ -128,8 +128,8 @@ export default function MilestonesPage() {
                     canClaim
                       ? "bg-primary text-background-dark cursor-pointer"
                       : isClaimed
-                        ? "bg-surface-highlight border-border-dark border text-white cursor-not-allowed"
-                        : "bg-surface-dark border-border-dark border text-text-secondary cursor-not-allowed"
+                        ? "bg-surface-highlight border-border-dark cursor-not-allowed border text-white"
+                        : "bg-surface-dark border-border-dark text-text-secondary cursor-not-allowed border"
                   }`}
                   disabled={!canClaim || claimReward.isPending}
                   onClick={() => {

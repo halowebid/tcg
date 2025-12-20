@@ -1,10 +1,5 @@
-import {
-  pgTable,
-  serial,
-  text,
-  boolean,
-  timestamp,
-} from "drizzle-orm/pg-core"
+import { boolean, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
+
 import { users } from "./users"
 
 export const notifications = pgTable("notifications", {

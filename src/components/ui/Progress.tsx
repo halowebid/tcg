@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef, forwardRef } from "react"
+import { forwardRef, type ComponentPropsWithoutRef } from "react"
 
 interface ProgressProps extends Omit<ComponentPropsWithoutRef<"div">, "value"> {
   value: number

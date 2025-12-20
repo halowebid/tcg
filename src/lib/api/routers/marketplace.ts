@@ -1,8 +1,9 @@
+import { and, eq, ne, or } from "drizzle-orm"
 import { z } from "zod"
-import { router, protectedProcedure } from "../trpc"
-import { cards, userProfiles, transactions, userCards } from "@/lib/db/schema"
-import { eq, and, ne, or } from "drizzle-orm"
+
 import { invalidatePattern } from "@/lib/cache/redis"
+import { cards, transactions, userCards, userProfiles } from "@/lib/db/schema"
+import { protectedProcedure, router } from "../trpc"
 
 export const marketplaceRouter = router({
   list: protectedProcedure
@@ -11,12 +12,12 @@ export const marketplaceRouter = router({
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(50).default(20),
         rarity: z.enum(["common", "rare", "epic", "legendary"]).optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = and(
         eq(cards.isActive, true),
-        input.rarity ? eq(cards.rarity, input.rarity) : undefined
+        input.rarity ? eq(cards.rarity, input.rarity) : undefined,
       )
 
       const items = await ctx.db.query.cards.findMany({
@@ -104,7 +105,12 @@ export const marketplaceRouter = router({
     }),
 
   getRelatedCards: protectedProcedure
-    .input(z.object({ cardId: z.string(), limit: z.number().min(1).max(10).default(4) }))
+    .input(
+      z.object({
+        cardId: z.string(),
+        limit: z.number().min(1).max(10).default(4),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const card = await ctx.db.query.cards.findFirst({
         where: eq(cards.id, input.cardId),
@@ -121,8 +127,8 @@ export const marketplaceRouter = router({
           eq(cards.isActive, true),
           or(
             eq(cards.rarity, card.rarity),
-            card.setId ? eq(cards.setId, card.setId) : undefined
-          )
+            card.setId ? eq(cards.setId, card.setId) : undefined,
+          ),
         ),
         limit: input.limit,
       })

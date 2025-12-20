@@ -1,19 +1,29 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { trpc } from "@/lib/trpc/client"
+
 const cardSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  description: z.string().max(500, "Description must be less than 500 characters").optional(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description must be less than 500 characters")
+    .optional(),
   imageUrl: z.string().url("Must be a valid URL"),
   rarity: z.enum(["common", "rare", "epic", "legendary"]),
   attackPower: z.number().int().min(0, "Attack power must be 0 or greater"),
   defensePower: z.number().int().min(0, "Defense power must be 0 or greater"),
-  marketValue: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number").optional(),
+  marketValue: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number")
+    .optional(),
 })
 
 export default function AdminCreateCardPage() {
@@ -41,7 +51,7 @@ export default function AdminCreateCardPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate form data
     const result = cardSchema.safeParse(formData)
 
@@ -67,7 +77,9 @@ export default function AdminCreateCardPage() {
       <div className="border-border-dark flex items-center justify-between border-b bg-[#2d241b] px-8 py-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Create New Card</h1>
-          <p className="text-text-secondary text-sm">Add a new card to inventory</p>
+          <p className="text-text-secondary text-sm">
+            Add a new card to inventory
+          </p>
         </div>
         <div className="flex gap-3">
           <button
@@ -91,7 +103,9 @@ export default function AdminCreateCardPage() {
         <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-6">
           {/* Basic Info */}
           <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
-            <h3 className="mb-4 text-lg font-bold text-white">Basic Information</h3>
+            <h3 className="mb-4 text-lg font-bold text-white">
+              Basic Information
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-white">
@@ -126,7 +140,9 @@ export default function AdminCreateCardPage() {
                   }
                 />
                 {errors["imageUrl"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["imageUrl"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["imageUrl"]}
+                  </p>
                 )}
               </div>
               <div>
@@ -152,9 +168,11 @@ export default function AdminCreateCardPage() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Description</label>
+                <label className="text-sm font-medium text-white">
+                  Description
+                </label>
                 <textarea
-                  className="bg-background-dark border-border-dark focus:border-primary min-h-[120px] mt-1 w-full rounded-xl border p-4 text-white outline-none"
+                  className="bg-background-dark border-border-dark focus:border-primary mt-1 min-h-[120px] w-full rounded-xl border p-4 text-white outline-none"
                   placeholder="Flavor text..."
                   value={formData.description}
                   onChange={(e) =>
@@ -170,7 +188,9 @@ export default function AdminCreateCardPage() {
             <h3 className="mb-4 text-lg font-bold text-white">Stats & Value</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-white">Attack Power</label>
+                <label className="text-sm font-medium text-white">
+                  Attack Power
+                </label>
                 <input
                   type="number"
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
@@ -178,13 +198,15 @@ export default function AdminCreateCardPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      attackPower: parseInt(e.target.value) || 0,
+                      attackPower: parseInt(e.target.value) ?? 0,
                     })
                   }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Defense Power</label>
+                <label className="text-sm font-medium text-white">
+                  Defense Power
+                </label>
                 <input
                   type="number"
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
@@ -192,13 +214,15 @@ export default function AdminCreateCardPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      defensePower: parseInt(e.target.value) || 0,
+                      defensePower: parseInt(e.target.value) ?? 0,
                     })
                   }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Market Value (Coins)</label>
+                <label className="text-sm font-medium text-white">
+                  Market Value (Coins)
+                </label>
                 <input
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
                   placeholder="100"

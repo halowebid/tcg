@@ -1,18 +1,31 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { DashboardHeader } from "@/components/Headers"
-import { trpc } from "@/lib/trpc/client"
+import React, { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { DashboardHeader } from "@/components/Headers"
+import { trpc } from "@/lib/trpc/client"
+
 const settingsSchema = z.object({
-  gameTitle: z.string().min(1, "Game title is required").max(100, "Must be less than 100 characters"),
+  gameTitle: z
+    .string()
+    .min(1, "Game title is required")
+    .max(100, "Must be less than 100 characters"),
   supportEmail: z.string().email("Must be a valid email address"),
   maintenanceMode: z.boolean(),
-  currencyName: z.string().min(1, "Currency name is required").max(50, "Must be less than 50 characters"),
-  premiumCurrencyName: z.string().min(1, "Premium currency name is required").max(50, "Must be less than 50 characters"),
-  exchangeRate: z.number().int().positive("Exchange rate must be a positive number"),
+  currencyName: z
+    .string()
+    .min(1, "Currency name is required")
+    .max(50, "Must be less than 50 characters"),
+  premiumCurrencyName: z
+    .string()
+    .min(1, "Premium currency name is required")
+    .max(50, "Must be less than 50 characters"),
+  exchangeRate: z
+    .number()
+    .int()
+    .positive("Exchange rate must be a positive number"),
 })
 
 export default function AdminSettingsPage() {
@@ -74,7 +87,7 @@ export default function AdminSettingsPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading settings...</p>
         </div>
       </div>
@@ -89,7 +102,9 @@ export default function AdminSettingsPage() {
           {/* General */}
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">tune</span>
+              <span className="material-symbols-outlined text-primary">
+                tune
+              </span>
               General Configuration
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -102,10 +117,14 @@ export default function AdminSettingsPage() {
                     errors["gameTitle"] ? "border-red-500" : ""
                   }`}
                   value={formData.gameTitle}
-                  onChange={(e) => setFormData({ ...formData, gameTitle: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gameTitle: e.target.value })
+                  }
                 />
                 {errors["gameTitle"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["gameTitle"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["gameTitle"]}
+                  </p>
                 )}
               </div>
               <div>
@@ -117,10 +136,14 @@ export default function AdminSettingsPage() {
                     errors["supportEmail"] ? "border-red-500" : ""
                   }`}
                   value={formData.supportEmail}
-                  onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, supportEmail: e.target.value })
+                  }
                 />
                 {errors["supportEmail"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["supportEmail"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["supportEmail"]}
+                  </p>
                 )}
               </div>
               <div className="md:col-span-2">
@@ -130,13 +153,19 @@ export default function AdminSettingsPage() {
                     className="text-primary focus:ring-primary bg-background-dark size-5 rounded border-gray-600"
                     checked={formData.maintenanceMode}
                     onChange={(e) =>
-                      setFormData({ ...formData, maintenanceMode: e.target.checked })
+                      setFormData({
+                        ...formData,
+                        maintenanceMode: e.target.checked,
+                      })
                     }
                   />
                   <div>
-                    <span className="block font-bold text-white">Maintenance Mode</span>
+                    <span className="block font-bold text-white">
+                      Maintenance Mode
+                    </span>
                     <span className="text-text-secondary text-xs">
-                      Prevent regular users from logging in. Admins still have access.
+                      Prevent regular users from logging in. Admins still have
+                      access.
                     </span>
                   </div>
                 </label>
@@ -147,7 +176,9 @@ export default function AdminSettingsPage() {
           {/* Economy */}
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">paid</span>
+              <span className="material-symbols-outlined text-primary">
+                paid
+              </span>
               Economy Settings
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -158,7 +189,9 @@ export default function AdminSettingsPage() {
                 <input
                   className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
                   value={formData.currencyName}
-                  onChange={(e) => setFormData({ ...formData, currencyName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currencyName: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -169,7 +202,10 @@ export default function AdminSettingsPage() {
                   className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
                   value={formData.premiumCurrencyName}
                   onChange={(e) =>
-                    setFormData({ ...formData, premiumCurrencyName: e.target.value })
+                    setFormData({
+                      ...formData,
+                      premiumCurrencyName: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -183,7 +219,10 @@ export default function AdminSettingsPage() {
                     className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
                     value={formData.exchangeRate}
                     onChange={(e) =>
-                      setFormData({ ...formData, exchangeRate: parseInt(e.target.value) || 0 })
+                      setFormData({
+                        ...formData,
+                        exchangeRate: parseInt(e.target.value) ?? 0,
+                      })
                     }
                   />
                   <span className="font-bold text-white">Coins</span>
@@ -195,12 +234,15 @@ export default function AdminSettingsPage() {
           {/* Gacha Settings */}
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">casino</span>
+              <span className="material-symbols-outlined text-primary">
+                casino
+              </span>
               Gacha Settings
             </h3>
             <div className="bg-background-dark border-border-dark rounded-lg border p-4">
               <p className="text-text-secondary text-sm">
-                Default drop rates are configured per gacha event. Visit individual events to modify rates.
+                Default drop rates are configured per gacha event. Visit
+                individual events to modify rates.
               </p>
               <div className="mt-4 grid grid-cols-4 gap-4">
                 <div className="text-center">

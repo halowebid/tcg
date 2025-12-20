@@ -18,11 +18,11 @@ export const LandingScreen: React.FC = () => {
               <span className="material-symbols-outlined text-primary text-sm">
                 local_fire_department
               </span>
-              <span className="text-primary text-xs font-bold uppercase tracking-wider">
+              <span className="text-primary text-xs font-bold tracking-wider uppercase">
                 Season 5: Dragon's Awakening
               </span>
             </div>
-            <h1 className="font-display text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
               Unleash the Draconic Fire.
             </h1>
             <p className="text-lg font-light text-gray-200 sm:text-xl">
@@ -83,7 +83,7 @@ export const LandingScreen: React.FC = () => {
               className="bg-surface-dark border-border-dark hover:border-primary/50 group relative h-64 cursor-pointer overflow-hidden rounded-2xl border transition-all"
             >
               <div className="${pack.color} absolute inset-0 z-0 bg-gradient-to-br opacity-10 transition-opacity group-hover:opacity-20"></div>
-              <div className="absolute -bottom-12 -right-12 z-0 h-48 w-48 rounded-full bg-gradient-to-br from-white/5 to-white/0 blur-2xl"></div>
+              <div className="absolute -right-12 -bottom-12 z-0 h-48 w-48 rounded-full bg-gradient-to-br from-white/5 to-white/0 blur-2xl"></div>
 
               <div className="relative z-10 flex h-full items-center justify-between p-6">
                 <div className="flex h-full flex-col justify-center gap-4">
@@ -91,7 +91,7 @@ export const LandingScreen: React.FC = () => {
                     <span className="text-primary bg-primary/10 mb-2 inline-block rounded px-2 py-1 text-xs font-bold">
                       SERIES {i + 1}
                     </span>
-                    <h3 className="max-w-[120px] text-2xl font-bold leading-tight text-white">
+                    <h3 className="max-w-[120px] text-2xl leading-tight font-bold text-white">
                       {pack.title}
                     </h3>
                   </div>
@@ -105,7 +105,7 @@ export const LandingScreen: React.FC = () => {
                 <div className="relative h-full w-1/2">
                   <img
                     src={pack.img}
-                    className="absolute left-1/2 top-1/2 h-[120%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-2xl transition-all duration-500 group-hover:rotate-6 group-hover:scale-110"
+                    className="absolute top-1/2 left-1/2 h-[120%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6"
                   />
                 </div>
               </div>
@@ -124,7 +124,7 @@ export const LandingScreen: React.FC = () => {
               className="bg-surface-dark border-border-dark hover:border-primary/50 group cursor-pointer overflow-hidden rounded-xl border transition-all hover:-translate-y-1"
             >
               <div className="relative aspect-[3/4] overflow-hidden bg-[#2d241b]">
-                <div className="absolute left-2 top-2 z-10 rounded border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
+                <div className="absolute top-2 left-2 z-10 rounded border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
                   #{1000 + item}
                 </div>
                 <img
@@ -216,17 +216,17 @@ export const MarketplaceScreen: React.FC = () => {
         <div className="bg-surface-dark relative mb-8 flex min-h-[300px] items-center overflow-hidden rounded-2xl">
           <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
           <div
-            className="absolute right-0 top-0 h-full w-3/4 bg-cover bg-center opacity-80"
+            className="absolute top-0 right-0 h-full w-3/4 bg-cover bg-center opacity-80"
             style={{
               backgroundImage:
                 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD56GECvrND1qO0VJ6sTBopfw_-ERkKWrs_EWdjQffPV9-TJGhrFJxurNdP8ygteM0U2pYfXTgsiiXnqUJPTN8cKWYuaux1xydiQKk_9bUtrV_lqMYHIWkYlxb6drzmsiTQAitkat1Ngoo4gzDXHaNHY0R7QEcKiwzQXppBuUAe2WmvMhotAZudm7AMoqJ59NBh6rrbulhSy2r6GJj8L6e7I805btVQDc6w56Iwi1KovYVbi5P6T-56prw4bDkPCgNfVjXjIdo_Q0mk")',
             }}
           ></div>
           <div className="relative z-20 p-8 md:w-1/2 md:p-12">
-            <span className="bg-primary/20 text-primary mb-2 inline-block rounded px-2 py-1 text-xs font-bold uppercase tracking-wider">
+            <span className="bg-primary/20 text-primary mb-2 inline-block rounded px-2 py-1 text-xs font-bold tracking-wider uppercase">
               New Drop
             </span>
-            <h1 className="mb-4 text-3xl font-bold leading-tight text-white drop-shadow-lg sm:text-4xl">
+            <h1 className="mb-4 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl">
               Unlock the Future of Cards
             </h1>
             <button className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105">
@@ -237,19 +237,19 @@ export const MarketplaceScreen: React.FC = () => {
         </div>
 
         <div className="no-scrollbar mb-4 flex items-center gap-4 overflow-x-auto pb-2">
-          <button className="bg-primary text-background-dark whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold">
+          <button className="bg-primary text-background-dark rounded-lg px-4 py-2 text-sm font-bold whitespace-nowrap">
             All Cards
           </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary whitespace-nowrap rounded-lg border px-4 py-2 text-sm hover:text-white">
+          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
             Legendary
           </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary whitespace-nowrap rounded-lg border px-4 py-2 text-sm hover:text-white">
+          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
             Epic
           </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary whitespace-nowrap rounded-lg border px-4 py-2 text-sm hover:text-white">
+          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
             Rare
           </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary whitespace-nowrap rounded-lg border px-4 py-2 text-sm hover:text-white">
+          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
             Common
           </button>
         </div>
@@ -262,13 +262,13 @@ export const MarketplaceScreen: React.FC = () => {
             >
               <div className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden bg-[#2d241b] p-4">
                 <div
-                  className={`absolute left-3 top-3 z-10 rounded-md border px-2 py-1 text-xs font-bold backdrop-blur-md ${card.tag}`}
+                  className={`absolute top-3 left-3 z-10 rounded-md border px-2 py-1 text-xs font-bold backdrop-blur-md ${card.tag}`}
                 >
                   {card.rarity}
                 </div>
                 <img
                   src={card.img}
-                  className="h-full object-contain shadow-2xl transition-transform duration-500 group-hover:rotate-2 group-hover:scale-110"
+                  className="h-full object-contain shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
                 />
               </div>
               <div className="flex flex-col p-4">
@@ -319,7 +319,7 @@ export const ProductDetailScreen: React.FC = () => {
         <div className="flex flex-col lg:col-span-5">
           <div className="border-border-dark mb-6 border-b pb-6">
             <div className="mb-3 flex items-center gap-3">
-              <span className="bg-primary/20 text-primary border-primary/20 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider">
+              <span className="bg-primary/20 text-primary border-primary/20 rounded-full border px-3 py-1 text-xs font-bold tracking-wider uppercase">
                 Legendary
               </span>
             </div>
@@ -330,7 +330,7 @@ export const ProductDetailScreen: React.FC = () => {
           </div>
           <div className="mb-8 flex flex-col gap-4">
             <div className="border-primary/30 relative flex items-center justify-between overflow-hidden rounded-xl border bg-gradient-to-br from-[#3d2c1e] to-[#2a221b] p-5">
-              <span className="material-symbols-outlined text-primary absolute right-[-20px] top-[-20px] rotate-12 text-9xl opacity-10">
+              <span className="material-symbols-outlined text-primary absolute top-[-20px] right-[-20px] rotate-12 text-9xl opacity-10">
                 casino
               </span>
               <div className="relative z-10">
@@ -394,7 +394,7 @@ export const GachaPullScreen: React.FC = () => {
       <div className="flex max-w-[1024px] flex-1 flex-col gap-12">
         <section className="bg-surface-dark border-border-dark relative flex min-h-[600px] items-center justify-center overflow-hidden rounded-3xl border shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-b from-[#2a221b] to-[#181411]"></div>
-          <div className="bg-primary/5 pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"></div>
+          <div className="bg-primary/5 pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"></div>
 
           <div className="relative z-10 flex w-full flex-col items-center gap-12 p-8 md:flex-row">
             <div className="flex flex-1 justify-center">
@@ -408,11 +408,11 @@ export const GachaPullScreen: React.FC = () => {
             </div>
             <div className="flex-1 text-center md:text-left">
               <div className="mb-4 flex items-center justify-center gap-2 md:justify-start">
-                <span className="bg-primary/10 text-primary border-primary/20 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                <span className="bg-primary/10 text-primary border-primary/20 rounded-full border px-3 py-1 text-xs font-bold tracking-wider uppercase">
                   Season 1
                 </span>
               </div>
-              <h1 className="mb-4 text-5xl font-black leading-none text-white md:text-6xl">
+              <h1 className="mb-4 text-5xl leading-none font-black text-white md:text-6xl">
                 Cosmic <br />
                 <span className="from-primary bg-gradient-to-r to-yellow-400 bg-clip-text text-transparent">
                   Legends
@@ -531,7 +531,7 @@ export const CollectionScreen: React.FC = () => {
               className="bg-surface-dark border-border-dark hover:border-primary group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg"
             >
               <div className="relative aspect-[3/4] overflow-hidden bg-gray-800">
-                <div className="absolute left-2 top-2 z-10 flex gap-1">
+                <div className="absolute top-2 left-2 z-10 flex gap-1">
                   <span
                     className={`${item.color.includes("gradient") ? "bg-gradient-to-r" : ""} ${item.color} rounded px-2 py-0.5 text-[10px] font-bold text-white`}
                   >
@@ -675,7 +675,7 @@ export const UserProfileScreen: React.FC = () => {
                   'url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9JRJLfT8oZa5JAJj2RtM6Xr6jeQgV7RVPodUQoE0qN8VYw2oOPpSWbjOBPi2qsZLdsFWUiL4P0dlX9ofljHmTtsvyaQRvK0hETMomBNzmgjayb_5d81Md9HNR9Z411FaiJOhT5HGw3C_kcIdiMbn4HMvQyFPZw0h7_E8GzQAIjupV8fR1pxSeGMEBltqDTVLLtn3-BjSRPBQ2YvxFnEzYUnh-Hua9vZK_PhtZksTdlpsnVdlQ-j-OW8AJlOef4t8_EEc-gU9fR3uz")',
               }}
             ></div>
-            <button className="bg-primary absolute bottom-0 right-0 rounded-full p-2 text-white">
+            <button className="bg-primary absolute right-0 bottom-0 rounded-full p-2 text-white">
               <span className="material-symbols-outlined text-sm">edit</span>
             </button>
           </div>
@@ -748,7 +748,7 @@ export const UserMilestonesScreen: React.FC = () => {
           Collector Status
         </h1>
         <div className="bg-surface-dark border-border-dark relative mb-8 flex flex-col items-center gap-8 overflow-hidden rounded-xl border p-8 md:flex-row">
-          <div className="bg-primary pointer-events-none absolute right-0 top-0 h-full w-1/2 rounded-l-full opacity-10"></div>
+          <div className="bg-primary pointer-events-none absolute top-0 right-0 h-full w-1/2 rounded-l-full opacity-10"></div>
           <div className="border-primary/20 bg-background-dark relative z-10 flex h-32 w-32 items-center justify-center rounded-full border-4">
             <span className="material-symbols-outlined text-primary text-6xl">
               military_tech
@@ -915,7 +915,7 @@ export const AuthScreen: React.FC = () => {
   return (
     <div className="relative flex flex-1 items-center justify-center overflow-hidden p-4">
       <div className="pointer-events-none absolute inset-0">
-        <div className="bg-primary/5 absolute left-1/4 top-1/4 h-96 w-96 rounded-full blur-3xl"></div>
+        <div className="bg-primary/5 absolute top-1/4 left-1/4 h-96 w-96 rounded-full blur-3xl"></div>
       </div>
       <div className="bg-surface-dark border-border-dark relative z-10 w-full max-w-md overflow-hidden rounded-xl border shadow-2xl">
         <div className="from-primary h-1.5 w-full bg-gradient-to-r to-orange-400"></div>
@@ -932,11 +932,11 @@ export const AuthScreen: React.FC = () => {
                 Email
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute left-3 top-2.5">
+                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
                   mail
                 </span>
                 <input
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pl-10 pr-4 text-white outline-none focus:ring-1"
+                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
                   placeholder="collector@gacha.com"
                 />
               </div>
@@ -946,12 +946,12 @@ export const AuthScreen: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute left-3 top-2.5">
+                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
                   lock
                 </span>
                 <input
                   type="password"
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pl-10 pr-4 text-white outline-none focus:ring-1"
+                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
                   placeholder="••••••••"
                 />
               </div>

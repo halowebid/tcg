@@ -1,13 +1,21 @@
-import { router, adminProcedure } from "../trpc"
-import { userProfiles, pullHistory, transactions, gachaEvents } from "@/lib/db/schema"
-import { sql, desc, eq } from "drizzle-orm"
-import { getCached, setCached } from "@/lib/cache/redis"
-import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { desc, eq, sql } from "drizzle-orm"
 import { z } from "zod"
+
+import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { getCached, setCached } from "@/lib/cache/redis"
+import {
+  gachaEvents,
+  pullHistory,
+  transactions,
+  userProfiles,
+} from "@/lib/db/schema"
+import { adminProcedure, router } from "../trpc"
 
 export const adminRouter = router({
   getDashboardStats: adminProcedure.query(async ({ ctx }) => {
-    const cached = await getCached<typeof stats>(CACHE_KEYS.ADMIN_DASHBOARD_STATS)
+    const cached = await getCached<typeof stats>(
+      CACHE_KEYS.ADMIN_DASHBOARD_STATS,
+    )
     if (cached) return cached
 
     const [totalUsers, totalPulls, totalRevenue] = await Promise.all([
@@ -22,12 +30,16 @@ export const adminRouter = router({
     ])
 
     const stats = {
-      totalUsers: Number(totalUsers[0]?.count || 0),
-      totalPulls: Number(totalPulls[0]?.count || 0),
-      totalRevenue: Number(totalRevenue[0]?.total || 0),
+      totalUsers: Number(totalUsers[0]?.count ?? 0),
+      totalPulls: Number(totalPulls[0]?.count ?? 0),
+      totalRevenue: Number(totalRevenue[0]?.total ?? 0),
     }
 
-    await setCached(CACHE_KEYS.ADMIN_DASHBOARD_STATS, stats, CACHE_TTL.ADMIN_DASHBOARD)
+    await setCached(
+      CACHE_KEYS.ADMIN_DASHBOARD_STATS,
+      stats,
+      CACHE_TTL.ADMIN_DASHBOARD,
+    )
     return stats
   }),
 
@@ -36,7 +48,7 @@ export const adminRouter = router({
       z.object({
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(100).default(20),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const users = await ctx.db.query.userProfiles.findMany({
@@ -69,7 +81,7 @@ export const adminRouter = router({
         coinsChange: z.number().int(),
         gemsChange: z.number().int(),
         reason: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
@@ -111,7 +123,7 @@ export const adminRouter = router({
       z.object({
         userId: z.string(),
         limit: z.number().min(1).max(100).default(20),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const userTransactions = await ctx.db.query.transactions.findMany({
@@ -158,13 +170,16 @@ export const adminRouter = router({
         rareRate: z.string(),
         epicRate: z.string(),
         legendaryRate: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [event] = await ctx.db.insert(gachaEvents).values({
-        ...input,
-        isActive: true,
-      }).returning()
+      const [event] = await ctx.db
+        .insert(gachaEvents)
+        .values({
+          ...input,
+          isActive: true,
+        })
+        .returning()
 
       return event
     }),
@@ -185,7 +200,7 @@ export const adminRouter = router({
         epicRate: z.string().optional(),
         legendaryRate: z.string().optional(),
         isActive: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input

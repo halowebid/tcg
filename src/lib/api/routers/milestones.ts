@@ -1,7 +1,8 @@
+import { and, eq, sql } from "drizzle-orm"
 import { z } from "zod"
-import { router, protectedProcedure, adminProcedure } from "../trpc"
+
 import { milestones, userMilestones, userProfiles } from "@/lib/db/schema"
-import { eq, and, sql } from "drizzle-orm"
+import { adminProcedure, protectedProcedure, router } from "../trpc"
 
 export const milestonesRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -34,7 +35,7 @@ export const milestonesRouter = router({
         ctx.db.query.userMilestones.findFirst({
           where: and(
             eq(userMilestones.userId, userId),
-            eq(userMilestones.milestoneId, input.milestoneId)
+            eq(userMilestones.milestoneId, input.milestoneId),
           ),
         }),
         ctx.db.query.milestones.findFirst({
@@ -64,8 +65,8 @@ export const milestonesRouter = router({
           .where(
             and(
               eq(userMilestones.userId, userId),
-              eq(userMilestones.milestoneId, input.milestoneId)
-            )
+              eq(userMilestones.milestoneId, input.milestoneId),
+            ),
           )
 
         if (milestone.rewardType === "coins") {
@@ -108,10 +109,13 @@ export const milestonesRouter = router({
         requirementValue: z.number().int(),
         rewardType: z.enum(["coins", "gems", "badge", "frame", "title"]),
         rewardValue: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [milestone] = await ctx.db.insert(milestones).values(input).returning()
+      const [milestone] = await ctx.db
+        .insert(milestones)
+        .values(input)
+        .returning()
 
       return milestone
     }),
@@ -133,10 +137,12 @@ export const milestonesRouter = router({
           ])
           .optional(),
         requirementValue: z.number().int().optional(),
-        rewardType: z.enum(["coins", "gems", "badge", "frame", "title"]).optional(),
+        rewardType: z
+          .enum(["coins", "gems", "badge", "frame", "title"])
+          .optional(),
         rewardValue: z.string().optional(),
         isActive: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input

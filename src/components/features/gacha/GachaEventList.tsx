@@ -32,12 +32,14 @@ export function GachaEventList({
 }: GachaEventListProps) {
   if (events.length === 0) {
     return (
-      <p className="text-center text-gray-600">No active gacha events at the moment.</p>
+      <p className="text-center text-gray-600">
+        No active gacha events at the moment.
+      </p>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <GachaEventCard
           key={event.id}

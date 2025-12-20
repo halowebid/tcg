@@ -1,19 +1,29 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { trpc } from "@/lib/trpc/client"
+
 const cardSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  description: z.string().max(500, "Description must be less than 500 characters").optional(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description must be less than 500 characters")
+    .optional(),
   imageUrl: z.string().url("Must be a valid URL"),
   rarity: z.enum(["common", "rare", "epic", "legendary"]),
   attackPower: z.number().int().min(0, "Attack power must be 0 or greater"),
   defensePower: z.number().int().min(0, "Defense power must be 0 or greater"),
-  marketValue: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number").optional(),
+  marketValue: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number")
+    .optional(),
 })
 
 export default function AdminEditCardPage() {
@@ -37,12 +47,12 @@ export default function AdminEditCardPage() {
     if (card) {
       setFormData({
         name: card.name,
-        description: card.description || "",
+        description: card.description ?? "",
         imageUrl: card.imageUrl,
         rarity: card.rarity,
-        attackPower: card.attackPower || 0,
-        defensePower: card.defensePower || 0,
-        marketValue: card.marketValue || "",
+        attackPower: card.attackPower ?? 0,
+        defensePower: card.defensePower ?? 0,
+        marketValue: card.marketValue ?? "",
       })
     }
   }, [card])
@@ -59,7 +69,7 @@ export default function AdminEditCardPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate form data
     const result = cardSchema.safeParse(formData)
 
@@ -125,10 +135,14 @@ export default function AdminEditCardPage() {
         <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-6">
           {/* Same form fields as create page */}
           <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
-            <h3 className="mb-4 text-lg font-bold text-white">Basic Information</h3>
+            <h3 className="mb-4 text-lg font-bold text-white">
+              Basic Information
+            </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-white">Card Name</label>
+                <label className="text-sm font-medium text-white">
+                  Card Name
+                </label>
                 <input
                   className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
                     errors["name"] ? "border-red-500" : ""
@@ -143,7 +157,9 @@ export default function AdminEditCardPage() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Image URL</label>
+                <label className="text-sm font-medium text-white">
+                  Image URL
+                </label>
                 <input
                   className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
                     errors["imageUrl"] ? "border-red-500" : ""
@@ -154,7 +170,9 @@ export default function AdminEditCardPage() {
                   }
                 />
                 {errors["imageUrl"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["imageUrl"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["imageUrl"]}
+                  </p>
                 )}
               </div>
               <div>
@@ -180,9 +198,11 @@ export default function AdminEditCardPage() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Description</label>
+                <label className="text-sm font-medium text-white">
+                  Description
+                </label>
                 <textarea
-                  className="bg-background-dark border-border-dark focus:border-primary min-h-[120px] mt-1 w-full rounded-xl border p-4 text-white outline-none"
+                  className="bg-background-dark border-border-dark focus:border-primary mt-1 min-h-[120px] w-full rounded-xl border p-4 text-white outline-none"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -196,7 +216,9 @@ export default function AdminEditCardPage() {
             <h3 className="mb-4 text-lg font-bold text-white">Stats & Value</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-white">Attack Power</label>
+                <label className="text-sm font-medium text-white">
+                  Attack Power
+                </label>
                 <input
                   type="number"
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
@@ -204,13 +226,15 @@ export default function AdminEditCardPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      attackPower: parseInt(e.target.value) || 0,
+                      attackPower: parseInt(e.target.value) ?? 0,
                     })
                   }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Defense Power</label>
+                <label className="text-sm font-medium text-white">
+                  Defense Power
+                </label>
                 <input
                   type="number"
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
@@ -218,13 +242,15 @@ export default function AdminEditCardPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      defensePower: parseInt(e.target.value) || 0,
+                      defensePower: parseInt(e.target.value) ?? 0,
                     })
                   }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-white">Market Value (Coins)</label>
+                <label className="text-sm font-medium text-white">
+                  Market Value (Coins)
+                </label>
                 <input
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
                   value={formData.marketValue}

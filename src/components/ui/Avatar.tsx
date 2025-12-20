@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef, forwardRef } from "react"
+import { forwardRef, type ComponentPropsWithoutRef } from "react"
 
 interface AvatarProps extends ComponentPropsWithoutRef<"div"> {
   src?: string
@@ -15,10 +15,14 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         {...props}
       >
         {src ? (
-          <img src={src} alt={alt || "Avatar"} className="h-full w-full object-cover" />
+          <img
+            src={src}
+            alt={alt ?? "Avatar"}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <span className="text-sm font-medium text-gray-600">
-            {fallback || alt?.charAt(0).toUpperCase() || "?"}
+            {fallback ?? alt?.charAt(0).toUpperCase() ?? "?"}
           </span>
         )}
       </div>

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { DashboardHeader } from "@/components/Headers"
 import { toast } from "sonner"
 import { z } from "zod"
+
+import { DashboardHeader } from "@/components/Headers"
+import { trpc } from "@/lib/trpc/client"
 
 const eventSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -39,7 +40,11 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const { data: event, isLoading, error } = trpc.admin.getEventById.useQuery({ id: params.id })
+  const {
+    data: event,
+    isLoading,
+    error,
+  } = trpc.admin.getEventById.useQuery({ id: params.id })
 
   const updateMutation = trpc.admin.updateEvent.useMutation({
     onSuccess: () => {
@@ -56,12 +61,12 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     if (event) {
       setFormData({
         name: event.name,
-        description: event.description || "",
-        bannerUrl: event.bannerUrl || "",
+        description: event.description ?? "",
+        bannerUrl: event.bannerUrl ?? "",
         startDate: new Date(event.startDate).toISOString().slice(0, 16),
         endDate: new Date(event.endDate).toISOString().slice(0, 16),
         packPriceCoins: event.packPriceCoins,
-        packPriceGems: event.packPriceGems || 0,
+        packPriceGems: event.packPriceGems ?? 0,
         commonRate: event.commonRate,
         rareRate: event.rareRate,
         epicRate: event.epicRate,
@@ -89,14 +94,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     }
 
     // Validate drop rates sum to 1.0000
-    const total = 
+    const total =
       parseFloat(formData.commonRate) +
       parseFloat(formData.rareRate) +
       parseFloat(formData.epicRate) +
       parseFloat(formData.legendaryRate)
 
     if (Math.abs(total - 1.0) > 0.0001) {
-      toast.error(`Drop rates must sum to 1.0000 (currently: ${total.toFixed(4)})`)
+      toast.error(
+        `Drop rates must sum to 1.0000 (currently: ${total.toFixed(4)})`,
+      )
       return
     }
 
@@ -113,7 +120,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading event...</p>
         </div>
       </div>
@@ -145,7 +152,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
             onClick={() => router.push("/admin/events")}
             className="bg-surface-highlight hover:bg-surface-highlight/80 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white"
           >
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            <span className="material-symbols-outlined text-sm">
+              arrow_back
+            </span>
             Back to Events
           </button>
         }
@@ -163,7 +172,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     errors["name"] ? "border-red-500" : ""
                   }`}
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="e.g., Summer Festival Banner"
                 />
                 {errors["name"] && (
@@ -180,11 +191,15 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     errors["description"] ? "border-red-500" : ""
                   }`}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Event description..."
                 />
                 {errors["description"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["description"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["description"]}
+                  </p>
                 )}
               </div>
               <div className="md:col-span-2">
@@ -197,11 +212,15 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     errors["bannerUrl"] ? "border-red-500" : ""
                   }`}
                   value={formData.bannerUrl}
-                  onChange={(e) => setFormData({ ...formData, bannerUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bannerUrl: e.target.value })
+                  }
                   placeholder="https://example.com/banner.jpg"
                 />
                 {errors["bannerUrl"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["bannerUrl"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["bannerUrl"]}
+                  </p>
                 )}
               </div>
               <div>
@@ -212,7 +231,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   type="datetime-local"
                   className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -223,7 +244,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   type="datetime-local"
                   className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endDate: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -236,10 +259,17 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     errors["packPriceCoins"] ? "border-red-500" : ""
                   }`}
                   value={formData.packPriceCoins}
-                  onChange={(e) => setFormData({ ...formData, packPriceCoins: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      packPriceCoins: parseInt(e.target.value) ?? 0,
+                    })
+                  }
                 />
                 {errors["packPriceCoins"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["packPriceCoins"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["packPriceCoins"]}
+                  </p>
                 )}
               </div>
               <div>
@@ -252,10 +282,17 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     errors["packPriceGems"] ? "border-red-500" : ""
                   }`}
                   value={formData.packPriceGems}
-                  onChange={(e) => setFormData({ ...formData, packPriceGems: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      packPriceGems: parseInt(e.target.value) ?? 0,
+                    })
+                  }
                 />
                 {errors["packPriceGems"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["packPriceGems"]}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors["packPriceGems"]}
+                  </p>
                 )}
               </div>
               <div className="md:col-span-2">
@@ -263,7 +300,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   <input
                     type="checkbox"
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isActive: e.target.checked })
+                    }
                     className="size-4 rounded"
                   />
                   Event is Active
@@ -272,67 +311,97 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="bg-background-dark rounded-lg p-4">
-              <h4 className="mb-4 text-sm font-bold text-white">Drop Rates (must sum to 1.0000)</h4>
+              <h4 className="mb-4 text-sm font-bold text-white">
+                Drop Rates (must sum to 1.0000)
+              </h4>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div>
-                  <label className="text-text-secondary mb-1 block text-xs">Common</label>
+                  <label className="text-text-secondary mb-1 block text-xs">
+                    Common
+                  </label>
                   <input
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
                       errors["commonRate"] ? "border-red-500" : ""
                     }`}
                     value={formData.commonRate}
-                    onChange={(e) => setFormData({ ...formData, commonRate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, commonRate: e.target.value })
+                    }
                   />
                   {errors["commonRate"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["commonRate"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["commonRate"]}
+                    </p>
                   )}
                 </div>
                 <div>
-                  <label className="text-text-secondary mb-1 block text-xs">Rare</label>
+                  <label className="text-text-secondary mb-1 block text-xs">
+                    Rare
+                  </label>
                   <input
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
                       errors["rareRate"] ? "border-red-500" : ""
                     }`}
                     value={formData.rareRate}
-                    onChange={(e) => setFormData({ ...formData, rareRate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, rareRate: e.target.value })
+                    }
                   />
                   {errors["rareRate"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["rareRate"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["rareRate"]}
+                    </p>
                   )}
                 </div>
                 <div>
-                  <label className="text-text-secondary mb-1 block text-xs">Epic</label>
+                  <label className="text-text-secondary mb-1 block text-xs">
+                    Epic
+                  </label>
                   <input
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
                       errors["epicRate"] ? "border-red-500" : ""
                     }`}
                     value={formData.epicRate}
-                    onChange={(e) => setFormData({ ...formData, epicRate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, epicRate: e.target.value })
+                    }
                   />
                   {errors["epicRate"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["epicRate"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["epicRate"]}
+                    </p>
                   )}
                 </div>
                 <div>
-                  <label className="text-text-secondary mb-1 block text-xs">Legendary</label>
+                  <label className="text-text-secondary mb-1 block text-xs">
+                    Legendary
+                  </label>
                   <input
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
                       errors["legendaryRate"] ? "border-red-500" : ""
                     }`}
                     value={formData.legendaryRate}
-                    onChange={(e) => setFormData({ ...formData, legendaryRate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        legendaryRate: e.target.value,
+                      })
+                    }
                   />
                   {errors["legendaryRate"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["legendaryRate"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["legendaryRate"]}
+                    </p>
                   )}
                 </div>
               </div>
               <p className="text-text-secondary mt-2 text-xs">
-                Current Sum: {(
-                  parseFloat(formData.commonRate || "0") +
-                  parseFloat(formData.rareRate || "0") +
-                  parseFloat(formData.epicRate || "0") +
-                  parseFloat(formData.legendaryRate || "0")
+                Current Sum:{" "}
+                {(
+                  parseFloat(formData.commonRate ?? "0") +
+                  parseFloat(formData.rareRate ?? "0") +
+                  parseFloat(formData.epicRate ?? "0") +
+                  parseFloat(formData.legendaryRate ?? "0")
                 ).toFixed(4)}
               </p>
             </div>

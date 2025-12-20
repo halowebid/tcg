@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { httpBatchLink, loggerLink } from "@trpc/client"
 import { createTRPCReact } from "@trpc/react-query"
@@ -29,7 +29,8 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
       links: [
         loggerLink({
           enabled: (op) =>
-            process.env["NODE_ENV"] === "development" ||
+            /* eslint-disable-next-line no-restricted-properties */
+            process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
         httpBatchLink({
@@ -42,7 +43,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           },
         }),
       ],
-    })
+    }),
   )
 
   return (
@@ -57,5 +58,6 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return window.location.origin
+  /* eslint-disable-next-line no-restricted-properties */
   return `http://localhost:${process.env["PORT"] ?? 3000}`
 }

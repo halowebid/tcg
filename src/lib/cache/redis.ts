@@ -1,6 +1,8 @@
 import Redis from "ioredis"
 
-const redis = new Redis(process.env["REDIS_URL"] || "redis://localhost:6379")
+/* eslint-disable no-restricted-properties */
+const redis = new Redis(process.env["REDIS_URL"] ?? "redis://localhost:6379")
+/* eslint-enable no-restricted-properties */
 
 redis.on("error", (error) => {
   console.error("Redis connection error:", error)
@@ -17,7 +19,7 @@ export async function getCached<T>(key: string): Promise<T | null> {
 export async function setCached<T>(
   key: string,
   value: T,
-  ttlSeconds?: number
+  ttlSeconds?: number,
 ): Promise<void> {
   const serialized = JSON.stringify(value)
   if (ttlSeconds) {

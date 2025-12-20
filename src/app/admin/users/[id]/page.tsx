@@ -2,10 +2,11 @@
 
 import React, { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
+import { toast } from "sonner"
+
 import { DashboardHeader } from "@/components/Headers"
 import { ConfirmModal } from "@/components/ui"
-import { toast } from "sonner"
+import { trpc } from "@/lib/trpc/client"
 
 export default function AdminUserEditPage() {
   const params = useParams()
@@ -17,8 +18,15 @@ export default function AdminUserEditPage() {
   const [reason, setReason] = useState("")
   const [banConfirm, setBanConfirm] = useState(false)
 
-  const { data: user, isLoading, error } = trpc.admin.getUserById.useQuery({ userId })
-  const { data: transactions } = trpc.admin.getUserTransactions.useQuery({ userId, limit: 20 })
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = trpc.admin.getUserById.useQuery({ userId })
+  const { data: transactions } = trpc.admin.getUserTransactions.useQuery({
+    userId,
+    limit: 20,
+  })
 
   const updateWalletMutation = trpc.admin.updateUserWallet.useMutation({
     onSuccess: () => {
@@ -35,7 +43,11 @@ export default function AdminUserEditPage() {
 
   const banMutation = trpc.admin.banUser.useMutation({
     onSuccess: () => {
-      toast.success(user?.isBanned ? "User unbanned successfully!" : "User banned successfully!")
+      toast.success(
+        user?.isBanned
+          ? "User unbanned successfully!"
+          : "User banned successfully!",
+      )
       setBanConfirm(false)
       window.location.reload()
     },
@@ -51,8 +63,8 @@ export default function AdminUserEditPage() {
       return
     }
 
-    const coins = type === "coins" ? parseInt(coinsChange) || 0 : 0
-    const gems = type === "gems" ? parseInt(gemsChange) || 0 : 0
+    const coins = type === "coins" ? (parseInt(coinsChange) ?? 0) : 0
+    const gems = type === "gems" ? (parseInt(gemsChange) ?? 0) : 0
 
     if (coins === 0 && gems === 0) {
       toast.error("Please enter a valid amount")
@@ -82,7 +94,7 @@ export default function AdminUserEditPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading user...</p>
         </div>
       </div>
@@ -94,7 +106,7 @@ export default function AdminUserEditPage() {
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <p className="mb-4 text-lg text-red-500">
-            {error?.message || "User not found"}
+            {error?.message ?? "User not found"}
           </p>
           <button
             onClick={() => router.push("/admin")}
@@ -111,7 +123,7 @@ export default function AdminUserEditPage() {
     <div className="flex h-full flex-col overflow-hidden">
       <DashboardHeader
         title="User Management"
-        breadcrumbs={["Dashboard", "Users", user.username || "User"]}
+        breadcrumbs={["Dashboard", "Users", user.username ?? "User"]}
         actions={
           <div className="flex gap-2">
             <button
@@ -139,18 +151,27 @@ export default function AdminUserEditPage() {
               <div
                 className="border-primary mb-4 size-24 rounded-full border-4 bg-cover bg-center"
                 style={{
-                  backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.userId + '")',
+                  backgroundImage:
+                    'url("https://api.dicebear.com/7.x/avataaars/svg?seed=' +
+                    user.userId +
+                    '")',
                 }}
               ></div>
-              <h2 className="text-xl font-bold text-white">{user.username || "Anonymous"}</h2>
+              <h2 className="text-xl font-bold text-white">
+                {user.username ?? "Anonymous"}
+              </h2>
               <p className="text-text-secondary text-sm">ID: {user.userId}</p>
               <div className="border-border-dark mt-4 grid w-full grid-cols-2 gap-2 border-t pt-4 text-center">
                 <div>
-                  <span className="block font-bold text-white">{user.level}</span>
+                  <span className="block font-bold text-white">
+                    {user.level}
+                  </span>
                   <span className="text-text-secondary text-xs">Level</span>
                 </div>
                 <div>
-                  <span className={`block font-bold ${user.isBanned ? "text-red-500" : "text-green-500"}`}>
+                  <span
+                    className={`block font-bold ${user.isBanned ? "text-red-500" : "text-green-500"}`}
+                  >
                     {user.isBanned ? "Banned" : "Active"}
                   </span>
                   <span className="text-text-secondary text-xs">Status</span>
@@ -212,7 +233,9 @@ export default function AdminUserEditPage() {
                       monetization_on
                     </span>
                   </div>
-                  <p className="mb-4 text-2xl font-bold text-white">{user.coins.toLocaleString()}</p>
+                  <p className="mb-4 text-2xl font-bold text-white">
+                    {user.coins.toLocaleString()}
+                  </p>
                   <div className="flex gap-2">
                     <input
                       className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
@@ -237,7 +260,9 @@ export default function AdminUserEditPage() {
                       diamond
                     </span>
                   </div>
-                  <p className="mb-4 text-2xl font-bold text-white">{user.gems.toLocaleString()}</p>
+                  <p className="mb-4 text-2xl font-bold text-white">
+                    {user.gems.toLocaleString()}
+                  </p>
                   <div className="flex gap-2">
                     <input
                       className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
@@ -274,19 +299,33 @@ export default function AdminUserEditPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-background-dark border-border-dark rounded-xl border p-4">
                   <p className="text-text-secondary text-xs uppercase">Level</p>
-                  <p className="mt-1 text-2xl font-bold text-white">{user.level}</p>
+                  <p className="mt-1 text-2xl font-bold text-white">
+                    {user.level}
+                  </p>
                 </div>
                 <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <p className="text-text-secondary text-xs uppercase">Experience</p>
-                  <p className="mt-1 text-2xl font-bold text-white">{user.exp.toLocaleString()}</p>
+                  <p className="text-text-secondary text-xs uppercase">
+                    Experience
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-white">
+                    {user.exp.toLocaleString()}
+                  </p>
                 </div>
                 <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <p className="text-text-secondary text-xs uppercase">Total Coins</p>
-                  <p className="mt-1 text-2xl font-bold text-white">{user.coins.toLocaleString()}</p>
+                  <p className="text-text-secondary text-xs uppercase">
+                    Total Coins
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-white">
+                    {user.coins.toLocaleString()}
+                  </p>
                 </div>
                 <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <p className="text-text-secondary text-xs uppercase">Total Gems</p>
-                  <p className="mt-1 text-2xl font-bold text-white">{user.gems.toLocaleString()}</p>
+                  <p className="text-text-secondary text-xs uppercase">
+                    Total Gems
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-white">
+                    {user.gems.toLocaleString()}
+                  </p>
                 </div>
               </div>
             </div>
@@ -307,13 +346,19 @@ export default function AdminUserEditPage() {
                     >
                       <div className="flex-1">
                         <div className="mb-1 flex items-center gap-2">
-                          <span className={`text-xs font-bold uppercase ${
-                            tx.type === "admin_adjustment" ? "text-purple-400" :
-                            tx.type === "gacha_pull" ? "text-blue-400" :
-                            tx.type === "card_purchase" ? "text-green-400" :
-                            tx.type === "milestone_reward" ? "text-yellow-400" :
-                            "text-gray-400"
-                          }`}>
+                          <span
+                            className={`text-xs font-bold uppercase ${
+                              tx.type === "admin_adjustment"
+                                ? "text-purple-400"
+                                : tx.type === "gacha_pull"
+                                  ? "text-blue-400"
+                                  : tx.type === "card_purchase"
+                                    ? "text-green-400"
+                                    : tx.type === "milestone_reward"
+                                      ? "text-yellow-400"
+                                      : "text-gray-400"
+                            }`}
+                          >
                             {tx.type.replace(/_/g, " ")}
                           </span>
                           <span className="text-text-secondary text-xs">
@@ -321,22 +366,32 @@ export default function AdminUserEditPage() {
                           </span>
                         </div>
                         <p className="text-text-secondary text-sm">
-                          {tx.description || "No description"}
+                          {tx.description ?? "No description"}
                         </p>
                       </div>
                       <div className="ml-4 text-right">
                         {tx.coinsChange !== 0 && (
-                          <div className={`text-sm font-bold ${
-                            tx.coinsChange > 0 ? "text-green-400" : "text-red-400"
-                          }`}>
-                            {tx.coinsChange > 0 ? "+" : ""}{tx.coinsChange} Coins
+                          <div
+                            className={`text-sm font-bold ${
+                              tx.coinsChange > 0
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {tx.coinsChange > 0 ? "+" : ""}
+                            {tx.coinsChange} Coins
                           </div>
                         )}
                         {tx.gemsChange !== 0 && (
-                          <div className={`text-sm font-bold ${
-                            tx.gemsChange > 0 ? "text-green-400" : "text-red-400"
-                          }`}>
-                            {tx.gemsChange > 0 ? "+" : ""}{tx.gemsChange} Gems
+                          <div
+                            className={`text-sm font-bold ${
+                              tx.gemsChange > 0
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {tx.gemsChange > 0 ? "+" : ""}
+                            {tx.gemsChange} Gems
                           </div>
                         )}
                       </div>
@@ -344,7 +399,9 @@ export default function AdminUserEditPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-text-secondary text-center py-8">No activity yet</p>
+                <p className="text-text-secondary py-8 text-center">
+                  No activity yet
+                </p>
               )}
             </div>
           </div>
@@ -355,13 +412,13 @@ export default function AdminUserEditPage() {
         isOpen={banConfirm}
         onClose={() => setBanConfirm(false)}
         onConfirm={confirmBan}
-        title={user?.isBanned ? "Unban User" : "Ban User"}
+        title={user.isBanned ? "Unban User" : "Ban User"}
         message={
-          user?.isBanned
+          user.isBanned
             ? "Are you sure you want to unban this user? They will regain access to the platform."
             : "Are you sure you want to ban this user? They will lose access to the platform."
         }
-        confirmText={user?.isBanned ? "Unban" : "Ban"}
+        confirmText={user.isBanned ? "Unban" : "Ban"}
         cancelText="Cancel"
       />
     </div>

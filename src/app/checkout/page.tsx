@@ -2,9 +2,10 @@
 
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { ConfirmModal } from "@/components/ui"
 import { toast } from "sonner"
+
+import { ConfirmModal } from "@/components/ui"
+import { trpc } from "@/lib/trpc/client"
 
 function CheckoutContent() {
   const router = useRouter()
@@ -13,8 +14,8 @@ function CheckoutContent() {
   const [showOrderConfirm, setShowOrderConfirm] = useState(false)
 
   const { data: card, isLoading } = trpc.cards.getById.useQuery(
-    { id: cardId || "" },
-    { enabled: !!cardId }
+    { id: cardId ?? "" },
+    { enabled: !!cardId },
   )
   const { data: wallet } = trpc.users.getWallet.useQuery()
 
@@ -34,7 +35,9 @@ function CheckoutContent() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h2 className="mb-2 text-xl font-bold text-white">No Items in Cart</h2>
+          <h2 className="mb-2 text-xl font-bold text-white">
+            No Items in Cart
+          </h2>
           <p className="text-text-secondary mb-4">
             Add items to your cart to checkout
           </p>
@@ -91,7 +94,7 @@ function CheckoutContent() {
         variant="primary"
         isLoading={purchaseMutation.isPending}
       />
-      
+
       <div className="flex w-full max-w-[1200px] flex-col gap-12 lg:flex-row">
         <div className="flex-1">
           <h1 className="mb-8 text-3xl font-bold text-white">Checkout</h1>
@@ -178,11 +181,13 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-text-secondary">Loading checkout...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-text-secondary">Loading checkout...</div>
+        </div>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   )

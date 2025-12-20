@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
-import { TRPCReactProvider } from "@/lib/trpc/client"
+
 import { PublicHeader } from "@/components/Headers"
 import { Toaster } from "@/components/ui"
+import { TRPCReactProvider } from "@/lib/trpc/client"
+
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -18,7 +20,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
@@ -31,9 +37,7 @@ export default function RootLayout({
       <body className="bg-background-dark text-white">
         <TRPCReactProvider>
           <PublicHeader />
-          <main className="custom-scrollbar overflow-y-auto">
-            {children}
-          </main>
+          <main className="custom-scrollbar overflow-y-auto">{children}</main>
           <Toaster />
         </TRPCReactProvider>
       </body>

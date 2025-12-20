@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { ConfirmModal } from "@/components/ui"
 import { toast } from "sonner"
+
+import { ConfirmModal } from "@/components/ui"
+import { trpc } from "@/lib/trpc/client"
 
 export default function MarketplaceDetailPage() {
   const params = useParams()
@@ -12,13 +13,17 @@ export default function MarketplaceDetailPage() {
   const cardId = params["id"] as string
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false)
 
-  const { data: card, isLoading, error } = trpc.cards.getById.useQuery({ id: cardId })
+  const {
+    data: card,
+    isLoading,
+    error,
+  } = trpc.cards.getById.useQuery({ id: cardId })
   const { data: wallet } = trpc.users.getWallet.useQuery()
   const { data: relatedCards } = trpc.marketplace.getRelatedCards.useQuery(
     { cardId, limit: 4 },
-    { enabled: !!cardId }
+    { enabled: !!cardId },
   )
-  
+
   const purchaseMutation = trpc.marketplace.purchase.useMutation({
     onSuccess: () => {
       setShowPurchaseConfirm(false)
@@ -82,7 +87,7 @@ export default function MarketplaceDetailPage() {
         variant="primary"
         isLoading={purchaseMutation.isPending}
       />
-      
+
       <div className="grid w-full max-w-[1200px] grid-cols-1 gap-12 lg:grid-cols-12">
         {/* Left: Image */}
         <div className="flex flex-col gap-6 lg:col-span-7">
@@ -101,7 +106,7 @@ export default function MarketplaceDetailPage() {
           <div className="border-border-dark mb-6 border-b pb-6">
             <div className="mb-3 flex items-center gap-3">
               <span
-                className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wider uppercase ${
                   card.rarity === "legendary"
                     ? "bg-primary/20 text-primary border-primary/20"
                     : card.rarity === "epic"
@@ -122,7 +127,7 @@ export default function MarketplaceDetailPage() {
 
           <div className="mb-8 flex flex-col gap-4">
             <div className="border-primary/30 relative flex items-center justify-between overflow-hidden rounded-xl border bg-gradient-to-br from-[#3d2c1e] to-[#2a221b] p-5">
-              <span className="material-symbols-outlined text-primary absolute right-[-20px] top-[-20px] rotate-12 text-9xl opacity-10">
+              <span className="material-symbols-outlined text-primary absolute top-[-20px] right-[-20px] rotate-12 text-9xl opacity-10">
                 monetization_on
               </span>
               <div className="relative z-10">
@@ -139,7 +144,9 @@ export default function MarketplaceDetailPage() {
                 className="bg-primary hover:bg-primary-hover relative z-10 flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white shadow-lg disabled:opacity-50"
               >
                 <span className="material-symbols-outlined">
-                  {purchaseMutation.isPending ? "hourglass_empty" : "shopping_cart"}
+                  {purchaseMutation.isPending
+                    ? "hourglass_empty"
+                    : "shopping_cart"}
                 </span>
                 {purchaseMutation.isPending ? "Purchasing..." : "Buy Now"}
               </button>
@@ -189,11 +196,13 @@ export default function MarketplaceDetailPage() {
               <div
                 key={relatedCard.id}
                 onClick={() => router.push(`/marketplace/${relatedCard.id}`)}
-                className="bg-surface-dark border-border-dark group cursor-pointer overflow-hidden rounded-xl border transition-all hover:scale-105 hover:border-primary/50"
+                className="bg-surface-dark border-border-dark group hover:border-primary/50 cursor-pointer overflow-hidden rounded-xl border transition-all hover:scale-105"
               >
                 <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-[#3d2c1e] to-[#2a221b]">
                   <img
-                    src={relatedCard.imageUrl || "https://via.placeholder.com/300"}
+                    src={
+                      relatedCard.imageUrl || "https://via.placeholder.com/300"
+                    }
                     alt={relatedCard.name}
                     className="h-full w-full object-cover transition-transform group-hover:scale-110"
                   />
@@ -214,10 +223,15 @@ export default function MarketplaceDetailPage() {
                       {relatedCard.rarity}
                     </span>
                   </div>
-                  <h3 className="mb-2 font-bold text-white line-clamp-1">{relatedCard.name}</h3>
+                  <h3 className="mb-2 line-clamp-1 font-bold text-white">
+                    {relatedCard.name}
+                  </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-mono text-sm font-bold">
-                      {relatedCard.marketValue ? parseFloat(relatedCard.marketValue) : 100} Coins
+                      {relatedCard.marketValue
+                        ? parseFloat(relatedCard.marketValue)
+                        : 100}{" "}
+                      Coins
                     </span>
                   </div>
                 </div>

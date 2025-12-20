@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui"
 import { DropRatesDisplay } from "./DropRatesDisplay"
 import { PullButtons } from "./PullButtons"
 
@@ -36,9 +42,9 @@ export function GachaEventCard({
     <Card className={isSelected ? "ring-2 ring-blue-600" : ""}>
       <CardHeader>
         <img
-          src={event.bannerUrl || ""}
+          src={event.bannerUrl ?? ""}
           alt={event.name}
-          className="w-full h-32 object-cover rounded-t-lg mb-4"
+          className="mb-4 h-32 w-full rounded-t-lg object-cover"
         />
         <CardTitle>{event.name}</CardTitle>
         <CardDescription>{event.description}</CardDescription>
@@ -51,7 +57,7 @@ export function GachaEventCard({
             rareRate={event.rareRate}
             commonRate={event.commonRate}
           />
-          
+
           <PullButtons
             onSinglePull={() => onSinglePull(event.id)}
             onTenPull={() => onTenPull(event.id)}

@@ -1,15 +1,15 @@
-import { router } from "./trpc"
-import { cardsRouter } from "./routers/cards"
-import { cardSetsRouter } from "./routers/card-sets"
-import { gachaRouter } from "./routers/gacha"
-import { collectionRouter } from "./routers/collection"
-import { marketplaceRouter } from "./routers/marketplace"
-import { usersRouter } from "./routers/users"
-import { milestonesRouter } from "./routers/milestones"
 import { adminRouter } from "./routers/admin"
+import { cardSetsRouter } from "./routers/card-sets"
+import { cardsRouter } from "./routers/cards"
+import { collectionRouter } from "./routers/collection"
+import { gachaRouter } from "./routers/gacha"
 import { itemRouter } from "./routers/item"
+import { marketplaceRouter } from "./routers/marketplace"
+import { milestonesRouter } from "./routers/milestones"
 import { notificationsRouter } from "./routers/notifications"
 import { settingsRouter } from "./routers/settings"
+import { usersRouter } from "./routers/users"
+import { router } from "./trpc"
 
 export const appRouter = router({
   cards: cardsRouter,
@@ -26,4 +26,3 @@ export const appRouter = router({
 })
 
 export type AppRouter = typeof appRouter
-

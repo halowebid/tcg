@@ -2,9 +2,10 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { DashboardHeader } from "@/components/Headers"
 import { toast } from "sonner"
+
+import { DashboardHeader } from "@/components/Headers"
+import { trpc } from "@/lib/trpc/client"
 
 export default function AdminMilestonesPage() {
   const router = useRouter()
@@ -48,9 +49,19 @@ export default function AdminMilestonesPage() {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       icon: formData.get("icon") as string,
-      requirementType: formData.get("requirementType") as any,
+      requirementType: formData.get("requirementType") as
+        | "collection_size"
+        | "total_spend"
+        | "friend_count"
+        | "pulls_count"
+        | "login_streak",
       requirementValue: parseInt(formData.get("requirementValue") as string),
-      rewardType: formData.get("rewardType") as any,
+      rewardType: formData.get("rewardType") as
+        | "coins"
+        | "gems"
+        | "badge"
+        | "frame"
+        | "title",
       rewardValue: formData.get("rewardValue") as string,
     })
   }
@@ -59,7 +70,7 @@ export default function AdminMilestonesPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading milestones...</p>
         </div>
       </div>
@@ -102,7 +113,9 @@ export default function AdminMilestonesPage() {
         {/* Create Form */}
         {showCreateForm && (
           <div className="bg-surface-dark border-border-dark mb-8 rounded-xl border p-6">
-            <h3 className="mb-6 text-lg font-bold text-white">Create New Milestone</h3>
+            <h3 className="mb-6 text-lg font-bold text-white">
+              Create New Milestone
+            </h3>
             <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -230,27 +243,40 @@ export default function AdminMilestonesPage() {
                   </span>
                 </div>
                 <button
-                  onClick={() => handleToggleActive(milestone.id, milestone.isActive)}
+                  onClick={() =>
+                    handleToggleActive(milestone.id, milestone.isActive)
+                  }
                   disabled={updateMutation.isPending}
                   className={`h-3 w-3 rounded-full transition-colors ${
                     milestone.isActive ? "bg-green-500" : "bg-gray-600"
                   }`}
-                  title={milestone.isActive ? "Active - Click to deactivate" : "Inactive - Click to activate"}
+                  title={
+                    milestone.isActive
+                      ? "Active - Click to deactivate"
+                      : "Inactive - Click to activate"
+                  }
                 ></button>
               </div>
-              <h3 className="mb-1 text-lg font-bold text-white">{milestone.title}</h3>
-              <p className="text-text-secondary mb-4 text-sm">{milestone.description}</p>
+              <h3 className="mb-1 text-lg font-bold text-white">
+                {milestone.title}
+              </h3>
+              <p className="text-text-secondary mb-4 text-sm">
+                {milestone.description}
+              </p>
               <div className="mb-4 space-y-2">
                 <div className="bg-background-dark flex items-center gap-3 rounded-lg p-3">
                   <span className="material-symbols-outlined text-sm text-blue-400">
                     {milestone.requirementType === "collection_size" && "style"}
                     {milestone.requirementType === "total_spend" && "savings"}
                     {milestone.requirementType === "friend_count" && "group"}
-                    {milestone.requirementType === "pulls_count" && "shopping_bag"}
-                    {milestone.requirementType === "login_streak" && "calendar_today"}
+                    {milestone.requirementType === "pulls_count" &&
+                      "shopping_bag"}
+                    {milestone.requirementType === "login_streak" &&
+                      "calendar_today"}
                   </span>
                   <span className="text-text-secondary text-xs font-medium">
-                    {milestone.requirementType.replace("_", " ").toUpperCase()}: {milestone.requirementValue}
+                    {milestone.requirementType.replace("_", " ").toUpperCase()}:{" "}
+                    {milestone.requirementValue}
                   </span>
                 </div>
                 <div className="bg-background-dark flex items-center gap-3 rounded-lg p-3">
@@ -258,7 +284,8 @@ export default function AdminMilestonesPage() {
                     emoji_events
                   </span>
                   <span className="text-sm font-bold text-white">
-                    {milestone.rewardType === "coins" || milestone.rewardType === "gems"
+                    {milestone.rewardType === "coins" ||
+                    milestone.rewardType === "gems"
                       ? `${milestone.rewardValue} ${milestone.rewardType}`
                       : milestone.rewardValue}
                   </span>
@@ -279,7 +306,9 @@ export default function AdminMilestonesPage() {
               <span className="material-symbols-outlined text-text-secondary mb-2 text-4xl">
                 add_circle
               </span>
-              <p className="text-text-secondary font-bold">Create New Milestone</p>
+              <p className="text-text-secondary font-bold">
+                Create New Milestone
+              </p>
             </button>
           )}
         </div>

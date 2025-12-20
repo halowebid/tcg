@@ -1,7 +1,11 @@
 import { initTRPC, TRPCError } from "@trpc/server"
-import { getSession, requireAdmin as requireAdminSession } from "@/lib/auth/session"
-import { db } from "@/lib/db"
 import superjson from "superjson"
+
+import {
+  getSession,
+  requireAdmin as requireAdminSession,
+} from "@/lib/auth/session"
+import { db } from "@/lib/db"
 
 export async function createTRPCContext(opts: { headers: Headers }) {
   const session = await getSession()

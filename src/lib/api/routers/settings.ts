@@ -1,8 +1,9 @@
-import { z } from "zod"
-import { router, protectedProcedure, adminProcedure } from "../trpc"
-import { systemSettings } from "@/lib/db/schema"
-import { db } from "@/lib/db"
 import { eq } from "drizzle-orm"
+import { z } from "zod"
+
+import { db } from "@/lib/db"
+import { systemSettings } from "@/lib/db/schema"
+import { adminProcedure, protectedProcedure, router } from "../trpc"
 
 export const settingsRouter = router({
   get: protectedProcedure.query(async () => {
@@ -37,7 +38,7 @@ export const settingsRouter = router({
         currencyName: z.string().optional(),
         premiumCurrencyName: z.string().optional(),
         exchangeRate: z.number().int().positive().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const existing = await db.query.systemSettings.findFirst({
@@ -46,10 +47,13 @@ export const settingsRouter = router({
 
       if (!existing) {
         // Create if doesn't exist
-        const [created] = await db.insert(systemSettings).values({
-          id: "default",
-          ...input,
-        }).returning()
+        const [created] = await db
+          .insert(systemSettings)
+          .values({
+            id: "default",
+            ...input,
+          })
+          .returning()
         return created
       }
 

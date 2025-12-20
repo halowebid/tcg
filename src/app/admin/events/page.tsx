@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
-import { DashboardHeader } from "@/components/Headers"
-import { ConfirmModal } from "@/components/ui"
 import { toast } from "sonner"
 import { z } from "zod"
+
+import { DashboardHeader } from "@/components/Headers"
+import { ConfirmModal } from "@/components/ui"
+import { trpc } from "@/lib/trpc/client"
 
 const eventSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -25,7 +26,10 @@ const eventSchema = z.object({
 export default function AdminEventsPage() {
   const router = useRouter()
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; eventId: string | null }>({
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean
+    eventId: string | null
+  }>({
     isOpen: false,
     eventId: null,
   })
@@ -121,7 +125,7 @@ export default function AdminEventsPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading events...</p>
         </div>
       </div>
@@ -163,7 +167,9 @@ export default function AdminEventsPage() {
       <div className="custom-scrollbar overflow-y-auto p-8">
         {showCreateForm && (
           <div className="bg-surface-dark border-border-dark mb-8 rounded-xl border p-6">
-            <h3 className="mb-6 text-lg font-bold text-white">Create New Event</h3>
+            <h3 className="mb-6 text-lg font-bold text-white">
+              Create New Event
+            </h3>
             <form onSubmit={handleCreateSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
@@ -175,11 +181,15 @@ export default function AdminEventsPage() {
                       errors["name"] ? "border-red-500" : ""
                     }`}
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder="e.g., Summer Festival Banner"
                   />
                   {errors["name"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["name"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["name"]}
+                    </p>
                   )}
                 </div>
                 <div className="md:col-span-2">
@@ -192,11 +202,15 @@ export default function AdminEventsPage() {
                       errors["description"] ? "border-red-500" : ""
                     }`}
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder="Event description..."
                   />
                   {errors["description"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["description"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["description"]}
+                    </p>
                   )}
                 </div>
                 <div className="md:col-span-2">
@@ -209,11 +223,15 @@ export default function AdminEventsPage() {
                       errors["bannerUrl"] ? "border-red-500" : ""
                     }`}
                     value={formData.bannerUrl}
-                    onChange={(e) => setFormData({ ...formData, bannerUrl: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bannerUrl: e.target.value })
+                    }
                     placeholder="https://example.com/banner.jpg"
                   />
                   {errors["bannerUrl"] && (
-                    <p className="mt-1 text-xs text-red-500">{errors["bannerUrl"]}</p>
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors["bannerUrl"]}
+                    </p>
                   )}
                 </div>
                 <div>
@@ -224,7 +242,9 @@ export default function AdminEventsPage() {
                     type="datetime-local"
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                     value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startDate: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -235,7 +255,9 @@ export default function AdminEventsPage() {
                     type="datetime-local"
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                     value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endDate: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -246,7 +268,12 @@ export default function AdminEventsPage() {
                     type="number"
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                     value={formData.packPriceCoins}
-                    onChange={(e) => setFormData({ ...formData, packPriceCoins: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        packPriceCoins: parseInt(e.target.value) ?? 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -257,44 +284,70 @@ export default function AdminEventsPage() {
                     type="number"
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                     value={formData.packPriceGems}
-                    onChange={(e) => setFormData({ ...formData, packPriceGems: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        packPriceGems: parseInt(e.target.value) ?? 0,
+                      })
+                    }
                   />
                 </div>
               </div>
 
               <div className="bg-background-dark rounded-lg p-4">
-                <h4 className="mb-4 text-sm font-bold text-white">Drop Rates (must sum to 1.0000)</h4>
+                <h4 className="mb-4 text-sm font-bold text-white">
+                  Drop Rates (must sum to 1.0000)
+                </h4>
                 <div className="grid grid-cols-4 gap-4">
                   <div>
-                    <label className="text-text-secondary mb-1 block text-xs">Common</label>
+                    <label className="text-text-secondary mb-1 block text-xs">
+                      Common
+                    </label>
                     <input
                       className="bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white"
                       value={formData.commonRate}
-                      onChange={(e) => setFormData({ ...formData, commonRate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, commonRate: e.target.value })
+                      }
                     />
                   </div>
                   <div>
-                    <label className="text-text-secondary mb-1 block text-xs">Rare</label>
+                    <label className="text-text-secondary mb-1 block text-xs">
+                      Rare
+                    </label>
                     <input
                       className="bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white"
                       value={formData.rareRate}
-                      onChange={(e) => setFormData({ ...formData, rareRate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, rareRate: e.target.value })
+                      }
                     />
                   </div>
                   <div>
-                    <label className="text-text-secondary mb-1 block text-xs">Epic</label>
+                    <label className="text-text-secondary mb-1 block text-xs">
+                      Epic
+                    </label>
                     <input
                       className="bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white"
                       value={formData.epicRate}
-                      onChange={(e) => setFormData({ ...formData, epicRate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, epicRate: e.target.value })
+                      }
                     />
                   </div>
                   <div>
-                    <label className="text-text-secondary mb-1 block text-xs">Legendary</label>
+                    <label className="text-text-secondary mb-1 block text-xs">
+                      Legendary
+                    </label>
                     <input
                       className="bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white"
                       value={formData.legendaryRate}
-                      onChange={(e) => setFormData({ ...formData, legendaryRate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          legendaryRate: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -329,14 +382,22 @@ export default function AdminEventsPage() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="mb-2 flex items-center gap-3">
-                    <h3 className="text-xl font-bold text-white">{event.name}</h3>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                      event.isActive ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
-                    }`}>
+                    <h3 className="text-xl font-bold text-white">
+                      {event.name}
+                    </h3>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                        event.isActive
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-gray-500/20 text-gray-400"
+                      }`}
+                    >
                       {event.isActive ? "Active" : "Inactive"}
                     </span>
                   </div>
-                  <p className="text-text-secondary mb-4">{event.description}</p>
+                  <p className="text-text-secondary mb-4">
+                    {event.description}
+                  </p>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div>
                       <p className="text-text-secondary text-xs">Start Date</p>
@@ -357,7 +418,9 @@ export default function AdminEventsPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-text-secondary text-xs">Legendary Rate</p>
+                      <p className="text-text-secondary text-xs">
+                        Legendary Rate
+                      </p>
                       <p className="text-sm font-bold text-yellow-400">
                         {(parseFloat(event.legendaryRate) * 100).toFixed(2)}%
                       </p>
@@ -370,7 +433,9 @@ export default function AdminEventsPage() {
                     className="rounded p-2 text-white hover:bg-white/10"
                     title="Edit event"
                   >
-                    <span className="material-symbols-outlined text-lg">edit</span>
+                    <span className="material-symbols-outlined text-lg">
+                      edit
+                    </span>
                   </button>
                   <button
                     onClick={() => handleDelete(event.id)}
@@ -378,7 +443,9 @@ export default function AdminEventsPage() {
                     className="rounded p-2 text-red-400 hover:bg-red-500/20 disabled:opacity-50"
                     title="Delete event"
                   >
-                    <span className="material-symbols-outlined text-lg">delete</span>
+                    <span className="material-symbols-outlined text-lg">
+                      delete
+                    </span>
                   </button>
                 </div>
               </div>

@@ -10,7 +10,13 @@ interface ModalProps {
   actions?: React.ReactNode
 }
 
-export function Modal({ isOpen, onClose, title, children, actions }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  actions,
+}: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose()
@@ -38,14 +44,14 @@ export function Modal({ isOpen, onClose, title, children, actions }: ModalProps)
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+      <div className="animate-in fade-in zoom-in-95 relative z-10 w-full max-w-md duration-200">
         <div className="bg-surface-dark border-border-dark mx-4 overflow-hidden rounded-2xl border shadow-2xl">
           {/* Header */}
           <div className="border-border-dark flex items-center justify-between border-b px-6 py-4">
             <h3 className="text-lg font-bold text-white">{title}</h3>
             <button
               onClick={onClose}
-              className="text-text-secondary hover:text-white transition-colors"
+              className="text-text-secondary transition-colors hover:text-white"
             >
               <span className="material-symbols-outlined">close</span>
             </button>

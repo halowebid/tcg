@@ -18,7 +18,7 @@ export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({
 export const AdminLayout: React.FC<{
   children: React.ReactNode
   currentScreen: string
-  onNavigate: (screen: any) => void
+  onNavigate: (screen: string) => void
 }> = ({ children, currentScreen, onNavigate }) => {
   // Simple sidebar component for admin layout
   const Sidebar = () => (
@@ -34,7 +34,7 @@ export const AdminLayout: React.FC<{
               }}
             ></div>
             <div className="flex flex-col">
-              <h1 className="text-lg font-bold leading-tight text-white">
+              <h1 className="text-lg leading-tight font-bold text-white">
                 TCG Admin
               </h1>
               <p className="text-text-secondary text-xs font-normal">

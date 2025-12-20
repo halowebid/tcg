@@ -1,9 +1,10 @@
+import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
-import { router, protectedProcedure } from "../trpc"
-import { userProfiles, transactions } from "@/lib/db/schema"
-import { eq, desc } from "drizzle-orm"
-import { getCached, setCached, invalidatePattern } from "@/lib/cache/redis"
+
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { getCached, invalidatePattern, setCached } from "@/lib/cache/redis"
+import { transactions, userProfiles } from "@/lib/db/schema"
+import { protectedProcedure, router } from "../trpc"
 
 export const usersRouter = router({
   getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -29,7 +30,7 @@ export const usersRouter = router({
       z.object({
         displayName: z.string().min(1).optional(),
         username: z.string().min(3).optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id

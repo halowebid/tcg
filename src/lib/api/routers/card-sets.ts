@@ -1,7 +1,8 @@
+import { desc, eq } from "drizzle-orm"
 import { z } from "zod"
-import { router, publicProcedure, adminProcedure } from "../trpc"
+
 import { cardSets } from "@/lib/db/schema"
-import { eq, desc } from "drizzle-orm"
+import { adminProcedure, publicProcedure, router } from "../trpc"
 
 export const cardSetsRouter = router({
   list: publicProcedure.query(async ({ ctx }) => {
@@ -34,7 +35,7 @@ export const cardSetsRouter = router({
         description: z.string().optional(),
         bannerUrl: z.string().optional(),
         releaseDate: z.date(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const [set] = await ctx.db.insert(cardSets).values(input).returning()
@@ -51,7 +52,7 @@ export const cardSetsRouter = router({
         bannerUrl: z.string().optional(),
         releaseDate: z.date().optional(),
         isActive: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input

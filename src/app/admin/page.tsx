@@ -1,8 +1,9 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { trpc } from "@/lib/trpc/client"
+
 import { DashboardHeader } from "@/components/Headers"
+import { trpc } from "@/lib/trpc/client"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -12,7 +13,7 @@ export default function AdminPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mb-4 inline-block size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-text-secondary">Loading dashboard...</p>
         </div>
       </div>
@@ -34,21 +35,21 @@ export default function AdminPage() {
         {[
           {
             label: "Total Users",
-            value: stats?.totalUsers.toLocaleString() || "0",
+            value: stats?.totalUsers.toLocaleString() ?? "0",
             change: "All time",
             icon: "person_add",
             color: "text-primary",
           },
           {
             label: "Total Pulls",
-            value: stats?.totalPulls.toLocaleString() || "0",
+            value: stats?.totalPulls.toLocaleString() ?? "0",
             change: "All time",
             icon: "shopping_bag",
             color: "text-primary",
           },
           {
             label: "Total Revenue",
-            value: `${stats?.totalRevenue.toLocaleString() || "0"} coins`,
+            value: `${stats?.totalRevenue.toLocaleString() ?? "0"} coins`,
             change: "From gacha",
             icon: "payments",
             color: "text-primary",
@@ -65,23 +66,29 @@ export default function AdminPage() {
             key={i}
             className="border-border-dark bg-surface-dark group relative flex flex-col gap-2 overflow-hidden rounded-xl border p-6"
           >
-            <div className="absolute right-[-20px] top-[-20px] h-24 w-24 rounded-full bg-white opacity-5 blur-2xl transition-opacity group-hover:opacity-10"></div>
+            <div className="absolute top-[-20px] right-[-20px] h-24 w-24 rounded-full bg-white opacity-5 blur-2xl transition-opacity group-hover:opacity-10"></div>
             <div className="flex items-start justify-between">
-              <p className="text-text-secondary text-sm font-medium">{stat.label}</p>
+              <p className="text-text-secondary text-sm font-medium">
+                {stat.label}
+              </p>
               <span className={`material-symbols-outlined ${stat.color}`}>
                 {stat.icon}
               </span>
             </div>
-            <p className="text-3xl font-bold leading-tight text-white">{stat.value}</p>
+            <p className="text-3xl leading-tight font-bold text-white">
+              {stat.value}
+            </p>
             <div className="flex items-center gap-1">
-              <p className="text-text-secondary text-sm font-medium">{stat.change}</p>
+              <p className="text-text-secondary text-sm font-medium">
+                {stat.change}
+              </p>
             </div>
           </div>
         ))}
       </div>
       <div className="grid grid-cols-1 gap-6 px-2 pb-8 lg:grid-cols-2">
         <div className="border-border-dark bg-surface-dark relative flex flex-col gap-6 overflow-hidden rounded-xl border p-6">
-          <div className="bg-primary/5 pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full blur-3xl"></div>
+          <div className="bg-primary/5 pointer-events-none absolute top-0 right-0 h-64 w-64 rounded-full blur-3xl"></div>
           <div className="z-10 flex items-start justify-between">
             <div>
               <h3 className="flex items-center gap-2 text-xl font-bold text-white">
@@ -98,7 +105,9 @@ export default function AdminPage() {
           <div className="border-border-dark z-10 grid grid-cols-3 gap-4 border-y py-4">
             <div>
               <p className="text-2xl font-bold text-white">-</p>
-              <p className="text-text-secondary text-xs uppercase">Total Cards</p>
+              <p className="text-text-secondary text-xs uppercase">
+                Total Cards
+              </p>
             </div>
             <div>
               <p className="text-2xl font-bold text-orange-400">-</p>
@@ -128,7 +137,7 @@ export default function AdminPage() {
         </div>
 
         <div className="border-border-dark bg-surface-dark relative flex flex-col gap-6 overflow-hidden rounded-xl border p-6">
-          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl"></div>
+          <div className="pointer-events-none absolute top-0 right-0 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl"></div>
           <div className="z-10 flex items-start justify-between">
             <div>
               <h3 className="flex items-center gap-2 text-xl font-bold text-white">
@@ -176,7 +185,9 @@ export default function AdminPage() {
               className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">tune</span>
+                <span className="material-symbols-outlined text-primary">
+                  tune
+                </span>
                 <p className="text-sm font-bold text-white">System Settings</p>
               </div>
               <span className="material-symbols-outlined text-text-secondary group-hover:text-white">

@@ -1,5 +1,11 @@
 import { Badge } from "./Badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./Card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./Card"
 
 interface CardPreviewProps {
   id: string
@@ -26,11 +32,18 @@ export function CardPreview({
   children,
 }: CardPreviewProps) {
   return (
-    <Card className={`cursor-pointer transition-all hover:shadow-lg ${className}`} onClick={onClick}>
+    <Card
+      className={`cursor-pointer transition-all hover:shadow-lg ${className}`}
+      onClick={onClick}
+    >
       <CardHeader className="p-0">
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-          <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
-          <div className="absolute right-2 top-2">
+          <img
+            src={imageUrl}
+            alt={name}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute top-2 right-2">
             <Badge variant={rarity}>{rarity.toUpperCase()}</Badge>
           </div>
         </div>
@@ -38,7 +51,9 @@ export function CardPreview({
       <CardContent className="p-4">
         <CardTitle className="text-lg">{name}</CardTitle>
         {description && (
-          <CardDescription className="mt-1 line-clamp-2">{description}</CardDescription>
+          <CardDescription className="mt-1 line-clamp-2">
+            {description}
+          </CardDescription>
         )}
         {(attackPower !== undefined || defensePower !== undefined) && (
           <div className="mt-3 flex gap-4 text-sm">

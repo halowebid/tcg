@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import { trpc } from "@/lib/trpc/client"
 
 export default function NotificationsPage() {
@@ -104,7 +105,7 @@ export default function NotificationsPage() {
             notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`bg-surface-dark flex items-start gap-4 rounded-r-xl border-l-4 p-4 cursor-pointer hover:bg-white/5 ${
+                className={`bg-surface-dark flex cursor-pointer items-start gap-4 rounded-r-xl border-l-4 p-4 hover:bg-white/5 ${
                   notification.type === "gacha"
                     ? "border-primary"
                     : notification.type === "order"

@@ -1,16 +1,19 @@
+import { and, desc, eq } from "drizzle-orm"
 import { z } from "zod"
-import { router, protectedProcedure } from "../trpc"
+
 import { notifications } from "@/lib/db/schema"
-import { eq, and, desc } from "drizzle-orm"
+import { protectedProcedure, router } from "../trpc"
 
 export const notificationsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        type: z.enum(["all", "gacha", "order", "system", "milestone"]).optional(),
+        type: z
+          .enum(["all", "gacha", "order", "system", "milestone"])
+          .optional(),
         limit: z.number().min(1).max(50).default(20),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
@@ -19,7 +22,7 @@ export const notificationsRouter = router({
         input.type && input.type !== "all"
           ? and(
               eq(notifications.userId, userId),
-              eq(notifications.type, input.type)
+              eq(notifications.type, input.type),
             )
           : eq(notifications.userId, userId)
 
@@ -42,10 +45,7 @@ export const notificationsRouter = router({
         .update(notifications)
         .set({ isRead: true })
         .where(
-          and(
-            eq(notifications.id, input.id),
-            eq(notifications.userId, userId)
-          )
+          and(eq(notifications.id, input.id), eq(notifications.userId, userId)),
         )
 
       return { success: true }

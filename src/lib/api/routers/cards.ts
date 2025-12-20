@@ -1,9 +1,10 @@
+import { and, desc, eq, sql } from "drizzle-orm"
 import { z } from "zod"
-import { router, publicProcedure, adminProcedure } from "../trpc"
-import { cards } from "@/lib/db/schema"
-import { eq, and, desc, sql } from "drizzle-orm"
-import { getCached, setCached, invalidatePattern } from "@/lib/cache/redis"
+
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
+import { getCached, invalidatePattern, setCached } from "@/lib/cache/redis"
+import { cards } from "@/lib/db/schema"
+import { adminProcedure, publicProcedure, router } from "../trpc"
 
 export const cardsRouter = router({
   list: publicProcedure
@@ -13,17 +14,21 @@ export const cardsRouter = router({
         limit: z.number().min(1).max(100).default(20),
         rarity: z.enum(["common", "rare", "epic", "legendary"]).optional(),
         setId: z.string().uuid().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const cacheKey = CACHE_KEYS.CARDS_LIST(input.page, input.rarity, input.setId)
+      const cacheKey = CACHE_KEYS.CARDS_LIST(
+        input.page,
+        input.rarity,
+        input.setId,
+      )
       const cached = await getCached<typeof result>(cacheKey)
       if (cached) return cached
 
       const where = and(
         eq(cards.isActive, true),
         input.rarity ? eq(cards.rarity, input.rarity) : undefined,
-        input.setId ? eq(cards.setId, input.setId) : undefined
+        input.setId ? eq(cards.setId, input.setId) : undefined,
       )
 
       const [items, countResult] = await Promise.all([
@@ -33,12 +38,15 @@ export const cardsRouter = router({
           offset: (input.page - 1) * input.limit,
           orderBy: [desc(cards.createdAt)],
         }),
-        ctx.db.select({ count: sql<number>`count(*)` }).from(cards).where(where),
+        ctx.db
+          .select({ count: sql<number>`count(*)` })
+          .from(cards)
+          .where(where),
       ])
 
       const result = {
         items,
-        total: Number(countResult[0]?.count || 0),
+        total: Number(countResult[0]?.count ?? 0),
         page: input.page,
         limit: input.limit,
       }
@@ -72,7 +80,7 @@ export const cardsRouter = router({
       const results = await ctx.db.query.cards.findMany({
         where: and(
           eq(cards.isActive, true),
-          sql`${cards.name} ILIKE ${"%" + input.query + "%"}`
+          sql`${cards.name} ILIKE ${"%" + input.query + "%"}`,
         ),
         limit: 20,
       })
@@ -92,7 +100,7 @@ export const cardsRouter = router({
         defensePower: z.number().int().min(0).optional(),
         marketValue: z.string().optional(),
         dropWeight: z.string().default("1.0"),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const [card] = await ctx.db.insert(cards).values(input).returning()
@@ -116,7 +124,7 @@ export const cardsRouter = router({
         marketValue: z.string().optional(),
         dropWeight: z.string().optional(),
         isActive: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input
