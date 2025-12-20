@@ -1,7 +1,55 @@
+/* eslint-disable @next/next/no-img-element */
+"use client"
+
 import React from "react"
+import Link from "next/link"
+
+import {
+  CardGridSkeleton,
+  CardSkeleton,
+  EmptyState,
+  ErrorDisplay,
+  LoadingSpinner,
+} from "@/components/ui"
+import { trpc } from "@/lib/trpc/client"
+
+interface Card {
+  id: string
+  name: string
+  description: string | null
+  imageUrl: string
+  rarity: "common" | "rare" | "epic" | "legendary"
+  setId: string | null
+  attackPower: number | null
+  defensePower: number | null
+  marketValue: string | null
+  dropWeight: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface UserCard {
+  id: string
+  userId: string
+  cardId: string
+  level: number
+  exp: number
+  acquiredAt: Date
+  acquiredVia: "gacha" | "purchase" | "reward"
+  card: Card
+}
 
 // --- Screen 1: Landing (Dragon Banner) ---
 export const LandingScreen: React.FC = () => {
+  const { data: events, isLoading: eventsLoading } =
+    trpc.gacha.getActiveEvents.useQuery()
+  const { data: cardsData, isLoading: cardsLoading } = trpc.cards.list.useQuery(
+    { page: 1, limit: 5 },
+  )
+
+  const firstEvent = events?.[0]
+
   return (
     <div className="flex w-full flex-col items-center pb-20">
       <section className="w-full max-w-[1400px] px-4 py-8 md:px-10">
@@ -19,26 +67,34 @@ export const LandingScreen: React.FC = () => {
                 local_fire_department
               </span>
               <span className="text-primary text-xs font-bold tracking-wider uppercase">
-                Season 5: Dragon's Awakening
+                {firstEvent?.name ?? "Season 5: Dragon's Awakening"}
               </span>
             </div>
             <h1 className="font-display text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
               Unleash the Draconic Fire.
             </h1>
             <p className="text-lg font-light text-gray-200 sm:text-xl">
-              The S-Rank dragons have awakened. Pull from the new limited-time
-              banner and collect the rarest holographic legends before they
-              vanish.
+              {firstEvent?.description ??
+                "The S-Rank dragons have awakened. Pull from the new limited-time banner and collect the rarest holographic legends before they vanish."}
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
-              <button className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105">
+              <Link
+                href="/gacha"
+                className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105"
+              >
                 <span className="material-symbols-outlined">stars</span>
-                Pull 10x • 500 Credits
-              </button>
-              <button className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20">
+                Pull 10x •{" "}
+                {firstEvent?.packPriceCoins
+                  ? `${firstEvent.packPriceCoins * 10} Coins`
+                  : "500 Credits"}
+              </Link>
+              <Link
+                href="/gacha"
+                className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20"
+              >
                 <span className="material-symbols-outlined">info</span>
                 View Drop Rates
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -53,161 +109,174 @@ export const LandingScreen: React.FC = () => {
             </span>{" "}
             Featured Packs
           </h2>
-          <button className="text-primary text-sm font-bold transition-colors hover:text-white">
+          <Link
+            href="/gacha"
+            className="text-primary text-sm font-bold transition-colors hover:text-white"
+          >
             View All Packs
-          </button>
+          </Link>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              title: "Cybernetic Horizon",
-              color: "from-blue-600 to-cyan-400",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k",
-              price: "500",
-            },
-            {
-              title: "Ancient Forest",
-              color: "from-green-600 to-emerald-400",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlF3KWYUwTxjc8Grm19nxhxQ_j6qx_O_vpDsZklONjoNG3lOznCMzJR7B7MgYJjy7QUIdCJH-k_UM7iPIdAAsy-_NobkVO7g_vY6BI9NsQaKpnyWCbXXnLuRrs2YePxbrVYPZUO8vMDUUULrr77gKK5r4Y3HAI3za0C0xQMsQt1WgxSy6Q8mtAaaG6qtKG4fvglDUINxtoJHB6fgHkZZuPX0oNqo6xyfVSku9Km9etGnsABLG9bo4FQ5sQxVFdJJQB8EsDe1l7HFB4",
-              price: "450",
-            },
-            {
-              title: "Void Walkers",
-              color: "from-purple-600 to-pink-400",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBr3_qKwl0IfvhNnGMyqxlWkLAKVqmX6Zu1Eerg669x3CBtHUJoT9SMT2ggu_O-38uybdBCPg0dXlcv6SUqnWIuLmbszYtEzr2AJvpBezoEHsY2SULzrAu6RojrSNiSHTYxhJ9Y_csu8ezmkjzyia6f5pKpkyiRTcCinYdCHWqjNsJS5VOnMiH_eovlzSkO4FDZYQDF7lS5qEPr1b59u8yxL8px-OPaX9WnhaNCPUvzyAH6S9PeouJCfrIJW6GFtBb2gbGKHSl2Gm1",
-              price: "600",
-            },
-          ].map((pack, i) => (
-            <div
-              key={i}
-              className="bg-surface-dark border-border-dark hover:border-primary/50 group relative h-64 cursor-pointer overflow-hidden rounded-2xl border transition-all"
-            >
-              <div className="${pack.color} absolute inset-0 z-0 bg-gradient-to-br opacity-10 transition-opacity group-hover:opacity-20"></div>
-              <div className="absolute -right-12 -bottom-12 z-0 h-48 w-48 rounded-full bg-gradient-to-br from-white/5 to-white/0 blur-2xl"></div>
+        {eventsLoading ? (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner message="Loading events..." />
+          </div>
+        ) : !events || events.length === 0 ? (
+          <EmptyState
+            icon="event_busy"
+            title="No active events"
+            description="Check back soon for new gacha events!"
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {events.slice(0, 3).map((event, i) => (
+              <Link
+                key={event.id}
+                href="/gacha"
+                className="bg-surface-dark border-border-dark hover:border-primary/50 group relative h-64 cursor-pointer overflow-hidden rounded-2xl border transition-all"
+              >
+                <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-600 to-cyan-400 opacity-10 transition-opacity group-hover:opacity-20"></div>
+                <div className="absolute -right-12 -bottom-12 z-0 h-48 w-48 rounded-full bg-gradient-to-br from-white/5 to-white/0 blur-2xl"></div>
 
-              <div className="relative z-10 flex h-full items-center justify-between p-6">
-                <div className="flex h-full flex-col justify-center gap-4">
-                  <div>
-                    <span className="text-primary bg-primary/10 mb-2 inline-block rounded px-2 py-1 text-xs font-bold">
-                      SERIES {i + 1}
-                    </span>
-                    <h3 className="max-w-[120px] text-2xl leading-tight font-bold text-white">
-                      {pack.title}
-                    </h3>
+                <div className="relative z-10 flex h-full items-center justify-between p-6">
+                  <div className="flex h-full flex-col justify-center gap-4">
+                    <div>
+                      <span className="text-primary bg-primary/10 mb-2 inline-block rounded px-2 py-1 text-xs font-bold">
+                        EVENT {i + 1}
+                      </span>
+                      <h3 className="max-w-[120px] text-2xl leading-tight font-bold text-white">
+                        {event.name}
+                      </h3>
+                    </div>
+                    <button className="flex w-fit items-center gap-2 rounded-lg border border-white/5 bg-white/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20">
+                      <span className="material-symbols-outlined text-primary text-sm">
+                        diamond
+                      </span>{" "}
+                      {event.packPriceCoins}
+                    </button>
                   </div>
-                  <button className="flex w-fit items-center gap-2 rounded-lg border border-white/5 bg-white/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20">
-                    <span className="material-symbols-outlined text-primary text-sm">
-                      diamond
-                    </span>{" "}
-                    {pack.price}
-                  </button>
+                  <div className="relative h-full w-1/2">
+                    <img
+                      src={
+                        event.bannerUrl ??
+                        "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k"
+                      }
+                      alt={event.name}
+                      className="absolute top-1/2 left-1/2 h-[120%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6"
+                    />
+                  </div>
                 </div>
-                <div className="relative h-full w-1/2">
-                  <img
-                    src={pack.img}
-                    className="absolute top-1/2 left-1/2 h-[120%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Trending Cards Section */}
       <section className="w-full max-w-[1400px] px-4 pb-12 md:px-10">
         <h2 className="mb-6 text-2xl font-bold text-white">Trending Now</h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div
-              key={item}
-              className="bg-surface-dark border-border-dark hover:border-primary/50 group cursor-pointer overflow-hidden rounded-xl border transition-all hover:-translate-y-1"
-            >
-              <div className="relative aspect-[3/4] overflow-hidden bg-[#2d241b]">
-                <div className="absolute top-2 left-2 z-10 rounded border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
-                  #{1000 + item}
+        {cardsLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : !cardsData?.items || cardsData.items.length === 0 ? (
+          <EmptyState
+            icon="style"
+            title="No cards available"
+            description="Check back soon for new cards!"
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
+            {cardsData.items.map((card) => (
+              <Link
+                key={card.id}
+                href={`/marketplace/${card.id}`}
+                className="bg-surface-dark border-border-dark hover:border-primary/50 group cursor-pointer overflow-hidden rounded-xl border transition-all hover:-translate-y-1"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#2d241b]">
+                  <div className="absolute top-2 left-2 z-10 rounded border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white uppercase backdrop-blur-md">
+                    {card.rarity}
+                  </div>
+                  <img
+                    src={card.imageUrl}
+                    alt={card.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 </div>
-                <img
-                  src={`https://lh3.googleusercontent.com/aida-public/AB6AXuCN1vOA2xdIpPnb0RTNNv7tjcq_GR1o7XQV0iWHCNyn-2nEoKmniFTvjwx8VgGx_1t9uC9ZsoZuAtzkLUgZrIYHAXyj4khCiim1_qDzZNgrWsNKDiGIWEsqRpnqiWjoZHratm6HNXJz9B65BXmG3IJVsSWHUR4nHjSR3xE24xr2LONAbEzSDXK6e30aqFzplyAk_hsf0xjJmA37m2xSLrSWClNzh4V2gciqW3A2-V2Y-lwVAUXcSaCwmTK-46yXsUSMz_1uZRkuWAsN`}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              </div>
-              <div className="p-3">
-                <h4 className="truncate text-sm font-bold text-white">
-                  Mecha Paladin
-                </h4>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-text-secondary text-xs">Bid</span>
-                  <span className="text-primary text-sm font-bold">250 G</span>
+                <div className="p-3">
+                  <h4 className="truncate text-sm font-bold text-white">
+                    {card.name}
+                  </h4>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-text-secondary text-xs">Value</span>
+                    <span className="text-primary text-sm font-bold">
+                      {card.marketValue ?? "250"} G
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )
 }
 
+// Helper function for rarity styles
+const getRarityStyles = (rarity: string) => {
+  const rarityMap: Record<string, string> = {
+    legendary: "bg-purple-900/80 text-purple-200 border-purple-500/30",
+    epic: "bg-yellow-600/80 text-yellow-100 border-yellow-400/30",
+    rare: "bg-blue-900/80 text-blue-200 border-blue-500/30",
+    common: "bg-gray-700/80 text-gray-200 border-gray-500/30",
+  }
+  return rarityMap[rarity] || rarityMap["common"]
+}
+
 // --- Screen 2: Marketplace Listing ---
 export const MarketplaceScreen: React.FC = () => {
-  const cards = [
-    {
-      name: "Mecha Samurai",
-      rarity: "UR",
-      price: "2,400",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCN1vOA2xdIpPnb0RTNNv7tjcq_GR1o7XQV0iWHCNyn-2nEoKmniFTvjwx8VgGx_1t9uC9ZsoZuAtzkLUgZrIYHAXyj4khCiim1_qDzZNgrWsNKDiGIWEsqRpnqiWjoZHratm6HNXJz9B65BXmG3IJVsSWHUR4nHjSR3xE24xr2LONAbEzSDXK6e30aqFzplyAk_hsf0xjJmA37m2xSLrSWClNzh4V2gciqW3A2-V2Y-lwVAUXcSaCwmTK-46yXsUSMz_1uZRkuWAsN",
-      tag: "bg-purple-900/80 text-purple-200 border-purple-500/30",
+  const [page, setPage] = React.useState(1)
+  const [selectedRarity, setSelectedRarity] = React.useState<
+    "common" | "rare" | "epic" | "legendary" | undefined
+  >()
+
+  const {
+    data: cards,
+    isLoading,
+    error,
+    refetch,
+  } = trpc.marketplace.list.useQuery({
+    page,
+    limit: 20,
+    rarity: selectedRarity,
+  })
+
+  const purchaseMutation = trpc.marketplace.purchase.useMutation({
+    onSuccess: () => {
+      void refetch()
     },
-    {
-      name: "Azure Dragon",
-      rarity: "SSR",
-      price: "1,850",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfnGf9Sc_OQOAi79UOhJsx8j1CzV_Zl2AvdZf8RBZNBVb9uX5gtdRP7Mn_ZK5QszE5_Z6Vd4D_LHFBM1gGV5wm7IZup6gpXo7W24qTk5liQlWQxpGKMzxHJHkKp8peLA76Vo2CvV_EIM6stQaf9DkNMuf5pahfv4fQprFcVpP6a_9NKkNQPJ10NdqpQxF7CPz_YIm8VTLOKYLaMdOggLoUn8R7DuRwy1Sq5gQYRMPQJSLP84tJGLXx7ThaqI8yaIm21WWn1W6_eW_X",
-      tag: "bg-yellow-600/80 text-yellow-100 border-yellow-400/30",
+    onError: (error) => {
+      alert(error.message)
     },
-    {
-      name: "Void Walker",
-      rarity: "SR",
-      price: "950",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBr3_qKwl0IfvhNnGMyqxlWkLAKVqmX6Zu1Eerg669x3CBtHUJoT9SMT2ggu_O-38uybdBCPg0dXlcv6SUqnWIuLmbszYtEzr2AJvpBezoEHsY2SULzrAu6RojrSNiSHTYxhJ9Y_csu8ezmkjzyia6f5pKpkyiRTcCinYdCHWqjNsJS5VOnMiH_eovlzSkO4FDZYQDF7lS5qEPr1b59u8yxL8px-OPaX9WnhaNCPUvzyAH6S9PeouJCfrIJW6GFtBb2gbGKHSl2Gm1",
-      tag: "bg-red-900/80 text-red-200 border-red-500/30",
-    },
-    {
-      name: "Forest Guardian",
-      rarity: "R",
-      price: "400",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlF3KWYUwTxjc8Grm19nxhxQ_j6qx_O_vpDsZklONjoNG3lOznCMzJR7B7MgYJjy7QUIdCJH-k_UM7iPIdAAsy-_NobkVO7g_vY6BI9NsQaKpnyWCbXXnLuRrs2YePxbrVYPZUO8vMDUUULrr77gKK5r4Y3HAI3za0C0xQMsQt1WgxSy6Q8mtAaaG6qtKG4fvglDUINxtoJHB6fgHkZZuPX0oNqo6xyfVSku9Km9etGnsABLG9bo4FQ5sQxVFdJJQB8EsDe1l7HFB4",
-      tag: "bg-green-900/80 text-green-200 border-green-500/30",
-    },
-    {
-      name: "Solar Flare",
-      rarity: "R",
-      price: "320",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k",
-      tag: "bg-blue-900/80 text-blue-200 border-blue-500/30",
-    },
-    {
-      name: "Iron Golem",
-      rarity: "C",
-      price: "50",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCN1vOA2xdIpPnb0RTNNv7tjcq_GR1o7XQV0iWHCNyn-2nEoKmniFTvjwx8VgGx_1t9uC9ZsoZuAtzkLUgZrIYHAXyj4khCiim1_qDzZNgrWsNKDiGIWEsqRpnqiWjoZHratm6HNXJz9B65BXmG3IJVsSWHUR4nHjSR3xE24xr2LONAbEzSDXK6e30aqFzplyAk_hsf0xjJmA37m2xSLrSWClNzh4V2gciqW3A2-V2Y-lwVAUXcSaCwmTK-46yXsUSMz_1uZRkuWAsN",
-      tag: "bg-gray-700/80 text-gray-200 border-gray-500/30",
-    },
-    {
-      name: "Mystic Elf",
-      rarity: "SR",
-      price: "800",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfnGf9Sc_OQOAi79UOhJsx8j1CzV_Zl2AvdZf8RBZNBVb9uX5gtdRP7Mn_ZK5QszE5_Z6Vd4D_LHFBM1gGV5wm7IZup6gpXo7W24qTk5liQlWQxpGKMzxHJHkKp8peLA76Vo2CvV_EIM6stQaf9DkNMuf5pahfv4fQprFcVpP6a_9NKkNQPJ10NdqpQxF7CPz_YIm8VTLOKYLaMdOggLoUn8R7DuRwy1Sq5gQYRMPQJSLP84tJGLXx7ThaqI8yaIm21WWn1W6_eW_X",
-      tag: "bg-pink-900/80 text-pink-200 border-pink-500/30",
-    },
-    {
-      name: "Dark Magus",
-      rarity: "SSR",
-      price: "2,100",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBr3_qKwl0IfvhNnGMyqxlWkLAKVqmX6Zu1Eerg669x3CBtHUJoT9SMT2ggu_O-38uybdBCPg0dXlcv6SUqnWIuLmbszYtEzr2AJvpBezoEHsY2SULzrAu6RojrSNiSHTYxhJ9Y_csu8ezmkjzyia6f5pKpkyiRTcCinYdCHWqjNsJS5VOnMiH_eovlzSkO4FDZYQDF7lS5qEPr1b59u8yxL8px-OPaX9WnhaNCPUvzyAH6S9PeouJCfrIJW6GFtBb2gbGKHSl2Gm1",
-      tag: "bg-yellow-600/80 text-yellow-100 border-yellow-400/30",
-    },
+  })
+
+  const handlePurchase = (cardId: string) => {
+    if (confirm("Are you sure you want to purchase this card?")) {
+      purchaseMutation.mutate({ cardId })
+    }
+  }
+
+  const filterButtons: {
+    label: string
+    value?: "common" | "rare" | "epic" | "legendary"
+  }[] = [
+    { label: "All Cards", value: undefined },
+    { label: "Legendary", value: "legendary" },
+    { label: "Epic", value: "epic" },
+    { label: "Rare", value: "rare" },
+    { label: "Common", value: "common" },
   ]
 
   return (
@@ -229,72 +298,129 @@ export const MarketplaceScreen: React.FC = () => {
             <h1 className="mb-4 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl">
               Unlock the Future of Cards
             </h1>
-            <button className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105">
+            <Link
+              href="/gacha"
+              className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
+            >
               <span className="material-symbols-outlined">bolt</span> Pull Now -
               500 Coins
-            </button>
+            </Link>
           </div>
         </div>
 
         <div className="no-scrollbar mb-4 flex items-center gap-4 overflow-x-auto pb-2">
-          <button className="bg-primary text-background-dark rounded-lg px-4 py-2 text-sm font-bold whitespace-nowrap">
-            All Cards
-          </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
-            Legendary
-          </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
-            Epic
-          </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
-            Rare
-          </button>
-          <button className="bg-surface-dark border-border-dark text-text-secondary rounded-lg border px-4 py-2 text-sm whitespace-nowrap hover:text-white">
-            Common
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((card, i) => (
-            <div
-              key={i}
-              className="bg-surface-dark border-border-dark hover:border-primary/50 group relative flex flex-col overflow-hidden rounded-2xl border transition-all hover:-translate-y-1"
+          {filterButtons.map((filter) => (
+            <button
+              key={filter.label}
+              onClick={() => {
+                setSelectedRarity(filter.value)
+                setPage(1)
+              }}
+              className={`rounded-lg px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors ${
+                selectedRarity === filter.value
+                  ? "bg-primary text-background-dark"
+                  : "bg-surface-dark border-border-dark text-text-secondary border hover:text-white"
+              }`}
             >
-              <div className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden bg-[#2d241b] p-4">
-                <div
-                  className={`absolute top-3 left-3 z-10 rounded-md border px-2 py-1 text-xs font-bold backdrop-blur-md ${card.tag}`}
-                >
-                  {card.rarity}
-                </div>
-                <img
-                  src={card.img}
-                  className="h-full object-contain shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
-                />
-              </div>
-              <div className="flex flex-col p-4">
-                <h3 className="group-hover:text-primary text-lg font-bold text-white transition-colors">
-                  {card.name}
-                </h3>
-                <div className="border-border-dark mt-4 flex items-center justify-between border-t pt-4">
-                  <div className="flex flex-col">
-                    <span className="text-text-secondary text-xs">Price</span>
-                    <div className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-primary text-[16px]">
-                        monetization_on
-                      </span>
-                      <span className="text-lg font-bold text-white">
-                        {card.price}
-                      </span>
-                    </div>
-                  </div>
-                  <button className="bg-surface-highlight border-border-dark flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black">
-                    Buy
-                  </button>
-                </div>
-              </div>
-            </div>
+              {filter.label}
+            </button>
           ))}
         </div>
+
+        {isLoading ? (
+          <CardGridSkeleton count={20} />
+        ) : error ? (
+          <ErrorDisplay
+            title="Failed to load marketplace"
+            message={error.message}
+            onRetry={() => refetch()}
+          />
+        ) : !cards || cards.length === 0 ? (
+          <EmptyState
+            icon="shopping_cart"
+            title="No cards available"
+            description="Try changing the rarity filter or check back later!"
+          />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {cards.map((card) => (
+                <div
+                  key={card.id}
+                  className="bg-surface-dark border-border-dark hover:border-primary/50 group relative flex flex-col overflow-hidden rounded-2xl border transition-all hover:-translate-y-1"
+                >
+                  <Link
+                    href={`/marketplace/${card.id}`}
+                    className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden bg-[#2d241b] p-4"
+                  >
+                    <div
+                      className={`absolute top-3 left-3 z-10 rounded-md border px-2 py-1 text-xs font-bold uppercase backdrop-blur-md ${getRarityStyles(card.rarity)}`}
+                    >
+                      {card.rarity}
+                    </div>
+                    <img
+                      src={card.imageUrl}
+                      alt={card.name}
+                      className="h-full object-contain shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                    />
+                  </Link>
+                  <div className="flex flex-col p-4">
+                    <h3 className="group-hover:text-primary text-lg font-bold text-white transition-colors">
+                      {card.name}
+                    </h3>
+                    <div className="border-border-dark mt-4 flex items-center justify-between border-t pt-4">
+                      <div className="flex flex-col">
+                        <span className="text-text-secondary text-xs">
+                          Price
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="material-symbols-outlined text-primary text-[16px]">
+                            monetization_on
+                          </span>
+                          <span className="text-lg font-bold text-white">
+                            {card.marketValue ?? "100"}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handlePurchase(card.id)}
+                        disabled={purchaseMutation.isPending}
+                        className="bg-surface-highlight border-border-dark flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:opacity-50"
+                      >
+                        {purchaseMutation.isPending ? "Buying..." : "Buy"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-center gap-4 pt-8">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  chevron_left
+                </span>
+                Previous
+              </button>
+              <span className="text-text-secondary text-sm">Page {page}</span>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!cards || cards.length < 20}
+                className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+                <span className="material-symbols-outlined text-sm">
+                  chevron_right
+                </span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -389,6 +515,94 @@ export const ProductDetailScreen: React.FC = () => {
 
 // --- Screen 4: Gacha Pull Animation ---
 export const GachaPullScreen: React.FC = () => {
+  const [showResult, setShowResult] = React.useState(false)
+  const [pulledCards, setPulledCards] = React.useState<Card[]>([])
+  const [showDropRates, setShowDropRates] = React.useState(false)
+
+  const {
+    data: events,
+    isLoading: eventsLoading,
+    error: eventsError,
+    refetch: refetchEvents,
+  } = trpc.gacha.getActiveEvents.useQuery()
+  const activeEvent = events?.[0]
+
+  const { data: dropRates } = trpc.gacha.getDropRates.useQuery(
+    { eventId: activeEvent?.id ?? "" },
+    { enabled: !!activeEvent?.id },
+  )
+
+  const pullMutation = trpc.gacha.pull.useMutation({
+    onSuccess: (card) => {
+      setPulledCards([card])
+      setShowResult(true)
+    },
+    onError: (error) => {
+      alert(error.message)
+    },
+  })
+
+  const pullTenMutation = trpc.gacha.pullTen.useMutation({
+    onSuccess: (cards) => {
+      setPulledCards(cards)
+      setShowResult(true)
+    },
+    onError: (error) => {
+      alert(error.message)
+    },
+  })
+
+  const handleSinglePull = () => {
+    if (!activeEvent) return
+    pullMutation.mutate({ eventId: activeEvent.id, useGems: false })
+  }
+
+  const handleTenPull = () => {
+    if (!activeEvent) return
+    pullTenMutation.mutate({ eventId: activeEvent.id, useGems: false })
+  }
+
+  const closeResultModal = () => {
+    setShowResult(false)
+    setPulledCards([])
+  }
+
+  if (eventsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <LoadingSpinner message="Loading gacha events..." />
+      </div>
+    )
+  }
+
+  if (eventsError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <ErrorDisplay
+          title="Failed to load events"
+          message={eventsError.message}
+          onRetry={() => refetchEvents()}
+        />
+      </div>
+    )
+  }
+
+  if (!activeEvent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <EmptyState
+          icon="event_busy"
+          title="No active gacha events"
+          description="There are currently no active gacha events. Check back later!"
+          actions={[
+            { label: "Browse Marketplace", href: "/marketplace" },
+            { label: "View Collection", href: "/collection" },
+          ]}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-1 justify-center px-4 py-8 sm:px-10">
       <div className="flex max-w-[1024px] flex-1 flex-col gap-12">
@@ -401,7 +615,10 @@ export const GachaPullScreen: React.FC = () => {
               <div className="perspective-1000 group relative aspect-[4/5] w-full max-w-[320px] animate-pulse cursor-pointer">
                 <div className="bg-primary/20 absolute inset-0 rounded-full blur-[50px]"></div>
                 <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k"
+                  src={
+                    activeEvent.bannerUrl ??
+                    "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k"
+                  }
                   className="relative z-10 h-full w-full transform object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-105"
                 />
               </div>
@@ -409,42 +626,164 @@ export const GachaPullScreen: React.FC = () => {
             <div className="flex-1 text-center md:text-left">
               <div className="mb-4 flex items-center justify-center gap-2 md:justify-start">
                 <span className="bg-primary/10 text-primary border-primary/20 rounded-full border px-3 py-1 text-xs font-bold tracking-wider uppercase">
-                  Season 1
+                  Active Event
                 </span>
               </div>
               <h1 className="mb-4 text-5xl leading-none font-black text-white md:text-6xl">
-                Cosmic <br />
-                <span className="from-primary bg-gradient-to-r to-yellow-400 bg-clip-text text-transparent">
-                  Legends
-                </span>
+                {activeEvent.name}
               </h1>
-              <p className="text-text-secondary mx-auto mb-8 max-w-md text-lg md:mx-0">
-                Unleash the power of the stars. Each pack contains 10 cards with
-                a guaranteed Rare or higher.
+              <p className="text-text-secondary mx-auto mb-4 max-w-md text-lg md:mx-0">
+                {activeEvent.description}
               </p>
+
+              {/* Drop Rates Button */}
+              <button
+                onClick={() => setShowDropRates(!showDropRates)}
+                className="text-primary hover:text-primary-hover mb-6 text-sm underline"
+              >
+                {showDropRates ? "Hide" : "Show"} Drop Rates
+              </button>
+
+              {/* Drop Rates Display */}
+              {showDropRates && dropRates && (
+                <div className="bg-surface-highlight border-border-dark mb-6 rounded-lg border p-4">
+                  <h3 className="mb-3 text-sm font-bold text-white">
+                    Drop Rates
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-purple-400">Legendary:</span>
+                      <span className="text-text-secondary">
+                        {(dropRates.legendary * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-pink-400">Epic:</span>
+                      <span className="text-text-secondary">
+                        {(dropRates.epic * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-400">Rare:</span>
+                      <span className="text-text-secondary">
+                        {(dropRates.rare * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Common:</span>
+                      <span className="text-text-secondary">
+                        {(dropRates.common * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
-                <button className="bg-primary hover:bg-primary-hover text-background-dark shadow-primary/20 flex min-w-[160px] flex-col items-center rounded-xl px-8 py-4 text-lg font-bold shadow-lg">
-                  <span>PULL 1X</span>
+                <button
+                  onClick={handleSinglePull}
+                  disabled={pullMutation.isPending}
+                  className="bg-primary hover:bg-primary-hover text-background-dark shadow-primary/20 flex min-w-[160px] flex-col items-center rounded-xl px-8 py-4 text-lg font-bold shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span>
+                    {pullMutation.isPending ? "PULLING..." : "PULL 1X"}
+                  </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <span className="material-symbols-outlined text-xs">
                       diamond
                     </span>{" "}
-                    500
+                    {activeEvent.packPriceCoins}
                   </span>
                 </button>
-                <button className="bg-surface-highlight border-primary/50 text-primary hover:bg-primary/10 flex min-w-[160px] flex-col items-center rounded-xl border-2 px-8 py-4 text-lg font-bold transition-colors">
-                  <span>PULL 10X</span>
+                <button
+                  onClick={handleTenPull}
+                  disabled={pullTenMutation.isPending}
+                  className="bg-surface-highlight border-primary/50 text-primary hover:bg-primary/10 flex min-w-[160px] flex-col items-center rounded-xl border-2 px-8 py-4 text-lg font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span>
+                    {pullTenMutation.isPending ? "PULLING..." : "PULL 10X"}
+                  </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <span className="material-symbols-outlined text-xs">
                       diamond
                     </span>{" "}
-                    5000
+                    {activeEvent.packPriceCoins * 10}
                   </span>
                 </button>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Result Modal */}
+        {showResult && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+            onClick={closeResultModal}
+          >
+            <div
+              className="bg-surface-dark border-border-dark max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">
+                  {pulledCards.length === 1
+                    ? "Card Pulled!"
+                    : `${pulledCards.length} Cards Pulled!`}
+                </h2>
+                <button
+                  onClick={closeResultModal}
+                  className="text-text-secondary hover:text-white"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div
+                className={`grid gap-6 ${pulledCards.length === 1 ? "grid-cols-1 place-items-center" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"}`}
+              >
+                {pulledCards.map((card, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-surface-highlight border-border-dark group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg"
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden bg-gray-800">
+                      <div className="absolute top-2 left-2 z-10">
+                        <span
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold text-white uppercase ${getRarityStyles(card.rarity)}`}
+                        >
+                          {card.rarity}
+                        </span>
+                      </div>
+                      <img
+                        src={card.imageUrl}
+                        alt={card.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate text-sm font-bold text-white">
+                        {card.name}
+                      </p>
+                      <p className="text-text-secondary truncate text-xs">
+                        {card.rarity}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex justify-center gap-4">
+                <button
+                  onClick={closeResultModal}
+                  className="bg-primary hover:bg-primary-hover rounded-lg px-6 py-2 font-bold text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -452,48 +791,39 @@ export const GachaPullScreen: React.FC = () => {
 
 // --- Screen 5: My Collection ---
 export const CollectionScreen: React.FC = () => {
-  const collection = [
-    {
-      name: "Phoenix Ascendant",
-      lvl: "1",
-      id: "#0042",
-      rarity: "Legendary",
-      color: "from-yellow-500 to-primary",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlF3KWYUwTxjc8Grm19nxhxQ_j6qx_O_vpDsZklONjoNG3lOznCMzJR7B7MgYJjy7QUIdCJH-k_UM7iPIdAAsy-_NobkVO7g_vY6BI9NsQaKpnyWCbXXnLuRrs2YePxbrVYPZUO8vMDUUULrr77gKK5r4Y3HAI3za0C0xQMsQt1WgxSy6Q8mtAaaG6qtKG4fvglDUINxtoJHB6fgHkZZuPX0oNqo6xyfVSku9Km9etGnsABLG9bo4FQ5sQxVFdJJQB8EsDe1l7HFB4",
-    },
-    {
-      name: "Void Walker",
-      lvl: "5",
-      id: "#0156",
-      rarity: "Epic",
-      color: "bg-purple-600",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBr3_qKwl0IfvhNnGMyqxlWkLAKVqmX6Zu1Eerg669x3CBtHUJoT9SMT2ggu_O-38uybdBCPg0dXlcv6SUqnWIuLmbszYtEzr2AJvpBezoEHsY2SULzrAu6RojrSNiSHTYxhJ9Y_csu8ezmkjzyia6f5pKpkyiRTcCinYdCHWqjNsJS5VOnMiH_eovlzSkO4FDZYQDF7lS5qEPr1b59u8yxL8px-OPaX9WnhaNCPUvzyAH6S9PeouJCfrIJW6GFtBb2gbGKHSl2Gm1",
-    },
-    {
-      name: "Mecha Samurai",
-      lvl: "3",
-      id: "#0221",
-      rarity: "Rare",
-      color: "bg-blue-600",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCN1vOA2xdIpPnb0RTNNv7tjcq_GR1o7XQV0iWHCNyn-2nEoKmniFTvjwx8VgGx_1t9uC9ZsoZuAtzkLUgZrIYHAXyj4khCiim1_qDzZNgrWsNKDiGIWEsqRpnqiWjoZHratm6HNXJz9B65BXmG3IJVsSWHUR4nHjSR3xE24xr2LONAbEzSDXK6e30aqFzplyAk_hsf0xjJmA37m2xSLrSWClNzh4V2gciqW3A2-V2Y-lwVAUXcSaCwmTK-46yXsUSMz_1uZRkuWAsN",
-    },
-    {
-      name: "Forest Guardian",
-      lvl: "12",
-      id: "#0410",
-      rarity: "Rare",
-      color: "bg-green-600",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlF3KWYUwTxjc8Grm19nxhxQ_j6qx_O_vpDsZklONjoNG3lOznCMzJR7B7MgYJjy7QUIdCJH-k_UM7iPIdAAsy-_NobkVO7g_vY6BI9NsQaKpnyWCbXXnLuRrs2YePxbrVYPZUO8vMDUUULrr77gKK5r4Y3HAI3za0C0xQMsQt1WgxSy6Q8mtAaaG6qtKG4fvglDUINxtoJHB6fgHkZZuPX0oNqo6xyfVSku9Km9etGnsABLG9bo4FQ5sQxVFdJJQB8EsDe1l7HFB4",
-    },
-    {
-      name: "Solar Flare",
-      lvl: "2",
-      id: "#0551",
-      rarity: "Common",
-      color: "bg-gray-600",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k",
-    },
-  ]
+  const {
+    data: userCards,
+    isLoading: cardsLoading,
+    error: cardsError,
+    refetch: refetchCards,
+  } = trpc.collection.getUserCards.useQuery()
+  const { data: stats, isLoading: statsLoading } =
+    trpc.collection.getStats.useQuery()
+
+  const isLoading = cardsLoading || statsLoading
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <LoadingSpinner message="Loading your collection..." />
+      </div>
+    )
+  }
+
+  if (cardsError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <ErrorDisplay
+          title="Failed to load collection"
+          message={cardsError.message}
+          onRetry={() => refetchCards()}
+        />
+      </div>
+    )
+  }
+
+  const totalCards = stats?.totalCards ?? 0
+  const uniqueCards = stats?.uniqueCards ?? 0
 
   return (
     <div className="flex w-full flex-col items-center px-4 py-8 lg:px-20">
@@ -510,59 +840,64 @@ export const CollectionScreen: React.FC = () => {
           <div className="flex gap-4">
             <div className="bg-surface-dark border-border-dark min-w-[160px] rounded-xl border p-4">
               <p className="text-text-secondary text-xs font-bold uppercase">
-                Total Value
+                Total Cards
               </p>
-              <p className="text-2xl font-bold text-white">$4,500</p>
+              <p className="text-2xl font-bold text-white">{totalCards}</p>
             </div>
             <div className="bg-surface-dark border-border-dark min-w-[160px] rounded-xl border p-4">
               <p className="text-text-secondary text-xs font-bold uppercase">
-                Completion
+                Unique Cards
               </p>
-              <p className="text-primary text-2xl font-bold">68%</p>
+              <p className="text-primary text-2xl font-bold">{uniqueCards}</p>
             </div>
           </div>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
-          {collection.map((item, i) => (
-            <div
-              key={i}
-              className="bg-surface-dark border-border-dark hover:border-primary group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg"
-            >
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-800">
-                <div className="absolute top-2 left-2 z-10 flex gap-1">
-                  <span
-                    className={`${item.color.includes("gradient") ? "bg-gradient-to-r" : ""} ${item.color} rounded px-2 py-0.5 text-[10px] font-bold text-white`}
-                  >
-                    {item.rarity}
-                  </span>
+        {!userCards || userCards.length === 0 ? (
+          <EmptyState
+            icon="inventory_2"
+            title="Your collection is empty"
+            description="Visit the marketplace or try a gacha pull to start collecting!"
+            actions={[
+              { label: "Browse Marketplace", href: "/marketplace" },
+              { label: "Try Gacha", href: "/gacha" },
+            ]}
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+            {userCards.map((userCard: UserCard) => (
+              <div
+                key={userCard.id}
+                className="bg-surface-dark border-border-dark hover:border-primary group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden bg-gray-800">
+                  <div className="absolute top-2 left-2 z-10 flex gap-1">
+                    <span
+                      className={`rounded px-2 py-0.5 text-[10px] font-bold text-white uppercase ${getRarityStyles(userCard.card.rarity)}`}
+                    >
+                      {userCard.card.rarity}
+                    </span>
+                  </div>
+                  <img
+                    src={userCard.card.imageUrl}
+                    alt={userCard.card.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 </div>
-                <img
-                  src={item.img}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                <div className="p-3">
+                  <h3 className="truncate text-sm font-bold text-white">
+                    {userCard.card.name}
+                  </h3>
+                  <p className="text-text-secondary mt-1 text-xs">
+                    Acquired:{" "}
+                    {new Date(userCard.acquiredAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-              <div className="p-3">
-                <h3 className="truncate text-sm font-bold text-white">
-                  {item.name}
-                </h3>
-                <p className="text-text-secondary mt-1 text-xs">
-                  Lvl {item.lvl} • {item.id}
-                </p>
-              </div>
-            </div>
-          ))}
-          {/* Fill empty spots visually if needed */}
-          {[1, 2, 3].map((n) => (
-            <div
-              key={`empty-${n}`}
-              className="border-border-dark flex aspect-[3/4] items-center justify-center rounded-xl border border-dashed opacity-30"
-            >
-              <span className="text-text-secondary text-sm">Empty Slot</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

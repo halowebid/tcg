@@ -56,8 +56,8 @@ export default function AdminPage() {
           },
           {
             label: "Active Events",
-            value: "N/A",
-            change: "Coming soon",
+            value: stats?.activeEvents.toLocaleString() ?? "0",
+            change: "Currently active",
             icon: "casino",
             color: "text-primary",
           },
@@ -104,18 +104,24 @@ export default function AdminPage() {
           </div>
           <div className="border-border-dark z-10 grid grid-cols-3 gap-4 border-y py-4">
             <div>
-              <p className="text-2xl font-bold text-white">-</p>
+              <p className="text-2xl font-bold text-white">
+                {stats?.totalCards ?? "-"}
+              </p>
               <p className="text-text-secondary text-xs uppercase">
                 Total Cards
               </p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-orange-400">-</p>
+              <p className="text-2xl font-bold text-orange-400">4</p>
               <p className="text-text-secondary text-xs uppercase">Rarities</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-500">-</p>
-              <p className="text-text-secondary text-xs uppercase">Sets</p>
+              <p className="text-2xl font-bold text-green-500">
+                {stats?.activeEvents ?? "-"}
+              </p>
+              <p className="text-text-secondary text-xs uppercase">
+                Active Events
+              </p>
             </div>
           </div>
           <button

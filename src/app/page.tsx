@@ -1,3 +1,5 @@
+"use client"
+
 import { LandingScreen } from "@/screens/PublicScreens"
 
 export default function HomePage() {

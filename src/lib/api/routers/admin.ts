@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth"
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
 import { getCached, setCached } from "@/lib/cache/redis"
 import {
+  cards,
   gachaEvents,
   pullHistory,
   transactions,
@@ -21,21 +22,29 @@ export const adminRouter = router({
     )
     if (cached) return cached
 
-    const [totalUsers, totalPulls, totalRevenue] = await Promise.all([
-      ctx.db.select({ count: sql<number>`count(*)` }).from(userProfiles),
-      ctx.db.select({ count: sql<number>`count(*)` }).from(pullHistory),
-      ctx.db
-        .select({
-          total: sql<number>`sum(abs(${transactions.coinsChange}))`,
-        })
-        .from(transactions)
-        .where(eq(transactions.type, "gacha_pull")),
-    ])
+    const [totalUsers, totalPulls, totalRevenue, cardStats, activeEvents] =
+      await Promise.all([
+        ctx.db.select({ count: sql<number>`count(*)` }).from(userProfiles),
+        ctx.db.select({ count: sql<number>`count(*)` }).from(pullHistory),
+        ctx.db
+          .select({
+            total: sql<number>`sum(abs(${transactions.coinsChange}))`,
+          })
+          .from(transactions)
+          .where(eq(transactions.type, "gacha_pull")),
+        ctx.db.select({ count: sql<number>`count(*)` }).from(cards),
+        ctx.db
+          .select({ count: sql<number>`count(*)` })
+          .from(gachaEvents)
+          .where(eq(gachaEvents.isActive, true)),
+      ])
 
     const stats = {
       totalUsers: Number(totalUsers[0]?.count ?? 0),
       totalPulls: Number(totalPulls[0]?.count ?? 0),
       totalRevenue: Number(totalRevenue[0]?.total ?? 0),
+      totalCards: Number(cardStats[0]?.count ?? 0),
+      activeEvents: Number(activeEvents[0]?.count ?? 0),
     }
 
     await setCached(
