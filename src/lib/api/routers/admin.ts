@@ -1,6 +1,8 @@
+import { headers } from "next/headers"
 import { desc, eq, sql } from "drizzle-orm"
 import { z } from "zod"
 
+import { auth } from "@/lib/auth"
 import { CACHE_KEYS, CACHE_TTL } from "@/lib/cache/keys"
 import { getCached, setCached } from "@/lib/cache/redis"
 import {
@@ -8,6 +10,7 @@ import {
   pullHistory,
   transactions,
   userProfiles,
+  users,
 } from "@/lib/db/schema"
 import { adminProcedure, router } from "../trpc"
 
@@ -63,15 +66,25 @@ export const adminRouter = router({
   getUserById: adminProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const user = await ctx.db.query.userProfiles.findFirst({
+      const profile = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, input.userId),
       })
 
-      if (!user) {
+      if (!profile) {
         throw new Error("User not found")
       }
 
-      return user
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, input.userId),
+      })
+
+      return {
+        ...profile,
+        role: user?.role ?? "user",
+        isBanned: user?.banned ?? false,
+        banReason: user?.banReason,
+        banExpires: user?.banExpires,
+      }
     }),
 
   updateUserWallet: adminProcedure
@@ -100,7 +113,7 @@ export const adminRouter = router({
           coinsChange: input.coinsChange,
           gemsChange: input.gemsChange,
           description: input.reason,
-          createdBy: ctx.profile.userId,
+          createdBy: ctx.session.user.id,
         })
       })
 
@@ -109,11 +122,21 @@ export const adminRouter = router({
 
   banUser: adminProcedure
     .input(z.object({ userId: z.string(), banned: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(userProfiles)
-        .set({ isBanned: input.banned, updatedAt: new Date() })
-        .where(eq(userProfiles.userId, input.userId))
+    .mutation(async ({ input }) => {
+      if (input.banned) {
+        await auth.api.banUser({
+          body: {
+            userId: input.userId,
+            banReason: "Banned by administrator",
+          },
+          headers: await headers(),
+        })
+      } else {
+        await auth.api.unbanUser({
+          body: { userId: input.userId },
+          headers: await headers(),
+        })
+      }
 
       return { success: true }
     }),
@@ -222,5 +245,146 @@ export const adminRouter = router({
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(gachaEvents).where(eq(gachaEvents.id, input.id))
       return { success: true }
+    }),
+
+  createUser: adminProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        name: z.string(),
+        role: z.enum(["user", "admin"]).default("user"),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const user = await auth.api.createUser({
+        body: {
+          email: input.email,
+          password: input.password,
+          name: input.name,
+          role: input.role,
+        },
+      })
+      return user
+    }),
+
+  listUsers: adminProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+        searchValue: z.string().optional(),
+        searchField: z.enum(["email", "name"]).optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const result = await auth.api.listUsers({
+        query: {
+          limit: input.limit,
+          offset: input.offset,
+          searchValue: input.searchValue,
+          searchField: input.searchField,
+        },
+        headers: await headers(),
+      })
+      return result
+    }),
+
+  setRole: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        role: z.enum(["user", "admin"]),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await auth.api.setRole({
+        body: {
+          userId: input.userId,
+          role: input.role,
+        },
+        headers: await headers(),
+      })
+      return { success: true }
+    }),
+
+  banUserAdmin: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        banReason: z.string().optional(),
+        banExpiresIn: z.number().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await auth.api.banUser({
+        body: {
+          userId: input.userId,
+          banReason: input.banReason,
+          banExpiresIn: input.banExpiresIn,
+        },
+        headers: await headers(),
+      })
+      return { success: true }
+    }),
+
+  unbanUser: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input }) => {
+      await auth.api.unbanUser({
+        body: { userId: input.userId },
+        headers: await headers(),
+      })
+      return { success: true }
+    }),
+
+  listUserSessions: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      const sessions = await auth.api.listUserSessions({
+        body: { userId: input.userId },
+        headers: await headers(),
+      })
+      return sessions
+    }),
+
+  revokeUserSession: adminProcedure
+    .input(z.object({ sessionToken: z.string() }))
+    .mutation(async ({ input }) => {
+      await auth.api.revokeUserSession({
+        body: { sessionToken: input.sessionToken },
+        headers: await headers(),
+      })
+      return { success: true }
+    }),
+
+  revokeUserSessions: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input }) => {
+      await auth.api.revokeUserSessions({
+        body: { userId: input.userId },
+        headers: await headers(),
+      })
+      return { success: true }
+    }),
+
+  impersonateUser: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input }) => {
+      const result = await auth.api.impersonateUser({
+        body: { userId: input.userId },
+        headers: await headers(),
+      })
+      return result
+    }),
+
+  removeUser: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input }) => {
+      const deleted = await auth.api.removeUser({
+        body: { userId: input.userId },
+        headers: await headers(),
+      })
+      return deleted
     }),
 })

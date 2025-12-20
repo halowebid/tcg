@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { signUp } from "@/lib/auth/client"
 
@@ -69,25 +70,56 @@ export default function SignUpPage() {
 
     setIsLoading(true)
     try {
-      await signUp.email({
-        email,
-        password,
-        name,
-      })
-      router.push("/collection")
+      const result = await signUp.email(
+        {
+          email,
+          password,
+          name,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Account created successfully!")
+            router.push("/collection")
+          },
+          onError: (ctx) => {
+            setIsLoading(false)
+            const errorMessage = ctx.error.message ?? "Failed to create account"
+            if (errorMessage.includes("already")) {
+              setError("Email already registered")
+              toast.error("Email already registered")
+            } else if (errorMessage.includes("origin")) {
+              setError("Configuration error. Please contact support.")
+              toast.error("Configuration error. Please contact support.")
+            } else {
+              setError(errorMessage)
+              toast.error(errorMessage)
+            }
+          },
+        },
+      )
+
+      if (!result.error) {
+        toast.success("Account created successfully!")
+        router.push("/collection")
+      }
     } catch (err: unknown) {
+      setIsLoading(false)
       if (err && typeof err === "object" && "message" in err) {
         const message = (err as { message: string }).message
         if (message?.includes("already")) {
           setError("Email already registered")
+          toast.error("Email already registered")
+        } else if (message?.includes("origin")) {
+          setError("Configuration error. Please contact support.")
+          toast.error("Configuration error. Please contact support.")
         } else {
           setError("Failed to create account. Please try again.")
+          toast.error("Failed to create account. Please try again.")
         }
       } else {
         setError("Failed to create account. Please try again.")
+        toast.error("Failed to create account. Please try again.")
       }
-    } finally {
-      setIsLoading(false)
     }
   }
 

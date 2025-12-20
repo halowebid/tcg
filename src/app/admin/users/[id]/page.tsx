@@ -17,6 +17,8 @@ export default function AdminUserEditPage() {
   const [gemsChange, setGemsChange] = useState("")
   const [reason, setReason] = useState("")
   const [banConfirm, setBanConfirm] = useState(false)
+  const [roleChangeConfirm, setRoleChangeConfirm] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<"user" | "admin">("user")
 
   const {
     data: user,
@@ -27,6 +29,7 @@ export default function AdminUserEditPage() {
     userId,
     limit: 20,
   })
+  const { data: sessions } = trpc.admin.listUserSessions.useQuery({ userId })
 
   const updateWalletMutation = trpc.admin.updateUserWallet.useMutation({
     onSuccess: () => {
@@ -54,6 +57,28 @@ export default function AdminUserEditPage() {
     onError: (error) => {
       toast.error(`Failed to ban/unban user: ${error.message}`)
       setBanConfirm(false)
+    },
+  })
+
+  const setRoleMutation = trpc.admin.setRole.useMutation({
+    onSuccess: () => {
+      toast.success("Role updated successfully!")
+      setRoleChangeConfirm(false)
+      window.location.reload()
+    },
+    onError: (error) => {
+      toast.error(`Failed to update role: ${error.message}`)
+      setRoleChangeConfirm(false)
+    },
+  })
+
+  const revokeSessionMutation = trpc.admin.revokeUserSession.useMutation({
+    onSuccess: () => {
+      toast.success("Session revoked successfully!")
+      window.location.reload()
+    },
+    onError: (error) => {
+      toast.error(`Failed to revoke session: ${error.message}`)
     },
   })
 
@@ -88,6 +113,24 @@ export default function AdminUserEditPage() {
       userId,
       banned: !user?.isBanned,
     })
+  }
+
+  const handleRoleChange = (role: "user" | "admin") => {
+    setSelectedRole(role)
+    setRoleChangeConfirm(true)
+  }
+
+  const confirmRoleChange = () => {
+    setRoleMutation.mutate({
+      userId,
+      role: selectedRole,
+    })
+  }
+
+  const handleRevokeSession = (sessionToken: string) => {
+    if (confirm("Are you sure you want to revoke this session?")) {
+      revokeSessionMutation.mutate({ sessionToken })
+    }
   }
 
   if (isLoading) {
@@ -214,6 +257,38 @@ export default function AdminUserEditPage() {
                 </div>
               </div>
             </div>
+
+            <div className="bg-surface-dark border-border-dark mt-6 rounded-xl border p-6">
+              <h3 className="mb-4 font-bold text-white">Role Management</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-text-secondary mb-2 block text-xs font-bold uppercase">
+                    Current Role
+                  </label>
+                  <p className="text-sm font-bold text-white">
+                    {user.role === "admin" ? "Administrator" : "User"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleRoleChange("user")}
+                    disabled={user.role === "user" || setRoleMutation.isPending}
+                    className="bg-surface-highlight border-border-dark hover:border-primary flex-1 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
+                  >
+                    Set as User
+                  </button>
+                  <button
+                    onClick={() => handleRoleChange("admin")}
+                    disabled={
+                      user.role === "admin" || setRoleMutation.isPending
+                    }
+                    className="bg-primary/10 border-primary/20 hover:bg-primary/20 flex-1 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
+                  >
+                    Set as Admin
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Main Content */}
@@ -333,6 +408,56 @@ export default function AdminUserEditPage() {
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
                 <span className="material-symbols-outlined text-primary">
+                  devices
+                </span>
+                Active Sessions
+              </h3>
+              {sessions?.sessions && sessions.sessions.length > 0 ? (
+                <div className="space-y-2">
+                  {sessions.sessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="bg-background-dark border-border-dark flex items-start justify-between rounded-lg border p-3"
+                    >
+                      <div className="flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="text-text-secondary text-xs">
+                            {session.userAgent ?? "Unknown device"}
+                          </span>
+                        </div>
+                        <p className="text-text-secondary text-xs">
+                          IP: {session.ipAddress ?? "Unknown"}
+                        </p>
+                        <p className="text-text-secondary text-xs">
+                          Created:{" "}
+                          {new Date(session.createdAt).toLocaleString()}
+                        </p>
+                        {session.impersonatedBy && (
+                          <p className="text-xs text-purple-400">
+                            Impersonation Session
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleRevokeSession(session.id)}
+                        disabled={revokeSessionMutation.isPending}
+                        className="ml-4 rounded border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-bold text-red-500 hover:bg-red-500/20 disabled:opacity-50"
+                      >
+                        Revoke
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-secondary py-8 text-center">
+                  No active sessions
+                </p>
+              )}
+            </div>
+
+            <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
+              <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
+                <span className="material-symbols-outlined text-primary">
                   history
                 </span>
                 Activity Log
@@ -419,6 +544,16 @@ export default function AdminUserEditPage() {
             : "Are you sure you want to ban this user? They will lose access to the platform."
         }
         confirmText={user.isBanned ? "Unban" : "Ban"}
+        cancelText="Cancel"
+      />
+
+      <ConfirmModal
+        isOpen={roleChangeConfirm}
+        onClose={() => setRoleChangeConfirm(false)}
+        onConfirm={confirmRoleChange}
+        title="Change User Role"
+        message={`Are you sure you want to change this user's role to ${selectedRole === "admin" ? "Administrator" : "User"}? This will ${selectedRole === "admin" ? "grant them full admin privileges" : "remove their admin privileges"}.`}
+        confirmText="Change Role"
         cancelText="Cancel"
       />
     </div>

@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { signIn } from "@/lib/auth/client"
 
@@ -39,16 +40,40 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      await signIn.email({
-        email,
-        password,
-      })
-      router.push("/collection")
-    } catch {
-      setError("Invalid email or password")
-      setPassword("")
-    } finally {
+      const result = await signIn.email(
+        {
+          email,
+          password,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Logged in successfully!")
+            router.push("/collection")
+          },
+          onError: (ctx) => {
+            setIsLoading(false)
+            const errorMessage =
+              ctx.error.message ?? "Invalid email or password"
+            setError(errorMessage)
+            toast.error(errorMessage)
+            setPassword("")
+          },
+        },
+      )
+
+      if (!result.error) {
+        toast.success("Logged in successfully!")
+        router.push("/collection")
+      }
+    } catch (err: unknown) {
       setIsLoading(false)
+      const errorMessage =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message: string }).message
+          : "Invalid email or password"
+      setError(errorMessage)
+      toast.error(errorMessage)
+      setPassword("")
     }
   }
 

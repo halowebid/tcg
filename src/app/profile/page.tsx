@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
 
 const profileSchema = z.object({
@@ -26,6 +27,7 @@ const profileSchema = z.object({
 })
 
 export default function ProfilePage() {
+  const { data: session } = useSession()
   const { data: profile, isLoading: profileLoading } =
     trpc.users.getProfile.useQuery()
   const { data: wallet, isLoading: walletLoading } =
@@ -126,7 +128,7 @@ export default function ProfilePage() {
               <div className="bg-background-dark text-text-secondary border-border-dark rounded-lg border px-4 py-2 text-sm">
                 Verified
               </div>
-              {profile.isAdmin && (
+              {session?.user?.role === "admin" && (
                 <div className="bg-background-dark border-primary/20 text-primary rounded-lg border px-4 py-2 text-sm">
                   Admin
                 </div>

@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { admin } from "better-auth/plugins"
 
 import { db } from "@/lib/db"
 import * as schema from "@/lib/db/schema"
@@ -26,9 +27,17 @@ export const auth = betterAuth({
       enabled: !!process.env["GOOGLE_CLIENT_ID"],
     },
   },
+  plugins: [
+    admin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+    }),
+  ],
   secret: process.env["BETTER_AUTH_SECRET"]!,
-  baseURL: process.env["BETTER_AUTH_URL"]!,
-  trustedOrigins: [process.env["NEXT_PUBLIC_APP_URL"]!],
+  baseURL: process.env["BETTER_AUTH_URL"] ?? "http://localhost:3000",
+  trustedOrigins: process.env["NEXT_PUBLIC_APP_URL"]
+    ? [process.env["NEXT_PUBLIC_APP_URL"]]
+    : ["http://localhost:3000"],
 })
 /* eslint-enable no-restricted-properties */
 
