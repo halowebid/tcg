@@ -1,4 +1,6 @@
 import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -76,3 +78,9 @@ export const verificationTokens = pgTable(
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 )
+
+export const insertUserSchema = createInsertSchema(users)
+export const selectUserSchema = createSelectSchema(users)
+
+export type InsertUser = z.infer<typeof insertUserSchema>
+export type SelectUser = z.infer<typeof selectUserSchema>

@@ -6,6 +6,8 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 import { users } from "./users"
 
@@ -27,3 +29,9 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at"),
 })
+
+export const insertUserProfileSchema = createInsertSchema(userProfiles)
+export const selectUserProfileSchema = createSelectSchema(userProfiles)
+
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>
+export type SelectUserProfile = z.infer<typeof selectUserProfileSchema>

@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 import {
   Button,
@@ -8,6 +9,10 @@ import {
   CardTitle,
   Input,
 } from "@/components/ui"
+import {
+  walletUpdateFormSchema,
+  type WalletUpdateFormInput,
+} from "@/lib/db/schema/validations"
 
 interface WalletUpdateFormProps {
   onUpdate: (data: {
@@ -23,27 +28,36 @@ export function WalletUpdateForm({
   onUpdate,
   isPending,
 }: WalletUpdateFormProps) {
-  const [selectedUserId, setSelectedUserId] = useState<string>("")
-  const [coinsChange, setCoinsChange] = useState<string>("0")
-  const [gemsChange, setGemsChange] = useState<string>("0")
-  const [reason, setReason] = useState<string>("")
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<WalletUpdateFormInput & { userId: string }>({
+    resolver: zodResolver(
+      walletUpdateFormSchema.extend({
+        userId: walletUpdateFormSchema.shape.reason,
+      }),
+    ),
+    defaultValues: {
+      userId: "",
+      coinsChange: 0,
+      gemsChange: 0,
+      reason: "",
+    },
+  })
 
-  const handleSubmit = async () => {
-    if (!selectedUserId) {
-      alert("Please select a user")
-      return
-    }
-
+  const onSubmit = async (
+    data: WalletUpdateFormInput & { userId: string },
+  ) => {
     await onUpdate({
-      userId: selectedUserId,
-      coinsChange: parseInt(coinsChange),
-      gemsChange: parseInt(gemsChange),
-      reason,
+      userId: data.userId,
+      coinsChange: data.coinsChange,
+      gemsChange: data.gemsChange,
+      reason: data.reason,
     })
 
-    setCoinsChange("0")
-    setGemsChange("0")
-    setReason("")
+    reset()
   }
 
   return (
@@ -52,15 +66,19 @@ export function WalletUpdateForm({
         <CardTitle>Update User Wallet</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium">User ID</label>
             <Input
+              {...register("userId")}
               type="text"
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
               placeholder="Enter user ID"
             />
+            {errors.userId && (
+              <p className="mt-1 text-xs text-red-500">
+                {errors.userId.message}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -68,37 +86,49 @@ export function WalletUpdateForm({
                 Coins Change
               </label>
               <Input
+                {...register("coinsChange", { valueAsNumber: true })}
                 type="number"
-                value={coinsChange}
-                onChange={(e) => setCoinsChange(e.target.value)}
                 placeholder="0"
               />
+              {errors.coinsChange && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.coinsChange.message}
+                </p>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
                 Gems Change
               </label>
               <Input
+                {...register("gemsChange", { valueAsNumber: true })}
                 type="number"
-                value={gemsChange}
-                onChange={(e) => setGemsChange(e.target.value)}
                 placeholder="0"
               />
+              {errors.gemsChange && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.gemsChange.message}
+                </p>
+              )}
             </div>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Reason</label>
             <Input
+              {...register("reason")}
               type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
               placeholder="Enter reason for adjustment"
             />
+            {errors.reason && (
+              <p className="mt-1 text-xs text-red-500">
+                {errors.reason.message}
+              </p>
+            )}
           </div>
-          <Button onClick={handleSubmit} disabled={isPending}>
+          <Button type="submit" disabled={isPending}>
             {isPending ? "Updating..." : "Update Wallet"}
           </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   )

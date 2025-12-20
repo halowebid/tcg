@@ -1,4 +1,6 @@
 import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 export const systemSettings = pgTable("system_settings", {
   id: text("id").primaryKey().default("default"),
@@ -13,3 +15,9 @@ export const systemSettings = pgTable("system_settings", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
+
+export const insertSystemSettingsSchema = createInsertSchema(systemSettings)
+export const selectSystemSettingsSchema = createSelectSchema(systemSettings)
+
+export type InsertSystemSettings = z.infer<typeof insertSystemSettingsSchema>
+export type SelectSystemSettings = z.infer<typeof selectSystemSettingsSchema>

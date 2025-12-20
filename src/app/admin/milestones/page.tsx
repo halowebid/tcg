@@ -2,14 +2,38 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
 import { DashboardHeader } from "@/components/Headers"
+import {
+  milestoneFormSchema,
+  type MilestoneFormInput,
+} from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
 
 export default function AdminMilestonesPage() {
   const router = useRouter()
   const [showCreateForm, setShowCreateForm] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<MilestoneFormInput>({
+    resolver: zodResolver(milestoneFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      icon: "",
+      requirementType: "collection_size",
+      requirementValue: 1,
+      rewardType: "coins",
+      rewardValue: "",
+    },
+  })
 
   const { data: milestones, isLoading, error } = trpc.milestones.list.useQuery()
 
@@ -17,6 +41,7 @@ export default function AdminMilestonesPage() {
     onSuccess: () => {
       toast.success("Milestone created successfully!")
       setShowCreateForm(false)
+      reset()
       window.location.reload()
     },
     onError: (error) => {
@@ -41,29 +66,8 @@ export default function AdminMilestonesPage() {
     })
   }
 
-  const handleCreateSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-
-    createMutation.mutate({
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      icon: formData.get("icon") as string,
-      requirementType: formData.get("requirementType") as
-        | "collection_size"
-        | "total_spend"
-        | "friend_count"
-        | "pulls_count"
-        | "login_streak",
-      requirementValue: parseInt(formData.get("requirementValue") as string),
-      rewardType: formData.get("rewardType") as
-        | "coins"
-        | "gems"
-        | "badge"
-        | "frame"
-        | "title",
-      rewardValue: formData.get("rewardValue") as string,
-    })
+  const onSubmit = (data: MilestoneFormInput) => {
+    createMutation.mutate(data)
   }
 
   if (isLoading) {
@@ -116,49 +120,66 @@ export default function AdminMilestonesPage() {
             <h3 className="mb-6 text-lg font-bold text-white">
               Create New Milestone
             </h3>
-            <form onSubmit={handleCreateSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                     Title
                   </label>
                   <input
-                    name="title"
-                    required
-                    className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
+                    {...register("title")}
+                    className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
+                      errors.title ? "border-red-500" : ""
+                    }`}
                     placeholder="e.g., Beginner Collector"
                   />
+                  {errors.title && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.title.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                     Icon
                   </label>
                   <input
-                    name="icon"
-                    required
-                    className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
+                    {...register("icon")}
+                    className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
+                      errors.icon ? "border-red-500" : ""
+                    }`}
                     placeholder="e.g., style, emoji_events"
                   />
+                  {errors.icon && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.icon.message}
+                    </p>
+                  )}
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                     Description
                   </label>
                   <textarea
-                    name="description"
-                    required
+                    {...register("description")}
                     rows={2}
-                    className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
+                    className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
+                      errors.description ? "border-red-500" : ""
+                    }`}
                     placeholder="e.g., Collect 10 unique cards"
                   />
+                  {errors.description && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.description.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                     Requirement Type
                   </label>
                   <select
-                    name="requirementType"
-                    required
+                    {...register("requirementType")}
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   >
                     <option value="collection_size">Collection Size</option>
@@ -173,21 +194,26 @@ export default function AdminMilestonesPage() {
                     Requirement Value
                   </label>
                   <input
-                    name="requirementValue"
+                    {...register("requirementValue", { valueAsNumber: true })}
                     type="number"
-                    required
                     min="1"
-                    className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
+                    className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
+                      errors.requirementValue ? "border-red-500" : ""
+                    }`}
                     placeholder="e.g., 10"
                   />
+                  {errors.requirementValue && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.requirementValue.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                     Reward Type
                   </label>
                   <select
-                    name="rewardType"
-                    required
+                    {...register("rewardType")}
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   >
                     <option value="coins">Coins</option>
@@ -202,11 +228,17 @@ export default function AdminMilestonesPage() {
                     Reward Value
                   </label>
                   <input
-                    name="rewardValue"
-                    required
-                    className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
+                    {...register("rewardValue")}
+                    className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
+                      errors.rewardValue ? "border-red-500" : ""
+                    }`}
                     placeholder="e.g., 100 or 'Dragon Badge'"
                   />
+                  {errors.rewardValue && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.rewardValue.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-2">

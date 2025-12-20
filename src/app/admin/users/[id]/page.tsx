@@ -2,10 +2,16 @@
 
 import React, { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
 import { DashboardHeader } from "@/components/Headers"
 import { ConfirmModal } from "@/components/ui"
+import {
+  walletUpdateFormSchema,
+  type WalletUpdateFormInput,
+} from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
 
 export default function AdminUserEditPage() {
@@ -13,12 +19,23 @@ export default function AdminUserEditPage() {
   const router = useRouter()
   const userId = params["id"] as string
 
-  const [coinsChange, setCoinsChange] = useState("")
-  const [gemsChange, setGemsChange] = useState("")
-  const [reason, setReason] = useState("")
   const [banConfirm, setBanConfirm] = useState(false)
   const [roleChangeConfirm, setRoleChangeConfirm] = useState(false)
   const [selectedRole, setSelectedRole] = useState<"user" | "admin">("user")
+
+  const {
+    register,
+    formState: { errors },
+    reset,
+    getValues,
+  } = useForm<WalletUpdateFormInput>({
+    resolver: zodResolver(walletUpdateFormSchema),
+    defaultValues: {
+      coinsChange: 0,
+      gemsChange: 0,
+      reason: "",
+    },
+  })
 
   const {
     data: user,
@@ -34,9 +51,7 @@ export default function AdminUserEditPage() {
   const updateWalletMutation = trpc.admin.updateUserWallet.useMutation({
     onSuccess: () => {
       toast.success("Wallet updated successfully!")
-      setCoinsChange("")
-      setGemsChange("")
-      setReason("")
+      reset()
       window.location.reload()
     },
     onError: (error) => {
@@ -83,13 +98,15 @@ export default function AdminUserEditPage() {
   })
 
   const handleUpdateWallet = (type: "coins" | "gems") => {
-    if (!reason.trim()) {
+    const formValues = getValues()
+
+    if (!formValues.reason.trim()) {
       toast.error("Please provide a reason for the wallet adjustment")
       return
     }
 
-    const coins = type === "coins" ? (parseInt(coinsChange) ?? 0) : 0
-    const gems = type === "gems" ? (parseInt(gemsChange) ?? 0) : 0
+    const coins = type === "coins" ? formValues.coinsChange : 0
+    const gems = type === "gems" ? formValues.gemsChange : 0
 
     if (coins === 0 && gems === 0) {
       toast.error("Please enter a valid amount")
@@ -100,7 +117,7 @@ export default function AdminUserEditPage() {
       userId,
       coinsChange: coins,
       gemsChange: gems,
-      reason,
+      reason: formValues.reason,
     })
   }
 
@@ -313,11 +330,10 @@ export default function AdminUserEditPage() {
                   </p>
                   <div className="flex gap-2">
                     <input
+                      {...register("coinsChange", { valueAsNumber: true })}
                       className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
                       placeholder="+/- Amount"
                       type="number"
-                      value={coinsChange}
-                      onChange={(e) => setCoinsChange(e.target.value)}
                     />
                     <button
                       onClick={() => handleUpdateWallet("coins")}
@@ -340,11 +356,10 @@ export default function AdminUserEditPage() {
                   </p>
                   <div className="flex gap-2">
                     <input
+                      {...register("gemsChange", { valueAsNumber: true })}
                       className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
                       placeholder="+/- Amount"
                       type="number"
-                      value={gemsChange}
-                      onChange={(e) => setGemsChange(e.target.value)}
                     />
                     <button
                       onClick={() => handleUpdateWallet("gems")}
@@ -361,11 +376,17 @@ export default function AdminUserEditPage() {
                   Adjustment Reason (Required)
                 </label>
                 <input
-                  className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-3 py-2 text-sm text-white outline-none"
+                  {...register("reason")}
+                  className={`bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-3 py-2 text-sm text-white outline-none ${
+                    errors.reason ? "border-red-500" : ""
+                  }`}
                   placeholder="e.g., Compensation for bug, Event reward, etc."
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
                 />
+                {errors.reason && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.reason.message}
+                  </p>
+                )}
               </div>
             </div>
 

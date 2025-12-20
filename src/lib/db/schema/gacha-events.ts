@@ -7,6 +7,8 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 export const gachaEvents = pgTable("gacha_events", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -28,3 +30,9 @@ export const gachaEvents = pgTable("gacha_events", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
+
+export const insertGachaEventSchema = createInsertSchema(gachaEvents)
+export const selectGachaEventSchema = createSelectSchema(gachaEvents)
+
+export type InsertGachaEvent = z.infer<typeof insertGachaEventSchema>
+export type SelectGachaEvent = z.infer<typeof selectGachaEventSchema>

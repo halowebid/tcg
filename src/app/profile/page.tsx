@@ -1,30 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { z } from "zod"
 
+import {
+  profileUpdateSchema,
+  type ProfileUpdateInput,
+} from "@/lib/db/schema/validations"
 import { useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
-
-const profileSchema = z.object({
-  displayName: z
-    .string()
-    .min(2, "Display name must be at least 2 characters")
-    .max(50, "Display name must be less than 50 characters")
-    .optional()
-    .or(z.literal("")),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(20, "Username must be less than 20 characters")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores",
-    )
-    .optional()
-    .or(z.literal("")),
-})
 
 export default function ProfilePage() {
   const { data: session } = useSession()
@@ -32,6 +18,25 @@ export default function ProfilePage() {
     trpc.users.getProfile.useQuery()
   const { data: wallet, isLoading: walletLoading } =
     trpc.users.getWallet.useQuery()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ProfileUpdateInput>({
+    resolver: zodResolver(profileUpdateSchema),
+  })
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        displayName: profile.displayName ?? "",
+        username: profile.username ?? "",
+      })
+    }
+  }, [profile, reset])
+
   const updateProfile = trpc.users.updateProfile.useMutation({
     onSuccess: () => {
       toast.success("Profile updated successfully!")
@@ -42,12 +47,12 @@ export default function ProfilePage() {
     },
   })
 
-  const [displayName, setDisplayName] = useState("")
-  const [username, setUsername] = useState("")
-  const [errors, setErrors] = useState<{
-    displayName?: string
-    username?: string
-  }>({})
+  const onSubmit = (data: ProfileUpdateInput) => {
+    updateProfile.mutate({
+      displayName: data.displayName || undefined,
+      username: data.username || undefined,
+    })
+  }
 
   const isLoading = profileLoading || walletLoading
 
@@ -65,45 +70,6 @@ export default function ProfilePage() {
         <div className="text-text-secondary">Profile not found</div>
       </div>
     )
-  }
-
-  // Set initial values from profile data
-  if (!displayName && profile.displayName) {
-    setDisplayName(profile.displayName)
-  }
-  if (!username && profile.username) {
-    setUsername(profile.username)
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validate form data
-    const result = profileSchema.safeParse({
-      displayName: displayName || undefined,
-      username: username || undefined,
-    })
-
-    if (!result.success) {
-      const fieldErrors: { displayName?: string; username?: string } = {}
-      result.error.issues.forEach((err) => {
-        if (err.path[0] === "displayName") {
-          fieldErrors.displayName = err.message
-        }
-        if (err.path[0] === "username") {
-          fieldErrors.username = err.message
-        }
-      })
-      setErrors(fieldErrors)
-      toast.error("Please fix the validation errors")
-      return
-    }
-
-    setErrors({})
-    updateProfile.mutate({
-      displayName: displayName || undefined,
-      username: username || undefined,
-    })
   }
 
   return (
@@ -140,37 +106,35 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="bg-surface-dark border-border-dark rounded-2xl border p-6">
             <h3 className="mb-4 font-bold text-white">Settings</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <label className="text-text-secondary text-sm">
                   Display Name
                 </label>
                 <input
+                  {...register("displayName")}
                   className={`bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white ${
                     errors.displayName ? "border-red-500" : ""
                   }`}
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Enter display name"
                 />
                 {errors.displayName && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors.displayName}
+                    {errors.displayName.message}
                   </p>
                 )}
               </div>
               <div>
                 <label className="text-text-secondary text-sm">Username</label>
                 <input
+                  {...register("username")}
                   className={`bg-background-dark border-border-dark mt-1 w-full rounded-lg border px-3 py-2 text-white ${
                     errors.username ? "border-red-500" : ""
                   }`}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter username"
                 />
                 {errors.username && (
-                  <p className="mt-1 text-xs text-red-500">{errors.username}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
                 )}
               </div>
               <button

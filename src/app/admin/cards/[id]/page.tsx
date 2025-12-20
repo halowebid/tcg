@@ -1,30 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { z } from "zod"
 
+import {
+  cardEditFormSchema,
+  type CardEditFormInput,
+} from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
-
-const cardSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters"),
-  description: z
-    .string()
-    .max(500, "Description must be less than 500 characters")
-    .optional(),
-  imageUrl: z.string().url("Must be a valid URL"),
-  rarity: z.enum(["common", "rare", "epic", "legendary"]),
-  attackPower: z.number().int().min(0, "Attack power must be 0 or greater"),
-  defensePower: z.number().int().min(0, "Defense power must be 0 or greater"),
-  marketValue: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number")
-    .optional(),
-})
 
 export default function AdminEditCardPage() {
   const params = useParams()
@@ -32,30 +18,29 @@ export default function AdminEditCardPage() {
   const cardId = params["id"] as string
 
   const { data: card, isLoading } = trpc.cards.getById.useQuery({ id: cardId })
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    imageUrl: "",
-    rarity: "common" as "common" | "rare" | "epic" | "legendary",
-    attackPower: 0,
-    defensePower: 0,
-    marketValue: "",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CardEditFormInput>({
+    resolver: zodResolver(cardEditFormSchema),
   })
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (card) {
-      setFormData({
+      reset({
         name: card.name,
         description: card.description ?? "",
         imageUrl: card.imageUrl,
         rarity: card.rarity,
-        attackPower: card.attackPower ?? 0,
-        defensePower: card.defensePower ?? 0,
+        attackPower: card.attackPower ?? undefined,
+        defensePower: card.defensePower ?? undefined,
         marketValue: card.marketValue ?? "",
       })
     }
-  }, [card])
+  }, [card, reset])
 
   const updateMutation = trpc.cards.update.useMutation({
     onSuccess: () => {
@@ -67,26 +52,8 @@ export default function AdminEditCardPage() {
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validate form data
-    const result = cardSchema.safeParse(formData)
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
-      result.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message
-        }
-      })
-      setErrors(fieldErrors)
-      toast.error("Please fix the validation errors")
-      return
-    }
-
-    setErrors({})
-    updateMutation.mutate({ id: cardId, ...formData })
+  const onSubmit = (data: CardEditFormInput) => {
+    updateMutation.mutate({ id: cardId, ...data })
   }
 
   if (isLoading) {
@@ -107,7 +74,6 @@ export default function AdminEditCardPage() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Header */}
       <div className="border-border-dark flex items-center justify-between border-b bg-[#2d241b] px-8 py-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Edit Card</h1>
@@ -121,7 +87,7 @@ export default function AdminEditCardPage() {
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
+            onClick={handleSubmit(onSubmit)}
             disabled={updateMutation.isPending}
             className="bg-primary text-background-dark shadow-primary/20 hover:bg-primary-hover flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold shadow-lg disabled:opacity-50"
           >
@@ -132,8 +98,7 @@ export default function AdminEditCardPage() {
       </div>
 
       <div className="custom-scrollbar overflow-y-auto p-8">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-6">
-          {/* Same form fields as create page */}
+        <div className="mx-auto max-w-4xl space-y-6">
           <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 text-lg font-bold text-white">
               Basic Information
@@ -144,16 +109,15 @@ export default function AdminEditCardPage() {
                   Card Name
                 </label>
                 <input
+                  {...register("name")}
                   className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
-                    errors["name"] ? "border-red-500" : ""
+                    errors.name ? "border-red-500" : ""
                   }`}
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
                 />
-                {errors["name"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["name"]}</p>
+                {errors.name && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
               <div>
@@ -161,35 +125,22 @@ export default function AdminEditCardPage() {
                   Image URL
                 </label>
                 <input
+                  {...register("imageUrl")}
                   className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1 ${
-                    errors["imageUrl"] ? "border-red-500" : ""
+                    errors.imageUrl ? "border-red-500" : ""
                   }`}
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
                 />
-                {errors["imageUrl"] && (
+                {errors.imageUrl && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors["imageUrl"]}
+                    {errors.imageUrl.message}
                   </p>
                 )}
               </div>
               <div>
                 <label className="text-sm font-medium text-white">Rarity</label>
                 <select
+                  {...register("rarity")}
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
-                  value={formData.rarity}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      rarity: e.target.value as
-                        | "common"
-                        | "rare"
-                        | "epic"
-                        | "legendary",
-                    })
-                  }
                 >
                   <option value="common">Common</option>
                   <option value="rare">Rare</option>
@@ -202,11 +153,8 @@ export default function AdminEditCardPage() {
                   Description
                 </label>
                 <textarea
+                  {...register("description")}
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 min-h-[120px] w-full rounded-xl border p-4 text-white outline-none"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
                 ></textarea>
               </div>
             </div>
@@ -221,15 +169,14 @@ export default function AdminEditCardPage() {
                 </label>
                 <input
                   type="number"
+                  {...register("attackPower", { valueAsNumber: true })}
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
-                  value={formData.attackPower}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      attackPower: parseInt(e.target.value) ?? 0,
-                    })
-                  }
                 />
+                {errors.attackPower && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.attackPower.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-white">
@@ -237,31 +184,32 @@ export default function AdminEditCardPage() {
                 </label>
                 <input
                   type="number"
+                  {...register("defensePower", { valueAsNumber: true })}
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
-                  value={formData.defensePower}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      defensePower: parseInt(e.target.value) ?? 0,
-                    })
-                  }
                 />
+                {errors.defensePower && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.defensePower.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-white">
                   Market Value (Coins)
                 </label>
                 <input
+                  {...register("marketValue")}
                   className="bg-background-dark border-border-dark focus:border-primary mt-1 w-full rounded-xl border px-4 py-3 text-white outline-none"
-                  value={formData.marketValue}
-                  onChange={(e) =>
-                    setFormData({ ...formData, marketValue: e.target.value })
-                  }
                 />
+                {errors.marketValue && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.marketValue.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )

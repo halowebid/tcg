@@ -3,78 +3,37 @@
 import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { signUp } from "@/lib/auth/client"
+import { signupSchema, type SignupInput } from "@/lib/db/schema/validations"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [name, setName] = React.useState("")
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [confirmPassword, setConfirmPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [error, setError] = React.useState("")
-  const [emailError, setEmailError] = React.useState("")
-  const [passwordError, setPasswordError] = React.useState("")
-  const [confirmPasswordError, setConfirmPasswordError] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+  })
 
-  const handleEmailBlur = () => {
-    if (email && !validateEmail(email)) {
-      setEmailError("Invalid email format")
-    } else {
-      setEmailError("")
-    }
-  }
-
-  const handlePasswordBlur = () => {
-    if (password && password.length < 8) {
-      setPasswordError("Password must be at least 8 characters")
-    } else {
-      setPasswordError("")
-    }
-  }
-
-  const handleConfirmPasswordBlur = () => {
-    if (confirmPassword && confirmPassword !== password) {
-      setConfirmPasswordError("Passwords do not match")
-    } else {
-      setConfirmPasswordError("")
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: SignupInput) => {
     setError("")
-
-    if (!validateEmail(email)) {
-      setEmailError("Invalid email format")
-      return
-    }
-
-    if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters")
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match")
-      return
-    }
-
     setIsLoading(true)
+
     try {
       const result = await signUp.email(
         {
-          email,
-          password,
-          name,
+          email: data.email,
+          password: data.password,
+          name: data.name,
         },
         {
           onSuccess: () => {
@@ -154,7 +113,7 @@ export default function SignUpPage() {
               )}
             </div>
           )}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="text-text-secondary mb-1 block text-sm">
                 Name
@@ -165,14 +124,17 @@ export default function SignUpPage() {
                 </span>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  {...register("name")}
                   className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
                   placeholder="Your Name"
                   disabled={isLoading}
-                  required
                 />
               </div>
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-400">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
             <div>
               <label className="text-text-secondary mb-1 block text-sm">
@@ -184,17 +146,18 @@ export default function SignUpPage() {
                 </span>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onBlur={handleEmailBlur}
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
+                  {...register("email")}
+                  className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1 ${
+                    errors.email ? "border-red-500" : ""
+                  }`}
                   placeholder="collector@gacha.com"
                   disabled={isLoading}
-                  required
                 />
               </div>
-              {emailError && (
-                <p className="mt-1 text-xs text-red-400">{emailError}</p>
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-400">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div>
@@ -207,13 +170,12 @@ export default function SignUpPage() {
                 </span>
                 <input
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onBlur={handlePasswordBlur}
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-10 pl-10 text-white outline-none focus:ring-1"
+                  {...register("password")}
+                  className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-10 pl-10 text-white outline-none focus:ring-1 ${
+                    errors.password ? "border-red-500" : ""
+                  }`}
                   placeholder="••••••••"
                   disabled={isLoading}
-                  required
                 />
                 <button
                   type="button"
@@ -223,8 +185,10 @@ export default function SignUpPage() {
                   {showPassword ? "visibility_off" : "visibility"}
                 </button>
               </div>
-              {passwordError && (
-                <p className="mt-1 text-xs text-red-400">{passwordError}</p>
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-400">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             <div>
@@ -237,29 +201,23 @@ export default function SignUpPage() {
                 </span>
                 <input
                   type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  onBlur={handleConfirmPasswordBlur}
-                  className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
+                  {...register("confirmPassword")}
+                  className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1 ${
+                    errors.confirmPassword ? "border-red-500" : ""
+                  }`}
                   placeholder="••••••••"
                   disabled={isLoading}
-                  required
                 />
               </div>
-              {confirmPasswordError && (
+              {errors.confirmPassword && (
                 <p className="mt-1 text-xs text-red-400">
-                  {confirmPasswordError}
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>
             <button
               type="submit"
-              disabled={
-                isLoading ||
-                !!emailError ||
-                !!passwordError ||
-                !!confirmPasswordError
-              }
+              disabled={isLoading}
               className="bg-primary hover:bg-primary-hover shadow-primary/20 w-full rounded-xl py-3 font-bold text-white shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Creating account..." : "Sign Up"}

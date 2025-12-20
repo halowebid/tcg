@@ -8,6 +8,8 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 export const rarityEnum = pgEnum("rarity", [
   "common",
@@ -33,3 +35,9 @@ export const cards = pgTable("cards", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
+
+export const insertCardSchema = createInsertSchema(cards)
+export const selectCardSchema = createSelectSchema(cards)
+
+export type InsertCard = z.infer<typeof insertCardSchema>
+export type SelectCard = z.infer<typeof selectCardSchema>

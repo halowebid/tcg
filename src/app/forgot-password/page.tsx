@@ -2,40 +2,33 @@
 
 import React from "react"
 import Link from "next/link"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordInput,
+} from "@/lib/db/schema/validations"
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = React.useState("")
-  const [emailError, setEmailError] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
   const [success, setSuccess] = React.useState(false)
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+  })
 
-  const handleEmailBlur = () => {
-    if (email && !validateEmail(email)) {
-      setEmailError("Invalid email format")
-    } else {
-      setEmailError("")
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateEmail(email)) {
-      setEmailError("Invalid email format")
-      return
-    }
-
+  const onSubmit = async (data: ForgotPasswordInput) => {
     setIsLoading(true)
     try {
       await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: data.email }),
       })
       setSuccess(true)
     } catch {
@@ -78,7 +71,7 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <label className="text-text-secondary mb-1 block text-sm">
                   Email
@@ -89,22 +82,23 @@ export default function ForgotPasswordPage() {
                   </span>
                   <input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={handleEmailBlur}
-                    className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1"
+                    {...register("email")}
+                    className={`bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none focus:ring-1 ${
+                      errors.email ? "border-red-500" : ""
+                    }`}
                     placeholder="collector@gacha.com"
                     disabled={isLoading}
-                    required
                   />
                 </div>
-                {emailError && (
-                  <p className="mt-1 text-xs text-red-400">{emailError}</p>
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-400">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
               <button
                 type="submit"
-                disabled={isLoading || !!emailError}
+                disabled={isLoading}
                 className="bg-primary hover:bg-primary-hover shadow-primary/20 w-full rounded-xl py-3 font-bold text-white shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? "Sending..." : "Send Reset Link"}

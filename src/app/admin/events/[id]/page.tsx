@@ -1,44 +1,43 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { z } from "zod"
 
 import { DashboardHeader } from "@/components/Headers"
+import {
+  gachaEventFormSchema,
+  type GachaEventFormInput,
+} from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
-
-const eventSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
-  description: z.string().min(1, "Description is required"),
-  bannerUrl: z.string().url("Must be a valid URL"),
-  startDate: z.string(),
-  endDate: z.string(),
-  packPriceCoins: z.number().int().positive("Must be a positive number"),
-  packPriceGems: z.number().int().nonnegative("Must be zero or positive"),
-  commonRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
-  rareRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
-  epicRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
-  legendaryRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
-})
 
 export default function EditEventPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    bannerUrl: "",
-    startDate: "",
-    endDate: "",
-    packPriceCoins: 100,
-    packPriceGems: 0,
-    commonRate: "0.7000",
-    rareRate: "0.2000",
-    epicRate: "0.0800",
-    legendaryRate: "0.0200",
-    isActive: true,
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm<GachaEventFormInput>({
+    resolver: zodResolver(gachaEventFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      bannerUrl: "",
+      startDate: "",
+      endDate: "",
+      packPriceCoins: 100,
+      packPriceGems: 0,
+      commonRate: "0.7000",
+      rareRate: "0.2000",
+      epicRate: "0.0800",
+      legendaryRate: "0.0200",
+    },
   })
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const {
     data: event,
@@ -56,10 +55,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     },
   })
 
-  // Load event data into form when available
   useEffect(() => {
     if (event) {
-      setFormData({
+      reset({
         name: event.name,
         description: event.description ?? "",
         bannerUrl: event.bannerUrl ?? "",
@@ -71,34 +69,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         rareRate: event.rareRate,
         epicRate: event.epicRate,
         legendaryRate: event.legendaryRate,
-        isActive: event.isActive,
       })
     }
-  }, [event])
+  }, [event, reset])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const result = eventSchema.safeParse(formData)
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
-      result.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message
-        }
-      })
-      setErrors(fieldErrors)
-      toast.error("Please fix the validation errors")
-      return
-    }
-
-    // Validate drop rates sum to 1.0000
+  const onSubmit = (data: GachaEventFormInput) => {
     const total =
-      parseFloat(formData.commonRate) +
-      parseFloat(formData.rareRate) +
-      parseFloat(formData.epicRate) +
-      parseFloat(formData.legendaryRate)
+      parseFloat(data.commonRate) +
+      parseFloat(data.rareRate) +
+      parseFloat(data.epicRate) +
+      parseFloat(data.legendaryRate)
 
     if (Math.abs(total - 1.0) > 0.0001) {
       toast.error(
@@ -107,14 +87,20 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
       return
     }
 
-    setErrors({})
     updateMutation.mutate({
       id: params.id,
-      ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
+      ...data,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
     })
   }
+
+  const formValues = watch()
+  const currentRateSum =
+    parseFloat(formValues.commonRate ?? "0") +
+    parseFloat(formValues.rareRate ?? "0") +
+    parseFloat(formValues.epicRate ?? "0") +
+    parseFloat(formValues.legendaryRate ?? "0")
 
   if (isLoading) {
     return (
@@ -161,24 +147,23 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
       />
       <div className="custom-scrollbar overflow-y-auto p-8">
         <div className="bg-surface-dark border-border-dark mx-auto max-w-4xl rounded-xl border p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
                   Event Name
                 </label>
                 <input
+                  {...register("name")}
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors["name"] ? "border-red-500" : ""
+                    errors.name ? "border-red-500" : ""
                   }`}
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
                   placeholder="e.g., Summer Festival Banner"
                 />
-                {errors["name"] && (
-                  <p className="mt-1 text-xs text-red-500">{errors["name"]}</p>
+                {errors.name && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
               <div className="md:col-span-2">
@@ -186,19 +171,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   Description
                 </label>
                 <textarea
+                  {...register("description")}
                   rows={3}
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors["description"] ? "border-red-500" : ""
+                    errors.description ? "border-red-500" : ""
                   }`}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
                   placeholder="Event description..."
                 />
-                {errors["description"] && (
+                {errors.description && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors["description"]}
+                    {errors.description.message}
                   </p>
                 )}
               </div>
@@ -207,19 +189,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   Banner URL
                 </label>
                 <input
+                  {...register("bannerUrl")}
                   type="url"
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors["bannerUrl"] ? "border-red-500" : ""
+                    errors.bannerUrl ? "border-red-500" : ""
                   }`}
-                  value={formData.bannerUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, bannerUrl: e.target.value })
-                  }
                   placeholder="https://example.com/banner.jpg"
                 />
-                {errors["bannerUrl"] && (
+                {errors.bannerUrl && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors["bannerUrl"]}
+                    {errors.bannerUrl.message}
                   </p>
                 )}
               </div>
@@ -228,12 +207,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   Start Date
                 </label>
                 <input
+                  {...register("startDate")}
                   type="datetime-local"
                   className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
-                  value={formData.startDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
                 />
               </div>
               <div>
@@ -241,12 +217,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   End Date
                 </label>
                 <input
+                  {...register("endDate")}
                   type="datetime-local"
                   className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
-                  value={formData.endDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
                 />
               </div>
               <div>
@@ -254,21 +227,15 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   Pack Price (Coins)
                 </label>
                 <input
+                  {...register("packPriceCoins", { valueAsNumber: true })}
                   type="number"
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors["packPriceCoins"] ? "border-red-500" : ""
+                    errors.packPriceCoins ? "border-red-500" : ""
                   }`}
-                  value={formData.packPriceCoins}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      packPriceCoins: parseInt(e.target.value) ?? 0,
-                    })
-                  }
                 />
-                {errors["packPriceCoins"] && (
+                {errors.packPriceCoins && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors["packPriceCoins"]}
+                    {errors.packPriceCoins.message}
                   </p>
                 )}
               </div>
@@ -277,36 +244,17 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                   Pack Price (Gems)
                 </label>
                 <input
+                  {...register("packPriceGems", { valueAsNumber: true })}
                   type="number"
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors["packPriceGems"] ? "border-red-500" : ""
+                    errors.packPriceGems ? "border-red-500" : ""
                   }`}
-                  value={formData.packPriceGems}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      packPriceGems: parseInt(e.target.value) ?? 0,
-                    })
-                  }
                 />
-                {errors["packPriceGems"] && (
+                {errors.packPriceGems && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors["packPriceGems"]}
+                    {errors.packPriceGems.message}
                   </p>
                 )}
-              </div>
-              <div className="md:col-span-2">
-                <label className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isActive: e.target.checked })
-                    }
-                    className="size-4 rounded"
-                  />
-                  Event is Active
-                </label>
               </div>
             </div>
 
@@ -320,17 +268,14 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     Common
                   </label>
                   <input
+                    {...register("commonRate")}
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
-                      errors["commonRate"] ? "border-red-500" : ""
+                      errors.commonRate ? "border-red-500" : ""
                     }`}
-                    value={formData.commonRate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, commonRate: e.target.value })
-                    }
                   />
-                  {errors["commonRate"] && (
+                  {errors.commonRate && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors["commonRate"]}
+                      {errors.commonRate.message}
                     </p>
                   )}
                 </div>
@@ -339,17 +284,14 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     Rare
                   </label>
                   <input
+                    {...register("rareRate")}
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
-                      errors["rareRate"] ? "border-red-500" : ""
+                      errors.rareRate ? "border-red-500" : ""
                     }`}
-                    value={formData.rareRate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, rareRate: e.target.value })
-                    }
                   />
-                  {errors["rareRate"] && (
+                  {errors.rareRate && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors["rareRate"]}
+                      {errors.rareRate.message}
                     </p>
                   )}
                 </div>
@@ -358,17 +300,14 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     Epic
                   </label>
                   <input
+                    {...register("epicRate")}
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
-                      errors["epicRate"] ? "border-red-500" : ""
+                      errors.epicRate ? "border-red-500" : ""
                     }`}
-                    value={formData.epicRate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, epicRate: e.target.value })
-                    }
                   />
-                  {errors["epicRate"] && (
+                  {errors.epicRate && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors["epicRate"]}
+                      {errors.epicRate.message}
                     </p>
                   )}
                 </div>
@@ -377,32 +316,20 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                     Legendary
                   </label>
                   <input
+                    {...register("legendaryRate")}
                     className={`bg-surface-dark border-border-dark w-full rounded border px-2 py-1 text-sm text-white ${
-                      errors["legendaryRate"] ? "border-red-500" : ""
+                      errors.legendaryRate ? "border-red-500" : ""
                     }`}
-                    value={formData.legendaryRate}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        legendaryRate: e.target.value,
-                      })
-                    }
                   />
-                  {errors["legendaryRate"] && (
+                  {errors.legendaryRate && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors["legendaryRate"]}
+                      {errors.legendaryRate.message}
                     </p>
                   )}
                 </div>
               </div>
               <p className="text-text-secondary mt-2 text-xs">
-                Current Sum:{" "}
-                {(
-                  parseFloat(formData.commonRate ?? "0") +
-                  parseFloat(formData.rareRate ?? "0") +
-                  parseFloat(formData.epicRate ?? "0") +
-                  parseFloat(formData.legendaryRate ?? "0")
-                ).toFixed(4)}
+                Current Sum: {currentRateSum.toFixed(4)}
               </p>
             </div>
 
