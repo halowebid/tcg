@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth"
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Define routes that require authentication
   const protectedRoutes = [
     "/admin",
     "/profile",
@@ -14,7 +13,6 @@ export async function middleware(request: NextRequest) {
     "/notifications",
   ]
 
-  // Check if current path requires authentication
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route),
   )
@@ -25,11 +23,9 @@ export async function middleware(request: NextRequest) {
     })
 
     if (!session) {
-      // Redirect to login if not authenticated
       return NextResponse.redirect(new URL("/", request.url))
     }
 
-    // For admin routes, the tRPC adminProcedure will handle the actual admin check
     return NextResponse.next()
   }
 
