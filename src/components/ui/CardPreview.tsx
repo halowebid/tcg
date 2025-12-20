@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { Badge } from "./Badge"
 import {
   Card,
@@ -38,10 +40,12 @@ export function CardPreview({
     >
       <CardHeader className="p-0">
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-          <img
+          <Image
             src={imageUrl}
             alt={name}
             className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <div className="absolute top-2 right-2">
             <Badge variant={rarity}>{rarity.toUpperCase()}</Badge>

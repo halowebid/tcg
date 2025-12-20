@@ -2,16 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { DashboardHeader } from "@/components/Headers"
+import { ConfirmModal } from "@/components/ui"
 import {
   gachaEventFormSchema,
   type GachaEventFormInput,
 } from "@/lib/db/schema/validations"
-import { DashboardHeader } from "@/components/Headers"
-import { ConfirmModal } from "@/components/ui"
 import { trpc } from "@/lib/trpc/client"
 
 export default function AdminEventsPage() {
@@ -36,8 +36,8 @@ export default function AdminEventsPage() {
       name: "",
       description: "",
       bannerUrl: "",
-      startDate: "" as any,
-      endDate: "" as any,
+      startDate: "",
+      endDate: "",
       packPriceCoins: 100,
       packPriceGems: 0,
       commonRate: "0.7000",

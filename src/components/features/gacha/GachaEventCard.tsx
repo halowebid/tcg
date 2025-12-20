@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import {
   Card,
   CardContent,
@@ -41,11 +43,15 @@ export function GachaEventCard({
   return (
     <Card className={isSelected ? "ring-2 ring-blue-600" : ""}>
       <CardHeader>
-        <img
-          src={event.bannerUrl ?? ""}
-          alt={event.name}
-          className="mb-4 h-32 w-full rounded-t-lg object-cover"
-        />
+        <div className="relative mb-4 h-32 w-full overflow-hidden rounded-t-lg">
+          <Image
+            src={event.bannerUrl ?? ""}
+            alt={event.name}
+            className="object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
         <CardTitle>{event.name}</CardTitle>
         <CardDescription>{event.description}</CardDescription>
       </CardHeader>

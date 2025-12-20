@@ -1,4 +1,5 @@
 import { forwardRef, type ComponentPropsWithoutRef } from "react"
+import Image from "next/image"
 
 interface AvatarProps extends ComponentPropsWithoutRef<"div"> {
   src?: string
@@ -15,10 +16,12 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         {...props}
       >
         {src ? (
-          <img
+          <Image
             src={src}
             alt={alt ?? "Avatar"}
             className="h-full w-full object-cover"
+            fill
+            sizes="40px"
           />
         ) : (
           <span className="text-sm font-medium text-gray-600">

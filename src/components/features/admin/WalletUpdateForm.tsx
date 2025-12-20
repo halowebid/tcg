@@ -1,5 +1,5 @@
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 
 import {
   Button,
@@ -47,9 +47,7 @@ export function WalletUpdateForm({
     },
   })
 
-  const onSubmit = async (
-    data: WalletUpdateFormInput & { userId: string },
-  ) => {
+  const onSubmit = async (data: WalletUpdateFormInput & { userId: string }) => {
     await onUpdate({
       userId: data.userId,
       coinsChange: data.coinsChange,

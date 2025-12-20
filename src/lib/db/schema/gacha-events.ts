@@ -8,7 +8,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
-import { z } from "zod"
+import type { z } from "zod"
 
 export const gachaEvents = pgTable("gacha_events", {
   id: uuid("id").defaultRandom().primaryKey(),

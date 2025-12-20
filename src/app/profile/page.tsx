@@ -1,15 +1,15 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { useSession } from "@/lib/auth/client"
 import {
   profileUpdateSchema,
   type ProfileUpdateInput,
 } from "@/lib/db/schema/validations"
-import { useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
 
 export default function ProfilePage() {
@@ -49,8 +49,8 @@ export default function ProfilePage() {
 
   const onSubmit = (data: ProfileUpdateInput) => {
     updateProfile.mutate({
-      displayName: data.displayName || undefined,
-      username: data.username || undefined,
+      displayName: data.displayName ?? undefined,
+      username: data.username ?? undefined,
     })
   }
 
@@ -134,7 +134,9 @@ export default function ProfilePage() {
                   placeholder="Enter username"
                 />
                 {errors.username && (
-                  <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.username.message}
+                  </p>
                 )}
               </div>
               <button

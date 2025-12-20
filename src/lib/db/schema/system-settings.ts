@@ -1,6 +1,6 @@
 import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
-import { z } from "zod"
+import type { z } from "zod"
 
 export const systemSettings = pgTable("system_settings", {
   id: text("id").primaryKey().default("default"),

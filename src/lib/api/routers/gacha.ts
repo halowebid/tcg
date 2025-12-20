@@ -12,7 +12,12 @@ import {
   userCards,
   userProfiles,
 } from "@/lib/db/schema"
-import { protectedProcedure, publicProcedure, router } from "../trpc"
+import {
+  protectedProcedure,
+  publicProcedure,
+  router,
+  type createTRPCContext,
+} from "../trpc"
 
 export const gachaRouter = router({
   getActiveEvents: publicProcedure.query(async ({ ctx }) => {
@@ -258,7 +263,7 @@ export const gachaRouter = router({
 })
 
 async function selectRandomCard(
-  db: typeof import("@/lib/db").db,
+  db: Awaited<ReturnType<typeof createTRPCContext>>["db"],
   eventId: string,
   event: {
     legendaryRate: string

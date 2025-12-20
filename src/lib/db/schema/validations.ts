@@ -1,8 +1,6 @@
 import { z } from "zod"
 
-import {
-  insertSystemSettingsSchema,
-} from "."
+import { insertSystemSettingsSchema } from "."
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -65,8 +63,16 @@ export const cardFormSchema = z.object({
   imageUrl: z.string().url("Must be a valid URL"),
   rarity: z.enum(["common", "rare", "epic", "legendary"]),
   setId: z.string().uuid().optional(),
-  attackPower: z.number().int().min(0, "Attack power must be 0 or greater").optional(),
-  defensePower: z.number().int().min(0, "Defense power must be 0 or greater").optional(),
+  attackPower: z
+    .number()
+    .int()
+    .min(0, "Attack power must be 0 or greater")
+    .optional(),
+  defensePower: z
+    .number()
+    .int()
+    .min(0, "Defense power must be 0 or greater")
+    .optional(),
   marketValue: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number")
@@ -87,7 +93,11 @@ export const gachaEventFormSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   packPriceCoins: z.number().int().positive("Price must be greater than 0"),
-  packPriceGems: z.number().int().positive("Price must be greater than 0").optional(),
+  packPriceGems: z
+    .number()
+    .int()
+    .positive("Price must be greater than 0")
+    .optional(),
   commonRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
   rareRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
   epicRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
@@ -128,7 +138,10 @@ export const walletUpdateFormSchema = z.object({
 })
 
 export const milestoneFormSchema = z.object({
-  title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(100, "Title must be less than 100 characters"),
   description: z.string().min(1, "Description is required"),
   icon: z.string().min(1, "Icon is required"),
   requirementType: z.enum([
@@ -138,7 +151,10 @@ export const milestoneFormSchema = z.object({
     "pulls_count",
     "login_streak",
   ]),
-  requirementValue: z.number().int().positive("Requirement value must be positive"),
+  requirementValue: z
+    .number()
+    .int()
+    .positive("Requirement value must be positive"),
   rewardType: z.enum(["coins", "gems", "badge", "frame", "title"]),
   rewardValue: z.string().min(1, "Reward value is required"),
 })
