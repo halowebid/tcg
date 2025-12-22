@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { PencilIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -80,7 +81,7 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="border-primary h-32 w-32 rounded-full border-4 bg-gradient-to-br from-orange-500 to-yellow-500"></div>
             <button className="bg-primary absolute right-0 bottom-0 rounded-full p-2 text-white">
-              <span className="material-symbols-outlined text-sm">edit</span>
+              <PencilIcon className="size-4" />
             </button>
           </div>
           <div className="flex-1 text-center md:text-left">

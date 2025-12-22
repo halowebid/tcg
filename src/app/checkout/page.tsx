@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { MailIcon, WalletIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
@@ -103,10 +104,7 @@ function CheckoutContent() {
           <div className="flex flex-col gap-6">
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  contact_mail
-                </span>{" "}
-                Contact Info
+                <MailIcon className="text-primary size-5" /> Contact Info
               </h3>
               <input
                 className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1"
@@ -116,10 +114,7 @@ function CheckoutContent() {
             </div>
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  account_balance_wallet
-                </span>{" "}
-                Payment Method
+                <WalletIcon className="text-primary size-5" /> Payment Method
               </h3>
               <div className="mb-4 flex gap-2">
                 <button className="bg-primary text-background-dark flex-1 rounded-lg py-2 font-bold">

@@ -4,6 +4,7 @@ import React, { Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import {
@@ -87,9 +88,7 @@ function ResetPasswordForm() {
                   New Password
                 </label>
                 <div className="relative">
-                  <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                    lock
-                  </span>
+                  <LockIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                   <input
                     type={showPassword ? "text" : "password"}
                     {...register("password")}
@@ -102,9 +101,13 @@ function ResetPasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="material-symbols-outlined text-text-secondary hover:text-primary absolute top-2.5 right-3 transition-colors"
+                    className="text-text-secondary hover:text-primary absolute top-2.5 right-3 transition-colors"
                   >
-                    {showPassword ? "visibility_off" : "visibility"}
+                    {showPassword ? (
+                      <EyeOffIcon className="size-5" />
+                    ) : (
+                      <EyeIcon className="size-5" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
@@ -118,9 +121,7 @@ function ResetPasswordForm() {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                    lock
-                  </span>
+                  <LockIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                   <input
                     type={showPassword ? "text" : "password"}
                     {...register("confirmPassword")}

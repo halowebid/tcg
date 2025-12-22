@@ -3,6 +3,14 @@
 import React, { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  BanIcon,
+  CheckCircleIcon,
+  DollarSignIcon,
+  HistoryIcon,
+  MonitorSmartphoneIcon,
+  WalletIcon,
+} from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -193,9 +201,11 @@ export default function AdminUserEditPage() {
                   : "border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500/20"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">
-                {user.isBanned ? "check_circle" : "block"}
-              </span>
+              {user.isBanned ? (
+                <CheckCircleIcon className="size-4" />
+              ) : (
+                <BanIcon className="size-4" />
+              )}
               {user.isBanned ? "Unban User" : "Ban User"}
             </button>
           </div>
@@ -323,17 +333,13 @@ export default function AdminUserEditPage() {
           <div className="space-y-6 lg:col-span-2">
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-6 flex items-center gap-2 font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  account_balance_wallet
-                </span>
+                <WalletIcon className="text-primary size-5" />
                 Wallet Management
               </h3>
               <div className="bg-background-dark border-border-dark rounded-xl border p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-text-secondary text-sm">Balance</span>
-                  <span className="material-symbols-outlined text-yellow-500">
-                    attach_money
-                  </span>
+                  <DollarSignIcon className="size-5 text-yellow-500" />
                 </div>
                 <p className="mb-4 text-2xl font-bold text-white">
                   {formatUSD(user.balance)}
@@ -404,9 +410,7 @@ export default function AdminUserEditPage() {
 
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  devices
-                </span>
+                <MonitorSmartphoneIcon className="text-primary size-5" />
                 Active Sessions
               </h3>
               {sessions?.sessions && sessions.sessions.length > 0 ? (
@@ -454,9 +458,7 @@ export default function AdminUserEditPage() {
 
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  history
-                </span>
+                <HistoryIcon className="text-primary size-5" />
                 Activity Log
               </h3>
               {transactions && transactions.length > 0 ? (

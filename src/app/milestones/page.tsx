@@ -1,6 +1,10 @@
 "use client"
 
+import React from "react"
+import { MedalIcon } from "lucide-react"
+
 import { trpc } from "@/lib/trpc/client"
+import { getMaterialIcon } from "@/lib/utils/icon-mapping"
 
 export default function MilestonesPage() {
   const { data: milestones, isLoading: milestonesLoading } =
@@ -43,9 +47,7 @@ export default function MilestonesPage() {
         <div className="bg-surface-dark border-border-dark relative mb-8 flex flex-col items-center gap-8 overflow-hidden rounded-xl border p-8 md:flex-row">
           <div className="bg-primary pointer-events-none absolute top-0 right-0 h-full w-1/2 rounded-l-full opacity-10"></div>
           <div className="border-primary/20 bg-background-dark relative z-10 flex h-32 w-32 items-center justify-center rounded-full border-4">
-            <span className="material-symbols-outlined text-primary text-6xl">
-              military_tech
-            </span>
+            <MedalIcon className="text-primary size-24" />
           </div>
           <div className="z-10 flex-1">
             <h2 className="text-2xl font-bold text-white">Expert Collector</h2>
@@ -83,9 +85,9 @@ export default function MilestonesPage() {
                 className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4"
               >
                 <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
-                  <span className="material-symbols-outlined z-10 text-4xl text-white">
-                    {milestone.icon ?? "emoji_events"}
-                  </span>
+                  {React.createElement(getMaterialIcon(milestone.icon), {
+                    className: "z-10 size-10 text-white",
+                  })}
                   <div
                     className={`absolute inset-0 ${
                       milestone.rewardType === "currency"

@@ -1,5 +1,6 @@
 import React from "react"
 import Link from "next/link"
+import { PackageIcon, type LucideIcon } from "lucide-react"
 
 interface EmptyStateAction {
   label: string
@@ -7,7 +8,7 @@ interface EmptyStateAction {
 }
 
 interface EmptyStateProps {
-  icon?: string
+  icon?: LucideIcon
   title: string
   description?: string
   actions?: EmptyStateAction[]
@@ -15,7 +16,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = "inventory_2",
+  icon: IconComponent = PackageIcon,
   title,
   description,
   actions,
@@ -26,9 +27,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       className={`flex flex-col items-center justify-center gap-4 text-center ${className}`}
     >
       <div className="bg-surface-dark border-border-dark rounded-xl border p-12">
-        <span className="material-symbols-outlined text-text-secondary mb-4 text-6xl opacity-50">
-          {icon}
-        </span>
+        <IconComponent className="text-text-secondary mx-auto mb-4 size-16 opacity-50" />
         <h2 className="mb-2 text-xl font-bold text-white">{title}</h2>
         {description && (
           <p className="text-text-secondary mb-6 max-w-md">{description}</p>

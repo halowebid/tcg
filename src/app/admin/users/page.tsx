@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { UserPlusIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -109,9 +110,7 @@ export default function AdminUsersPage() {
             onClick={() => setShowCreateModal(true)}
             className="bg-primary hover:bg-primary-hover flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">
-              person_add
-            </span>
+            <UserPlusIcon className="size-5" />
             Create User
           </button>
         }

@@ -1,6 +1,20 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import {
+  ChevronRightIcon,
+  CreditCardIcon,
+  DicesIcon,
+  PackageIcon,
+  PlusCircleIcon,
+  SettingsIcon,
+  ShoppingBagIcon,
+  SlidersHorizontalIcon,
+  TrophyIcon,
+  UserPlusIcon,
+  UsersIcon,
+  type LucideIcon,
+} from "lucide-react"
 
 import { DashboardHeader } from "@/components/Headers"
 import { useSession } from "@/lib/auth/client"
@@ -35,59 +49,68 @@ export default function AdminPage() {
         }
       />
       <div className="grid grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Total Users",
-            value: stats?.totalUsers.toLocaleString() ?? "0",
-            change: "All time",
-            icon: "person_add",
-            color: "text-primary",
-          },
-          {
-            label: "Total Pulls",
-            value: stats?.totalPulls.toLocaleString() ?? "0",
-            change: "All time",
-            icon: "shopping_bag",
-            color: "text-primary",
-          },
-          {
-            label: "Total Revenue",
-            value: formatUSD(stats?.totalRevenue ?? 0),
-            change: "From gacha",
-            icon: "payments",
-            color: "text-primary",
-          },
-          {
-            label: "Active Events",
-            value: stats?.activeEvents.toLocaleString() ?? "0",
-            change: "Currently active",
-            icon: "casino",
-            color: "text-primary",
-          },
-        ].map((stat, i) => (
-          <div
-            key={i}
-            className="border-border-dark bg-surface-dark group relative flex flex-col gap-2 overflow-hidden rounded-xl border p-6"
-          >
-            <div className="absolute top-[-20px] right-[-20px] h-24 w-24 rounded-full bg-white opacity-5 blur-2xl transition-opacity group-hover:opacity-10"></div>
-            <div className="flex items-start justify-between">
-              <p className="text-text-secondary text-sm font-medium">
-                {stat.label}
+        {(
+          [
+            {
+              label: "Total Users",
+              value: stats?.totalUsers.toLocaleString() ?? "0",
+              change: "All time",
+              icon: UserPlusIcon,
+              color: "text-primary",
+            },
+            {
+              label: "Total Pulls",
+              value: stats?.totalPulls.toLocaleString() ?? "0",
+              change: "All time",
+              icon: ShoppingBagIcon,
+              color: "text-primary",
+            },
+            {
+              label: "Total Revenue",
+              value: formatUSD(stats?.totalRevenue ?? 0),
+              change: "From gacha",
+              icon: CreditCardIcon,
+              color: "text-primary",
+            },
+            {
+              label: "Active Events",
+              value: stats?.activeEvents.toLocaleString() ?? "0",
+              change: "Currently active",
+              icon: DicesIcon,
+              color: "text-primary",
+            },
+          ] as {
+            label: string
+            value: string
+            change: string
+            icon: LucideIcon
+            color: string
+          }[]
+        ).map((stat, i) => {
+          const IconComponent = stat.icon
+          return (
+            <div
+              key={i}
+              className="border-border-dark bg-surface-dark group relative flex flex-col gap-2 overflow-hidden rounded-xl border p-6"
+            >
+              <div className="absolute top-[-20px] right-[-20px] h-24 w-24 rounded-full bg-white opacity-5 blur-2xl transition-opacity group-hover:opacity-10"></div>
+              <div className="flex items-start justify-between">
+                <p className="text-text-secondary text-sm font-medium">
+                  {stat.label}
+                </p>
+                <IconComponent className={stat.color} />
+              </div>
+              <p className="text-3xl leading-tight font-bold text-white">
+                {stat.value}
               </p>
-              <span className={`material-symbols-outlined ${stat.color}`}>
-                {stat.icon}
-              </span>
+              <div className="flex items-center gap-1">
+                <p className="text-text-secondary text-sm font-medium">
+                  {stat.change}
+                </p>
+              </div>
             </div>
-            <p className="text-3xl leading-tight font-bold text-white">
-              {stat.value}
-            </p>
-            <div className="flex items-center gap-1">
-              <p className="text-text-secondary text-sm font-medium">
-                {stat.change}
-              </p>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <div className="grid grid-cols-1 gap-6 px-2 pb-8 lg:grid-cols-2">
         <div className="border-border-dark bg-surface-dark relative flex flex-col gap-6 overflow-hidden rounded-xl border p-6">
@@ -95,9 +118,7 @@ export default function AdminPage() {
           <div className="z-10 flex items-start justify-between">
             <div>
               <h3 className="flex items-center gap-2 text-xl font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  inventory_2
-                </span>{" "}
+                <PackageIcon className="text-primary" />
                 Card Management
               </h3>
               <p className="text-text-secondary mt-1 text-sm">
@@ -133,15 +154,13 @@ export default function AdminPage() {
           >
             <div className="flex items-center gap-3">
               <div className="bg-primary/20 text-primary rounded-lg p-2">
-                <span className="material-symbols-outlined">add_circle</span>
+                <PlusCircleIcon />
               </div>
               <div className="text-left">
                 <p className="text-sm font-bold text-white">Create New Card</p>
               </div>
             </div>
-            <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-              chevron_right
-            </span>
+            <ChevronRightIcon className="text-text-secondary group-hover:text-white" />
           </button>
         </div>
 
@@ -150,9 +169,7 @@ export default function AdminPage() {
           <div className="z-10 flex items-start justify-between">
             <div>
               <h3 className="flex items-center gap-2 text-xl font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  settings
-                </span>{" "}
+                <SettingsIcon className="text-primary" />
                 Quick Actions
               </h3>
               <p className="text-text-secondary mt-1 text-sm">
@@ -166,42 +183,30 @@ export default function AdminPage() {
               className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  group
-                </span>
+                <UsersIcon className="text-primary" />
                 <p className="text-sm font-bold text-white">User Management</p>
               </div>
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-                chevron_right
-              </span>
+              <ChevronRightIcon className="text-text-secondary group-hover:text-white" />
             </button>
             <button
               onClick={() => router.push("/admin/inventory")}
               className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  inventory_2
-                </span>
+                <PackageIcon className="text-primary" />
                 <p className="text-sm font-bold text-white">Card Inventory</p>
               </div>
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-                chevron_right
-              </span>
+              <ChevronRightIcon className="text-text-secondary group-hover:text-white" />
             </button>
             <button
               onClick={() => router.push("/admin/milestones")}
               className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  emoji_events
-                </span>
+                <TrophyIcon className="text-primary" />
                 <p className="text-sm font-bold text-white">Milestones</p>
               </div>
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-                chevron_right
-              </span>
+              <ChevronRightIcon className="text-text-secondary group-hover:text-white" />
             </button>
             {session?.user?.role === "admin" && (
               <button
@@ -209,16 +214,12 @@ export default function AdminPage() {
                 className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
               >
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary">
-                    tune
-                  </span>
+                  <SlidersHorizontalIcon className="text-primary" />
                   <p className="text-sm font-bold text-white">
                     System Settings
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-                  chevron_right
-                </span>
+                <ChevronRightIcon className="text-text-secondary group-hover:text-white" />
               </button>
             )}
           </div>

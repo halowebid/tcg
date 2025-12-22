@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, UserIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -119,9 +120,7 @@ export default function SignUpPage() {
                 Name
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                  person
-                </span>
+                <UserIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                 <input
                   type="text"
                   {...register("name")}
@@ -141,9 +140,7 @@ export default function SignUpPage() {
                 Email
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                  mail
-                </span>
+                <MailIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                 <input
                   type="email"
                   {...register("email")}
@@ -165,9 +162,7 @@ export default function SignUpPage() {
                 Password
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                  lock
-                </span>
+                <LockIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                 <input
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
@@ -180,9 +175,13 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="material-symbols-outlined text-text-secondary hover:text-primary absolute top-2.5 right-3 transition-colors"
+                  className="text-text-secondary hover:text-primary absolute top-2.5 right-3 transition-colors"
                 >
-                  {showPassword ? "visibility_off" : "visibility"}
+                  {showPassword ? (
+                    <EyeOffIcon className="size-5" />
+                  ) : (
+                    <EyeIcon className="size-5" />
+                  )}
                 </button>
               </div>
               {errors.password && (
@@ -196,9 +195,7 @@ export default function SignUpPage() {
                 Confirm Password
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                  lock
-                </span>
+                <LockIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                 <input
                   type={showPassword ? "text" : "password"}
                   {...register("confirmPassword")}

@@ -3,6 +3,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import {
+  DollarSignIcon,
+  HourglassIcon,
+  ShieldIcon,
+  ShoppingCartIcon,
+  SwordsIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
@@ -129,9 +136,7 @@ export default function MarketplaceDetailPage() {
 
           <div className="mb-8 flex flex-col gap-4">
             <div className="border-primary/30 relative flex items-center justify-between overflow-hidden rounded-xl border bg-gradient-to-br from-[#3d2c1e] to-[#2a221b] p-5">
-              <span className="material-symbols-outlined text-primary absolute top-[-20px] right-[-20px] rotate-12 text-9xl opacity-10">
-                attach_money
-              </span>
+              <DollarSignIcon className="text-primary absolute top-[-20px] right-[-20px] size-36 rotate-12 opacity-10" />
               <div className="relative z-10">
                 <p className="text-primary mb-1 text-sm font-bold uppercase">
                   Direct Purchase
@@ -145,11 +150,11 @@ export default function MarketplaceDetailPage() {
                 disabled={purchaseMutation.isPending}
                 className="bg-primary hover:bg-primary-hover relative z-10 flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white shadow-lg disabled:opacity-50"
               >
-                <span className="material-symbols-outlined">
-                  {purchaseMutation.isPending
-                    ? "hourglass_empty"
-                    : "shopping_cart"}
-                </span>
+                {purchaseMutation.isPending ? (
+                  <HourglassIcon className="size-6" />
+                ) : (
+                  <ShoppingCartIcon className="size-6" />
+                )}
                 {purchaseMutation.isPending ? "Purchasing..." : "Buy Now"}
               </button>
             </div>
@@ -161,10 +166,7 @@ export default function MarketplaceDetailPage() {
               {card.attackPower !== null && (
                 <div className="bg-surface-dark border-border-dark rounded-lg border p-3">
                   <div className="text-text-secondary mb-1 flex items-center gap-1 text-xs font-bold uppercase">
-                    <span className="material-symbols-outlined text-sm">
-                      swords
-                    </span>{" "}
-                    Attack
+                    <SwordsIcon className="size-4" /> Attack
                   </div>
                   <div className="font-mono text-lg text-white">
                     {card.attackPower}
@@ -174,10 +176,7 @@ export default function MarketplaceDetailPage() {
               {card.defensePower !== null && (
                 <div className="bg-surface-dark border-border-dark rounded-lg border p-3">
                   <div className="text-text-secondary mb-1 flex items-center gap-1 text-xs font-bold uppercase">
-                    <span className="material-symbols-outlined text-sm">
-                      shield
-                    </span>{" "}
-                    Defense
+                    <ShieldIcon className="size-4" /> Defense
                   </div>
                   <div className="font-mono text-lg text-white">
                     {card.defensePower}

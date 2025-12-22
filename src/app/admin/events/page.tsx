@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { PencilIcon, PlusIcon, TrashIcon, XIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -127,9 +128,11 @@ export default function AdminEventsPage() {
             onClick={() => setShowCreateForm(!showCreateForm)}
             className="bg-primary text-background-dark hover:bg-primary-hover flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold"
           >
-            <span className="material-symbols-outlined text-sm">
-              {showCreateForm ? "close" : "add"}
-            </span>
+            {showCreateForm ? (
+              <XIcon className="size-4" />
+            ) : (
+              <PlusIcon className="size-4" />
+            )}
             {showCreateForm ? "Cancel" : "Create Event"}
           </button>
         }
@@ -403,9 +406,7 @@ export default function AdminEventsPage() {
                     className="rounded p-2 text-white hover:bg-white/10"
                     title="Edit event"
                   >
-                    <span className="material-symbols-outlined text-lg">
-                      edit
-                    </span>
+                    <PencilIcon className="size-5" />
                   </button>
                   <button
                     onClick={() => handleDelete(event.id)}
@@ -413,9 +414,7 @@ export default function AdminEventsPage() {
                     className="rounded p-2 text-red-400 hover:bg-red-500/20 disabled:opacity-50"
                     title="Delete event"
                   >
-                    <span className="material-symbols-outlined text-lg">
-                      delete
-                    </span>
+                    <TrashIcon className="size-5" />
                   </button>
                 </div>
               </div>

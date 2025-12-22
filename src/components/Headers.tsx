@@ -3,6 +3,17 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import {
+  BellIcon,
+  DollarSignIcon,
+  LogOutIcon,
+  PackageIcon,
+  SearchIcon,
+  ShieldIcon,
+  TrophyIcon,
+  UserIcon,
+  WandIcon,
+} from "lucide-react"
 
 import { signOut, useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
@@ -40,7 +51,7 @@ export const PublicHeader: React.FC = () => {
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-4 text-white">
           <div className="text-primary size-8">
-            <span className="material-symbols-outlined text-4xl">style</span>
+            <WandIcon className="size-8" />
           </div>
           <h2 className="text-xl font-bold tracking-tight text-white">TCG</h2>
         </Link>
@@ -83,9 +94,7 @@ export const PublicHeader: React.FC = () => {
         >
           <div className="border-border-dark bg-surface-dark focus-within:border-primary flex h-full w-full flex-1 items-stretch rounded-xl border transition-colors">
             <div className="text-text-secondary flex items-center justify-center pl-3">
-              <span className="material-symbols-outlined text-[20px]">
-                search
-              </span>
+              <SearchIcon className="size-5" />
             </div>
             <input
               type="text"
@@ -101,9 +110,7 @@ export const PublicHeader: React.FC = () => {
           {session?.user ? (
             <>
               <div className="bg-surface-dark border-border-dark hidden items-center gap-2 rounded-xl border px-3 py-2 md:flex">
-                <span className="material-symbols-outlined text-primary text-[18px]">
-                  attach_money
-                </span>
+                <DollarSignIcon className="text-primary size-[18px]" />
                 <span className="text-sm font-bold text-white">
                   {formatUSD(wallet?.balance ?? 0)}
                 </span>
@@ -113,9 +120,7 @@ export const PublicHeader: React.FC = () => {
                 href="/notifications"
                 className="bg-surface-dark border-border-dark hover:bg-surface-highlight flex size-10 items-center justify-center rounded-xl border text-white transition-colors"
               >
-                <span className="material-symbols-outlined text-[20px]">
-                  notifications
-                </span>
+                <BellIcon className="size-5" />
               </Link>
 
               <div className="relative">
@@ -162,9 +167,7 @@ export const PublicHeader: React.FC = () => {
                           onClick={() => setShowUserMenu(false)}
                           className="hover:bg-surface-highlight flex items-center gap-3 px-4 py-2 text-sm text-white transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            person
-                          </span>
+                          <UserIcon className="size-5" />
                           Profile
                         </Link>
                         <Link
@@ -172,9 +175,7 @@ export const PublicHeader: React.FC = () => {
                           onClick={() => setShowUserMenu(false)}
                           className="hover:bg-surface-highlight flex items-center gap-3 px-4 py-2 text-sm text-white transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            inventory_2
-                          </span>
+                          <PackageIcon className="size-5" />
                           My Collection
                         </Link>
                         <Link
@@ -182,9 +183,7 @@ export const PublicHeader: React.FC = () => {
                           onClick={() => setShowUserMenu(false)}
                           className="hover:bg-surface-highlight flex items-center gap-3 px-4 py-2 text-sm text-white transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            emoji_events
-                          </span>
+                          <TrophyIcon className="size-5" />
                           Milestones
                         </Link>
                         {(isAdmin || isStaff) && (
@@ -193,9 +192,7 @@ export const PublicHeader: React.FC = () => {
                             onClick={() => setShowUserMenu(false)}
                             className="hover:bg-surface-highlight flex items-center gap-3 px-4 py-2 text-sm text-white transition-colors"
                           >
-                            <span className="material-symbols-outlined text-[20px]">
-                              admin_panel_settings
-                            </span>
+                            <ShieldIcon className="size-5" />
                             Admin Dashboard
                           </Link>
                         )}
@@ -206,9 +203,7 @@ export const PublicHeader: React.FC = () => {
                           onClick={handleSignOut}
                           className="hover:bg-surface-highlight flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-red-400 transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            logout
-                          </span>
+                          <LogOutIcon className="size-5" />
                           Sign Out
                         </button>
                       </div>

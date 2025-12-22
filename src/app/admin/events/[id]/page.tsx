@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ArrowLeftIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -138,9 +139,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
             onClick={() => router.push("/admin/events")}
             className="bg-surface-highlight hover:bg-surface-highlight/80 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white"
           >
-            <span className="material-symbols-outlined text-sm">
-              arrow_back
-            </span>
+            <ArrowLeftIcon className="size-4" />
             Back to Events
           </button>
         }

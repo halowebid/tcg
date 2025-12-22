@@ -2,6 +2,13 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react"
+import {
+  BellIcon,
+  CheckCheckIcon,
+  DicesIcon,
+  TrophyIcon,
+  TruckIcon,
+} from "lucide-react"
 
 import { trpc } from "@/lib/trpc/client"
 
@@ -61,8 +68,7 @@ export default function NotificationsPage() {
             disabled={markAllAsReadMutation.isPending}
             className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-sm">done_all</span>{" "}
-            Mark all read
+            <CheckCheckIcon className="size-4" /> Mark all read
           </button>
         </div>
         <div className="mb-4 flex gap-2">
@@ -129,25 +135,30 @@ export default function NotificationsPage() {
                   />
                 ) : (
                   <div
-                    className={`flex size-16 items-center justify-center rounded-lg ${
+                    className={`flex size-12 items-center justify-center rounded-full ${
                       notification.type === "gacha"
-                        ? "bg-primary/20 text-primary"
+                        ? "bg-blue-900/20 text-blue-500"
                         : notification.type === "order"
-                          ? "bg-blue-900/20 text-blue-500"
+                          ? "bg-green-900/20 text-green-500"
                           : notification.type === "milestone"
                             ? "bg-purple-900/20 text-purple-500"
                             : "bg-gray-900/20 text-gray-500"
                     }`}
                   >
-                    <span className="material-symbols-outlined text-3xl">
-                      {notification.type === "gacha"
-                        ? "casino"
-                        : notification.type === "order"
-                          ? "local_shipping"
-                          : notification.type === "milestone"
-                            ? "emoji_events"
-                            : "notifications"}
-                    </span>
+                    {notification.type === "gacha" && (
+                      <DicesIcon className="size-8" />
+                    )}
+                    {notification.type === "order" && (
+                      <TruckIcon className="size-8" />
+                    )}
+                    {notification.type === "milestone" && (
+                      <TrophyIcon className="size-8" />
+                    )}
+                    {notification.type !== "gacha" &&
+                      notification.type !== "order" &&
+                      notification.type !== "milestone" && (
+                        <BellIcon className="size-8" />
+                      )}
                   </div>
                 )}
                 <div>

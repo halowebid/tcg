@@ -3,6 +3,30 @@
 
 import React from "react"
 import Link from "next/link"
+import {
+  CalendarOffIcon,
+  CheckCheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CreditCardIcon,
+  DicesIcon,
+  DollarSignIcon,
+  FlameIcon,
+  MailIcon,
+  MedalIcon,
+  PackageIcon,
+  PaletteIcon,
+  PencilIcon,
+  PercentIcon,
+  SearchIcon,
+  ShieldIcon,
+  ShoppingCartIcon,
+  SparklesIcon,
+  SwordsIcon,
+  TruckIcon,
+  XIcon,
+  ZapIcon,
+} from "lucide-react"
 
 import {
   CardGridSkeleton,
@@ -64,9 +88,7 @@ export const LandingScreen: React.FC = () => {
           ></div>
           <div className="relative z-10 flex max-w-2xl flex-col items-start gap-4">
             <div className="bg-primary/20 border-primary/30 flex items-center gap-2 rounded-full border px-3 py-1 backdrop-blur-sm">
-              <span className="material-symbols-outlined text-primary text-sm">
-                local_fire_department
-              </span>
+              <FlameIcon className="text-primary size-4" />
               <span className="text-primary text-xs font-bold tracking-wider uppercase">
                 {firstEvent?.name ?? "Season 5: Dragon's Awakening"}
               </span>
@@ -83,7 +105,7 @@ export const LandingScreen: React.FC = () => {
                 href="/gacha"
                 className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105"
               >
-                <span className="material-symbols-outlined">stars</span>
+                <SparklesIcon className="size-6" />
                 Pull 10x •{" "}
                 {firstEvent?.tenPullPrice
                   ? formatUSD(parseFloat(firstEvent.tenPullPrice))
@@ -93,7 +115,7 @@ export const LandingScreen: React.FC = () => {
                 href="/gacha"
                 className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20"
               >
-                <span className="material-symbols-outlined">info</span>
+                <SparklesIcon className="size-6" />
                 View Drop Rates
               </Link>
             </div>
@@ -105,10 +127,7 @@ export const LandingScreen: React.FC = () => {
       <section className="w-full max-w-[1400px] px-4 pb-12 md:px-10">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-2xl font-bold text-white">
-            <span className="material-symbols-outlined text-primary">
-              auto_awesome
-            </span>{" "}
-            Featured Packs
+            <SparklesIcon className="text-primary size-6" /> Featured Packs
           </h2>
           <Link
             href="/gacha"
@@ -123,7 +142,7 @@ export const LandingScreen: React.FC = () => {
           </div>
         ) : !events || events.length === 0 ? (
           <EmptyState
-            icon="event_busy"
+            icon={CalendarOffIcon}
             title="No active events"
             description="Check back soon for new gacha events!"
           />
@@ -149,9 +168,7 @@ export const LandingScreen: React.FC = () => {
                       </h3>
                     </div>
                     <button className="flex w-fit items-center gap-2 rounded-lg border border-white/5 bg-white/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20">
-                      <span className="material-symbols-outlined text-primary text-sm">
-                        attach_money
-                      </span>{" "}
+                      <DollarSignIcon className="text-primary size-4" />{" "}
                       {formatUSD(parseFloat(event.singlePullPrice))}
                     </button>
                   </div>
@@ -183,7 +200,7 @@ export const LandingScreen: React.FC = () => {
           </div>
         ) : !cardsData?.items || cardsData.items.length === 0 ? (
           <EmptyState
-            icon="style"
+            icon={SparklesIcon}
             title="No cards available"
             description="Check back soon for new cards!"
           />
@@ -316,17 +333,14 @@ export const MarketplaceScreen: React.FC = () => {
               href="/gacha"
               className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
             >
-              <span className="material-symbols-outlined">bolt</span> Pull Now -
-              $5.00
+              <ZapIcon className="size-5" /> Pull Now - $5.00
             </Link>
           </div>
         </div>
 
         {/* Search Bar */}
         <div className="relative">
-          <span className="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
-            search
-          </span>
+          <SearchIcon className="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
@@ -368,7 +382,7 @@ export const MarketplaceScreen: React.FC = () => {
           />
         ) : !cards || cards.length === 0 ? (
           <EmptyState
-            icon="shopping_cart"
+            icon={ShoppingCartIcon}
             title="No cards available"
             description="Try changing the rarity filter or check back later!"
           />
@@ -405,9 +419,7 @@ export const MarketplaceScreen: React.FC = () => {
                           Price
                         </span>
                         <div className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-primary text-[16px]">
-                            attach_money
-                          </span>
+                          <DollarSignIcon className="text-primary size-4" />
                           <span className="text-lg font-bold text-white">
                             {card.marketValue ?? "100"}
                           </span>
@@ -433,9 +445,7 @@ export const MarketplaceScreen: React.FC = () => {
                 disabled={page === 1}
                 className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-sm">
-                  chevron_left
-                </span>
+                <ChevronLeftIcon className="size-4" />
                 Previous
               </button>
               <span className="text-text-secondary text-sm">Page {page}</span>
@@ -445,9 +455,7 @@ export const MarketplaceScreen: React.FC = () => {
                 className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
-                <span className="material-symbols-outlined text-sm">
-                  chevron_right
-                </span>
+                <ChevronRightIcon className="size-4" />
               </button>
             </div>
           </>
@@ -487,9 +495,7 @@ export const ProductDetailScreen: React.FC = () => {
           </div>
           <div className="mb-8 flex flex-col gap-4">
             <div className="border-primary/30 relative flex items-center justify-between overflow-hidden rounded-xl border bg-gradient-to-br from-[#3d2c1e] to-[#2a221b] p-5">
-              <span className="material-symbols-outlined text-primary absolute top-[-20px] right-[-20px] rotate-12 text-9xl opacity-10">
-                casino
-              </span>
+              <DicesIcon className="text-primary absolute top-[-20px] right-[-20px] size-36 rotate-12 opacity-10" />
               <div className="relative z-10">
                 <p className="text-primary mb-1 text-sm font-bold uppercase">
                   Try your luck
@@ -502,7 +508,7 @@ export const ProductDetailScreen: React.FC = () => {
                 </span>
               </div>
               <button className="bg-primary hover:bg-primary-hover relative z-10 flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white shadow-lg">
-                <span className="material-symbols-outlined">bolt</span> Pull Now
+                <ZapIcon className="size-6" /> Pull Now
               </button>
             </div>
             <div className="bg-surface-dark border-border-dark flex items-center justify-between rounded-xl border p-4">
@@ -521,19 +527,13 @@ export const ProductDetailScreen: React.FC = () => {
           <div className="mb-8 grid grid-cols-2 gap-3">
             <div className="bg-surface-dark border-border-dark rounded-lg border p-3">
               <div className="text-text-secondary mb-1 flex items-center gap-1 text-xs font-bold uppercase">
-                <span className="material-symbols-outlined text-sm">
-                  swords
-                </span>{" "}
-                Attack
+                <SwordsIcon className="size-4" /> Attack
               </div>
               <div className="font-mono text-lg text-white">2,500</div>
             </div>
             <div className="bg-surface-dark border-border-dark rounded-lg border p-3">
               <div className="text-text-secondary mb-1 flex items-center gap-1 text-xs font-bold uppercase">
-                <span className="material-symbols-outlined text-sm">
-                  shield
-                </span>{" "}
-                Defense
+                <ShieldIcon className="size-4" /> Defense
               </div>
               <div className="font-mono text-lg text-white">1,850</div>
             </div>
@@ -622,7 +622,7 @@ export const GachaPullScreen: React.FC = () => {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <EmptyState
-          icon="event_busy"
+          icon={CalendarOffIcon}
           title="No active gacha events"
           description="There are currently no active gacha events. Check back later!"
           actions={[
@@ -720,9 +720,7 @@ export const GachaPullScreen: React.FC = () => {
                     {pullMutation.isPending ? "PULLING..." : "PULL 1X"}
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
-                    <span className="material-symbols-outlined text-xs">
-                      attach_money
-                    </span>{" "}
+                    <DollarSignIcon className="size-3" />{" "}
                     {formatUSD(parseFloat(activeEvent.singlePullPrice))}
                   </span>
                 </button>
@@ -735,9 +733,7 @@ export const GachaPullScreen: React.FC = () => {
                     {pullTenMutation.isPending ? "PULLING..." : "PULL 10X"}
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
-                    <span className="material-symbols-outlined text-xs">
-                      attach_money
-                    </span>{" "}
+                    <DollarSignIcon className="size-3" />{" "}
                     {formatUSD(parseFloat(activeEvent.tenPullPrice))}
                   </span>
                 </button>
@@ -766,7 +762,7 @@ export const GachaPullScreen: React.FC = () => {
                   onClick={closeResultModal}
                   className="text-text-secondary hover:text-white"
                 >
-                  <span className="material-symbols-outlined">close</span>
+                  <XIcon className="size-6" />
                 </button>
               </div>
 
@@ -887,7 +883,7 @@ export const CollectionScreen: React.FC = () => {
         {/* Grid */}
         {!userCards || userCards.length === 0 ? (
           <EmptyState
-            icon="inventory_2"
+            icon={PackageIcon}
             title="Your collection is empty"
             description="Visit the marketplace or try a gacha pull to start collecting!"
             actions={[
@@ -944,10 +940,7 @@ export const CheckoutScreen: React.FC = () => {
           <div className="flex flex-col gap-6">
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  contact_mail
-                </span>{" "}
-                Contact Info
+                <MailIcon className="text-primary size-6" /> Contact Info
               </h3>
               <input
                 className="bg-background-dark border-border-dark focus:border-primary focus:ring-primary w-full rounded-xl border px-4 py-3 text-white outline-none focus:ring-1"
@@ -957,10 +950,7 @@ export const CheckoutScreen: React.FC = () => {
             </div>
             <div className="bg-surface-dark border-border-dark rounded-xl border p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                <span className="material-symbols-outlined text-primary">
-                  credit_card
-                </span>{" "}
-                Payment
+                <CreditCardIcon className="text-primary size-6" /> Payment
               </h3>
               <div className="mb-4 flex gap-2">
                 <button className="bg-primary text-background-dark flex-1 rounded-lg py-2 font-bold">
@@ -1042,7 +1032,7 @@ export const UserProfileScreen: React.FC = () => {
               }}
             ></div>
             <button className="bg-primary absolute right-0 bottom-0 rounded-full p-2 text-white">
-              <span className="material-symbols-outlined text-sm">edit</span>
+              <PencilIcon className="size-4" />
             </button>
           </div>
           <div className="flex-1 text-center md:text-left">
@@ -1116,9 +1106,7 @@ export const UserMilestonesScreen: React.FC = () => {
         <div className="bg-surface-dark border-border-dark relative mb-8 flex flex-col items-center gap-8 overflow-hidden rounded-xl border p-8 md:flex-row">
           <div className="bg-primary pointer-events-none absolute top-0 right-0 h-full w-1/2 rounded-l-full opacity-10"></div>
           <div className="border-primary/20 bg-background-dark relative z-10 flex h-32 w-32 items-center justify-center rounded-full border-4">
-            <span className="material-symbols-outlined text-primary text-6xl">
-              military_tech
-            </span>
+            <MedalIcon className="text-primary size-24" />
           </div>
           <div className="z-10 flex-1">
             <h2 className="text-2xl font-bold text-white">Expert Collector</h2>
@@ -1138,9 +1126,7 @@ export const UserMilestonesScreen: React.FC = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4">
             <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
-              <span className="material-symbols-outlined z-10 text-4xl text-white">
-                percent
-              </span>
+              <PercentIcon className="z-10 size-10 text-white" />
               <div className="bg-primary/20 absolute inset-0"></div>
             </div>
             <div>
@@ -1158,9 +1144,7 @@ export const UserMilestonesScreen: React.FC = () => {
 
           <div className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4">
             <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
-              <span className="material-symbols-outlined z-10 text-4xl text-white">
-                attach_money
-              </span>
+              <DollarSignIcon className="z-10 size-10 text-white" />
               <div className="absolute inset-0 bg-blue-500/20"></div>
             </div>
             <div>
@@ -1178,9 +1162,7 @@ export const UserMilestonesScreen: React.FC = () => {
 
           <div className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4">
             <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
-              <span className="material-symbols-outlined z-10 text-4xl text-white">
-                palette
-              </span>
+              <PaletteIcon className="z-10 size-10 text-white" />
               <div className="absolute inset-0 bg-purple-500/20"></div>
             </div>
             <div>
@@ -1214,8 +1196,7 @@ export const NotificationsScreen: React.FC = () => {
             </p>
           </div>
           <button className="bg-surface-dark border-border-dark flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold text-white">
-            <span className="material-symbols-outlined text-sm">done_all</span>{" "}
-            Mark all read
+            <CheckCheckIcon className="size-4" /> Mark all read
           </button>
         </div>
         <div className="mb-4 flex gap-2">
@@ -1253,9 +1234,7 @@ export const NotificationsScreen: React.FC = () => {
           </div>
           <div className="bg-surface-dark flex items-start gap-4 rounded-r-xl border-l-4 border-blue-500 p-4">
             <div className="flex size-16 items-center justify-center rounded-lg bg-blue-900/20 text-blue-500">
-              <span className="material-symbols-outlined text-3xl">
-                local_shipping
-              </span>
+              <TruckIcon className="size-8" />
             </div>
             <div>
               <div className="mb-1 flex items-center gap-2">

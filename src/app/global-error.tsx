@@ -1,5 +1,7 @@
 "use client"
 
+import { AlertCircleIcon } from "lucide-react"
+
 export default function GlobalError({
   error,
   reset,
@@ -14,9 +16,7 @@ export default function GlobalError({
           <div className="bg-surface-dark border-border-dark w-full max-w-md rounded-2xl border p-8 text-center">
             <div className="mb-6 flex justify-center">
               <div className="rounded-full bg-red-500/10 p-4">
-                <span className="material-symbols-outlined text-5xl text-red-500">
-                  error
-                </span>
+                <AlertCircleIcon className="size-16 text-red-500" />
               </div>
             </div>
             <h2 className="mb-2 text-2xl font-bold text-white">

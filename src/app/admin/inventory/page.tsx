@@ -3,6 +3,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import {
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+  TrashIcon,
+  UploadIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
@@ -71,15 +78,13 @@ export default function AdminInventoryPage() {
         </div>
         <div className="flex gap-2">
           <button className="bg-surface-dark border-border-dark hover:bg-surface-highlight flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold text-white">
-            <span className="material-symbols-outlined text-sm">upload</span>{" "}
-            Import
+            <UploadIcon className="size-4" /> Import
           </button>
           <button
             onClick={() => router.push("/admin/cards/create")}
             className="bg-primary text-background-dark hover:bg-primary-hover shadow-primary/20 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold shadow-lg"
           >
-            <span className="material-symbols-outlined text-sm">add</span>{" "}
-            Create New
+            <PlusIcon className="size-4" /> Create New
           </button>
         </div>
       </div>
@@ -88,9 +93,7 @@ export default function AdminInventoryPage() {
         {/* Filters */}
         <div className="mb-6 flex flex-wrap gap-4">
           <div className="relative min-w-[200px] flex-1">
-            <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-              search
-            </span>
+            <SearchIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
             <input
               className="bg-surface-dark border-border-dark focus:border-primary w-full rounded-xl border py-2.5 pr-4 pl-10 text-white outline-none"
               placeholder="Search by name, ID..."
@@ -209,18 +212,14 @@ export default function AdminInventoryPage() {
                           onClick={() => router.push(`/admin/cards/${card.id}`)}
                           className="rounded p-2 text-white hover:bg-white/10"
                         >
-                          <span className="material-symbols-outlined text-lg">
-                            edit
-                          </span>
+                          <PencilIcon className="size-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(card.id)}
                           disabled={deleteMutation.isPending}
                           className="rounded p-2 text-red-400 hover:bg-red-500/20 disabled:opacity-50"
                         >
-                          <span className="material-symbols-outlined text-lg">
-                            delete
-                          </span>
+                          <TrashIcon className="size-5" />
                         </button>
                       </div>
                     </td>

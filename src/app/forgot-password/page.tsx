@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { MailIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import {
@@ -77,9 +78,7 @@ export default function ForgotPasswordPage() {
                   Email
                 </label>
                 <div className="relative">
-                  <span className="material-symbols-outlined text-text-secondary absolute top-2.5 left-3">
-                    mail
-                  </span>
+                  <MailIcon className="text-text-secondary absolute top-2.5 left-3 size-5" />
                   <input
                     type="email"
                     {...register("email")}

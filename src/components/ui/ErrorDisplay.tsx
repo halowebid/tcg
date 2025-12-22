@@ -1,4 +1,5 @@
 import React from "react"
+import { AlertCircleIcon, RefreshCwIcon } from "lucide-react"
 
 import { Button } from "./Button"
 
@@ -20,9 +21,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       className={`flex flex-col items-center justify-center gap-4 text-center ${className}`}
     >
       <div className="bg-surface-dark border-border-dark rounded-xl border p-8">
-        <span className="material-symbols-outlined mb-4 text-6xl text-red-500">
-          error
-        </span>
+        <AlertCircleIcon className="mx-auto mb-4 size-16 text-red-500" />
         <h2 className="mb-2 text-xl font-bold text-white">{title}</h2>
         <p className="text-text-secondary mb-4 max-w-md">{message}</p>
         {onRetry && (
@@ -30,7 +29,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
             onClick={onRetry}
             className="bg-primary hover:bg-primary-dark flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-sm">refresh</span>
+            <RefreshCwIcon className="size-4" />
             Try Again
           </Button>
         )}

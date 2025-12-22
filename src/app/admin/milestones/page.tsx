@@ -3,6 +3,17 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  CalendarIcon,
+  PiggyBankIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  ShoppingBagIcon,
+  SparklesIcon,
+  TrophyIcon,
+  UsersIcon,
+  XIcon,
+} from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -12,6 +23,7 @@ import {
   type MilestoneFormInput,
 } from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
+import { getMaterialIcon } from "@/lib/utils/icon-mapping"
 
 export default function AdminMilestonesPage() {
   const router = useRouter()
@@ -106,9 +118,11 @@ export default function AdminMilestonesPage() {
             onClick={() => setShowCreateForm(!showCreateForm)}
             className="bg-primary text-background-dark hover:bg-primary-hover flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold"
           >
-            <span className="material-symbols-outlined text-sm">
-              {showCreateForm ? "close" : "add"}
-            </span>
+            {showCreateForm ? (
+              <XIcon className="size-4" />
+            ) : (
+              <PlusIcon className="size-4" />
+            )}
             {showCreateForm ? "Cancel" : "Add New Milestone"}
           </button>
         }
@@ -269,9 +283,9 @@ export default function AdminMilestonesPage() {
             >
               <div className="mb-4 flex items-start justify-between">
                 <div className="bg-background-dark border-border-dark flex size-12 items-center justify-center rounded-lg border">
-                  <span className="material-symbols-outlined text-primary text-2xl">
-                    {milestone.icon}
-                  </span>
+                  {React.createElement(getMaterialIcon(milestone.icon), {
+                    className: "text-primary size-6",
+                  })}
                 </div>
                 <button
                   onClick={() =>
@@ -296,24 +310,28 @@ export default function AdminMilestonesPage() {
               </p>
               <div className="mb-4 space-y-2">
                 <div className="bg-background-dark flex items-center gap-3 rounded-lg p-3">
-                  <span className="material-symbols-outlined text-sm text-blue-400">
-                    {milestone.requirementType === "collection_size" && "style"}
-                    {milestone.requirementType === "total_spend" && "savings"}
-                    {milestone.requirementType === "friend_count" && "group"}
-                    {milestone.requirementType === "pulls_count" &&
-                      "shopping_bag"}
-                    {milestone.requirementType === "login_streak" &&
-                      "calendar_today"}
-                  </span>
+                  {milestone.requirementType === "collection_size" && (
+                    <SparklesIcon className="size-4 text-blue-400" />
+                  )}
+                  {milestone.requirementType === "total_spend" && (
+                    <PiggyBankIcon className="size-4 text-blue-400" />
+                  )}
+                  {milestone.requirementType === "friend_count" && (
+                    <UsersIcon className="size-4 text-blue-400" />
+                  )}
+                  {milestone.requirementType === "pulls_count" && (
+                    <ShoppingBagIcon className="size-4 text-blue-400" />
+                  )}
+                  {milestone.requirementType === "login_streak" && (
+                    <CalendarIcon className="size-4 text-blue-400" />
+                  )}
                   <span className="text-text-secondary text-xs font-medium">
                     {milestone.requirementType.replace("_", " ").toUpperCase()}:{" "}
                     {milestone.requirementValue}
                   </span>
                 </div>
                 <div className="bg-background-dark flex items-center gap-3 rounded-lg p-3">
-                  <span className="material-symbols-outlined text-sm text-yellow-500">
-                    emoji_events
-                  </span>
+                  <TrophyIcon className="size-4 text-yellow-500" />
                   <span className="text-sm font-bold text-white">
                     {milestone.rewardType === "currency"
                       ? `$${parseFloat(milestone.rewardValue).toFixed(2)}`
@@ -333,9 +351,7 @@ export default function AdminMilestonesPage() {
               onClick={() => setShowCreateForm(true)}
               className="border-border-dark hover:border-primary/50 hover:bg-surface-dark/50 flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-all"
             >
-              <span className="material-symbols-outlined text-text-secondary mb-2 text-4xl">
-                add_circle
-              </span>
+              <PlusCircleIcon className="text-text-secondary mb-2 size-10" />
               <p className="text-text-secondary font-bold">
                 Create New Milestone
               </p>

@@ -2,17 +2,31 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import {
+  DicesIcon,
+  LayoutDashboardIcon,
+  PackageIcon,
+  SettingsIcon,
+  TrophyIcon,
+  UsersIcon,
+  type LucideIcon,
+} from "lucide-react"
 
 import { useSession } from "@/lib/auth/client"
 
 interface NavLinkProps {
   href: string
-  icon: string
+  icon: LucideIcon
   label: string
   isActive: boolean
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ href, icon, label, isActive }) => {
+const NavLink: React.FC<NavLinkProps> = ({
+  href,
+  icon: IconComponent,
+  label,
+  isActive,
+}) => {
   return (
     <Link
       href={href}
@@ -22,7 +36,7 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon, label, isActive }) => {
           : "text-text-secondary hover:bg-surface-highlight hover:text-white"
       }`}
     >
-      <span className="material-symbols-outlined text-[20px]">{icon}</span>
+      <IconComponent className="size-5" />
       <span>{label}</span>
     </Link>
   )
@@ -56,21 +70,21 @@ export const AdminSidebar: React.FC = () => {
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         <NavLink
           href="/admin"
-          icon="dashboard"
+          icon={LayoutDashboardIcon}
           label="Dashboard"
           isActive={isDashboardActive}
         />
 
         <NavLink
           href="/admin/inventory"
-          icon="inventory_2"
+          icon={PackageIcon}
           label="Card Inventory"
           isActive={isInventoryActive}
         />
 
         <NavLink
           href="/admin/events"
-          icon="casino"
+          icon={DicesIcon}
           label="Gacha Events"
           isActive={isEventsActive}
         />
@@ -78,7 +92,7 @@ export const AdminSidebar: React.FC = () => {
         {isAdmin && (
           <NavLink
             href="/admin/users"
-            icon="group"
+            icon={UsersIcon}
             label="User Management"
             isActive={isUsersActive}
           />
@@ -86,7 +100,7 @@ export const AdminSidebar: React.FC = () => {
 
         <NavLink
           href="/admin/milestones"
-          icon="emoji_events"
+          icon={TrophyIcon}
           label="Milestones"
           isActive={isMilestonesActive}
         />
@@ -94,7 +108,7 @@ export const AdminSidebar: React.FC = () => {
         {isAdmin && (
           <NavLink
             href="/admin/settings"
-            icon="settings"
+            icon={SettingsIcon}
             label="Settings"
             isActive={isSettingsActive}
           />

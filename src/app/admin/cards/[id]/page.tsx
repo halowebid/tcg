@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { SaveIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -91,7 +92,7 @@ export default function AdminEditCardPage() {
             disabled={updateMutation.isPending}
             className="bg-primary text-background-dark shadow-primary/20 hover:bg-primary-hover flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold shadow-lg disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-sm">save</span>{" "}
+            <SaveIcon className="size-4" />{" "}
             {updateMutation.isPending ? "Saving..." : "Save Changes"}
           </button>
         </div>

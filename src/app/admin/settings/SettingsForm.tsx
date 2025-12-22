@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { DicesIcon, DollarSignIcon, SlidersHorizontalIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -71,9 +72,7 @@ export function SettingsForm() {
         <div className="max-w-4xl space-y-8 pb-10">
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">
-                tune
-              </span>
+              <SlidersHorizontalIcon className="text-primary size-5" />
               General Configuration
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -132,9 +131,7 @@ export function SettingsForm() {
 
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">
-                paid
-              </span>
+              <DollarSignIcon className="text-primary size-5" />
               Economy Settings
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
@@ -142,9 +139,7 @@ export function SettingsForm() {
 
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-              <span className="material-symbols-outlined text-primary">
-                casino
-              </span>
+              <DicesIcon className="text-primary size-5" />
               Gacha Settings
             </h3>
             <div className="bg-background-dark border-border-dark rounded-lg border p-4">

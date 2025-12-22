@@ -32,13 +32,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${rajdhani.variable} ${inter.variable}`}>
-      <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
-          rel="stylesheet"
-        />
-      </head>
       <body className="bg-background-dark text-white">
         <TRPCReactProvider>
           <PublicHeader />

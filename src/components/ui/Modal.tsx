@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { XIcon } from "lucide-react"
 
 interface ModalProps {
   isOpen: boolean
@@ -53,7 +54,7 @@ export function Modal({
               onClick={onClose}
               className="text-text-secondary transition-colors hover:text-white"
             >
-              <span className="material-symbols-outlined">close</span>
+              <XIcon className="size-6" />
             </button>
           </div>
 
