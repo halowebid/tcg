@@ -241,6 +241,18 @@ export const MarketplaceScreen: React.FC = () => {
   const [selectedRarity, setSelectedRarity] = React.useState<
     "common" | "rare" | "epic" | "legendary" | undefined
   >()
+  const [searchQuery, setSearchQuery] = React.useState("")
+
+  // Check for URL search params on mount
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const search = params.get("search")
+      if (search) {
+        setSearchQuery(search)
+      }
+    }
+  }, [])
 
   const {
     data: cards,
@@ -251,6 +263,7 @@ export const MarketplaceScreen: React.FC = () => {
     page,
     limit: 20,
     rarity: selectedRarity,
+    search: searchQuery || undefined,
   })
 
   const purchaseMutation = trpc.marketplace.purchase.useMutation({
@@ -306,6 +319,23 @@ export const MarketplaceScreen: React.FC = () => {
               500 Coins
             </Link>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <span className="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
+            search
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setPage(1) // Reset to page 1 when searching
+            }}
+            placeholder="Search cards by name..."
+            className="bg-surface-dark border-border-dark focus:border-primary w-full rounded-xl border px-4 py-3 pl-10 text-white placeholder-gray-400 outline-none transition-colors"
+          />
         </div>
 
         <div className="no-scrollbar mb-4 flex items-center gap-4 overflow-x-auto pb-2">

@@ -1,4 +1,4 @@
-import { and, eq, ne, or } from "drizzle-orm"
+import { and, eq, ilike, ne, or } from "drizzle-orm"
 import { z } from "zod"
 
 import { invalidatePattern } from "@/lib/cache/redis"
@@ -12,12 +12,14 @@ export const marketplaceRouter = router({
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(50).default(20),
         rarity: z.enum(["common", "rare", "epic", "legendary"]).optional(),
+        search: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const where = and(
         eq(cards.isActive, true),
         input.rarity ? eq(cards.rarity, input.rarity) : undefined,
+        input.search ? ilike(cards.name, `%${input.search}%`) : undefined,
       )
 
       const items = await ctx.db.query.cards.findMany({

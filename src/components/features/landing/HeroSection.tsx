@@ -3,7 +3,7 @@ import Link from "next/link"
 export function HeroSection() {
   return (
     <div className="mb-16 text-center">
-      <h1 className="mb-4 text-6xl font-bold">CardGacha TCG</h1>
+      <h1 className="mb-4 text-6xl font-bold">TCG</h1>
       <p className="mb-8 text-xl text-gray-300">
         Collect, trade, and battle with unique trading cards
       </p>

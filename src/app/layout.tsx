@@ -7,7 +7,7 @@ import { TRPCReactProvider } from "@/lib/trpc/client"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "CardGacha TCG",
+  title: "TCG",
   description: "Gacha-based trading card game platform",
 }
 
