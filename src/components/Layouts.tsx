@@ -1,4 +1,7 @@
+"use client"
+
 import React from "react"
+import { usePathname } from "next/navigation"
 import {
   DicesIcon,
   LayoutDashboardIcon,
@@ -10,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
+import { Footer } from "./Footer"
 import { PublicHeader } from "./Headers"
 
 export const PublicLayout: React.FC<{ children: React.ReactNode }> = ({
@@ -93,6 +97,24 @@ export const AdminLayout: React.FC<{
       <main className="relative flex h-full flex-1 flex-col overflow-hidden">
         {children}
       </main>
+    </div>
+  )
+}
+
+export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const pathname = usePathname()
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false
+
+  if (isAdminRoute) {
+    return <>{children}</>
+  }
+
+  return (
+    <div className="flex min-h-full flex-1 flex-col">
+      <div className="flex-1">{children}</div>
+      <Footer />
     </div>
   )
 }

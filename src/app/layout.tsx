@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Rajdhani } from "next/font/google"
 
 import { PublicHeader } from "@/components/Headers"
+import { LayoutWrapper } from "@/components/Layouts"
 import { Toaster } from "@/components/ui"
 import { TRPCReactProvider } from "@/lib/trpc/client"
 
@@ -32,10 +33,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${rajdhani.variable} ${inter.variable}`}>
-      <body className="bg-background-dark text-white">
+      <body className="bg-background-dark flex min-h-screen flex-col text-white">
         <TRPCReactProvider>
           <PublicHeader />
-          <main className="custom-scrollbar overflow-y-auto">{children}</main>
+          <LayoutWrapper>
+            <main className="custom-scrollbar flex-1 overflow-y-auto">
+              {children}
+            </main>
+          </LayoutWrapper>
           <Toaster />
         </TRPCReactProvider>
       </body>
