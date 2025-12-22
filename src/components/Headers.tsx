@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-import { useSession, signOut } from "@/lib/auth/client"
+import { signOut, useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
@@ -20,7 +20,9 @@ export const PublicHeader: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/marketplace?search=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(
+        `/marketplace?search=${encodeURIComponent(searchQuery.trim())}`,
+      )
     }
   }
 
@@ -39,9 +41,7 @@ export const PublicHeader: React.FC = () => {
           <div className="text-primary size-8">
             <span className="material-symbols-outlined text-4xl">style</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            TCG
-          </h2>
+          <h2 className="text-xl font-bold tracking-tight text-white">TCG</h2>
         </Link>
         <div className="hidden items-center gap-8 lg:flex">
           <Link
@@ -76,7 +76,10 @@ export const PublicHeader: React.FC = () => {
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-6">
-        <form onSubmit={handleSearch} className="hidden h-10 max-w-64 min-w-40 flex-col md:flex">
+        <form
+          onSubmit={handleSearch}
+          className="hidden h-10 max-w-64 min-w-40 flex-col md:flex"
+        >
           <div className="border-border-dark bg-surface-dark focus-within:border-primary flex h-full w-full flex-1 items-stretch rounded-xl border transition-colors">
             <div className="text-text-secondary flex items-center justify-center pl-3">
               <span className="material-symbols-outlined text-[20px]">
@@ -117,7 +120,7 @@ export const PublicHeader: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="border-border-dark aspect-square size-10 cursor-pointer rounded-full border-2 bg-cover bg-center bg-no-repeat hover:border-primary transition-colors"
+                  className="border-border-dark hover:border-primary aspect-square size-10 cursor-pointer rounded-full border-2 bg-cover bg-center bg-no-repeat transition-colors"
                   style={{
                     backgroundImage: session.user.image
                       ? `url("${session.user.image}")`
@@ -131,7 +134,7 @@ export const PublicHeader: React.FC = () => {
                       className="fixed inset-0 z-40"
                       onClick={() => setShowUserMenu(false)}
                     />
-                    
+
                     <div className="bg-surface-dark border-border-dark absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border shadow-2xl">
                       <div className="border-border-dark border-b p-4">
                         <p className="font-bold text-white">

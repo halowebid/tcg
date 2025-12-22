@@ -20,7 +20,10 @@ export const gachaEvents = pgTable("gacha_events", {
     precision: 10,
     scale: 2,
   }).notNull(),
-  tenPullPrice: numeric("ten_pull_price", { precision: 10, scale: 2 }).notNull(),
+  tenPullPrice: numeric("ten_pull_price", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
   legendaryRate: numeric("legendary_rate", {
     precision: 5,
     scale: 4,

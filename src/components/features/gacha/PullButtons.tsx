@@ -21,12 +21,8 @@ export function PullButtons({
   return (
     <div className="space-y-2">
       <div className="text-sm">
-        <div>
-          Single Pull: {formatUSD(singlePullPrice)}
-        </div>
-        <div>
-          10x Pull: {formatUSD(tenPullPrice)}
-        </div>
+        <div>Single Pull: {formatUSD(singlePullPrice)}</div>
+        <div>10x Pull: {formatUSD(tenPullPrice)}</div>
       </div>
       <div className="mt-2 space-y-2">
         <Button

@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Rajdhani, Inter } from "next/font/google"
+import { Inter, Rajdhani } from "next/font/google"
 
 import { PublicHeader } from "@/components/Headers"
 import { Toaster } from "@/components/ui"

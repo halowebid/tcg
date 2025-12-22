@@ -111,7 +111,8 @@ export default function MilestonesPage() {
                     {milestone.description}
                   </p>
                   <p className="text-text-secondary mt-2 text-xs">
-                    Reward: {milestone.rewardType === "currency"
+                    Reward:{" "}
+                    {milestone.rewardType === "currency"
                       ? `$${parseFloat(milestone.rewardValue).toFixed(2)}`
                       : milestone.rewardValue}
                   </p>

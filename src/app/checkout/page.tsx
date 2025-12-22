@@ -149,7 +149,9 @@ function CheckoutContent() {
                 <div className="flex-1">
                   <p className="text-sm font-bold text-white">{card.name}</p>
                   <p className="text-text-secondary text-xs">{card.rarity}</p>
-                  <p className="text-primary mt-1 font-bold">{formatUSD(price)}</p>
+                  <p className="text-primary mt-1 font-bold">
+                    {formatUSD(price)}
+                  </p>
                 </div>
               </div>
             </div>

@@ -140,9 +140,7 @@ export const milestonesRouter = router({
           ])
           .optional(),
         requirementValue: z.number().int().optional(),
-        rewardType: z
-          .enum(["currency", "badge", "frame", "title"])
-          .optional(),
+        rewardType: z.enum(["currency", "badge", "frame", "title"]).optional(),
         rewardValue: z.string().optional(),
         isActive: z.boolean().optional(),
       }),

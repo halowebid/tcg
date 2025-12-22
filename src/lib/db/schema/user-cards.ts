@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm"
 import {
   integer,
   pgEnum,
@@ -6,7 +7,6 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core"
-import { relations } from "drizzle-orm"
 
 import { cards } from "./cards"
 import { users } from "./users"

@@ -335,7 +335,7 @@ export const MarketplaceScreen: React.FC = () => {
               setPage(1) // Reset to page 1 when searching
             }}
             placeholder="Search cards by name..."
-            className="bg-surface-dark border-border-dark focus:border-primary w-full rounded-xl border px-4 py-3 pl-10 text-white placeholder-gray-400 outline-none transition-colors"
+            className="bg-surface-dark border-border-dark focus:border-primary w-full rounded-xl border px-4 py-3 pl-10 text-white placeholder-gray-400 transition-colors outline-none"
           />
         </div>
 

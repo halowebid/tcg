@@ -230,9 +230,11 @@ export default function MarketplaceDetailPage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-mono text-sm font-bold">
-                      {formatUSD(relatedCard.marketValue
-                        ? parseFloat(relatedCard.marketValue)
-                        : 100)}
+                      {formatUSD(
+                        relatedCard.marketValue
+                          ? parseFloat(relatedCard.marketValue)
+                          : 100,
+                      )}
                     </span>
                   </div>
                 </div>

@@ -137,8 +137,7 @@ export default function AdminSettingsPage() {
               </span>
               Economy Settings
             </h3>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
           </section>
 
           <section className="bg-surface-dark border-border-dark rounded-xl border p-6">
