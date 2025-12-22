@@ -17,6 +17,7 @@ export default function AdminEditCardPage() {
   const params = useParams()
   const router = useRouter()
   const cardId = params["id"] as string
+  const utils = trpc.useUtils()
 
   const { data: card, isLoading } = trpc.cards.getById.useQuery({ id: cardId })
 
@@ -44,8 +45,10 @@ export default function AdminEditCardPage() {
   }, [card, reset])
 
   const updateMutation = trpc.cards.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Card updated successfully!")
+      await utils.cards.getById.invalidate({ id: cardId })
+      await utils.cards.list.invalidate()
       router.push("/admin/inventory")
     },
     onError: (error) => {

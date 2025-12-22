@@ -14,6 +14,7 @@ import {
 import { trpc } from "@/lib/trpc/client"
 
 export function SettingsForm() {
+  const utils = trpc.useUtils()
   const { data: settings, isLoading } = trpc.settings.get.useQuery()
 
   const {
@@ -41,9 +42,9 @@ export function SettingsForm() {
   }, [settings, reset])
 
   const updateMutation = trpc.settings.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Settings updated successfully!")
-      window.location.reload()
+      await utils.settings.get.invalidate()
     },
     onError: (error) => {
       toast.error(`Failed to update settings: ${error.message}`)

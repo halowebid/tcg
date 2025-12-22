@@ -21,6 +21,7 @@ export default function EditEventPage({
 }) {
   const { id } = use(params)
   const router = useRouter()
+  const utils = trpc.useUtils()
 
   const {
     register,
@@ -52,8 +53,10 @@ export default function EditEventPage({
   } = trpc.admin.getEventById.useQuery({ id })
 
   const updateMutation = trpc.admin.updateEvent.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Event updated successfully!")
+      await utils.admin.getEventById.invalidate({ id })
+      await utils.admin.getAllEvents.invalidate()
       router.push("/admin/events")
     },
     onError: (error) => {

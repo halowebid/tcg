@@ -27,6 +27,7 @@ export default function AdminUserEditPage() {
   const params = useParams()
   const router = useRouter()
   const userId = params["id"] as string
+  const utils = trpc.useUtils()
 
   const [banConfirm, setBanConfirm] = useState(false)
   const [roleChangeConfirm, setRoleChangeConfirm] = useState(false)
@@ -59,10 +60,11 @@ export default function AdminUserEditPage() {
   const { data: sessions } = trpc.admin.listUserSessions.useQuery({ userId })
 
   const updateWalletMutation = trpc.admin.updateUserWallet.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Wallet updated successfully!")
       reset()
-      window.location.reload()
+      await utils.admin.getUserById.invalidate({ userId })
+      await utils.admin.getUserTransactions.invalidate({ userId })
     },
     onError: (error) => {
       toast.error(`Failed to update wallet: ${error.message}`)
@@ -70,14 +72,15 @@ export default function AdminUserEditPage() {
   })
 
   const banMutation = trpc.admin.banUser.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success(
         user?.isBanned
           ? "User unbanned successfully!"
           : "User banned successfully!",
       )
       setBanConfirm(false)
-      window.location.reload()
+      await utils.admin.getUserById.invalidate({ userId })
+      await utils.admin.listUsers.invalidate()
     },
     onError: (error) => {
       toast.error(`Failed to ban/unban user: ${error.message}`)
@@ -86,10 +89,11 @@ export default function AdminUserEditPage() {
   })
 
   const setRoleMutation = trpc.admin.setRole.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Role updated successfully!")
       setRoleChangeConfirm(false)
-      window.location.reload()
+      await utils.admin.getUserById.invalidate({ userId })
+      await utils.admin.listUsers.invalidate()
     },
     onError: (error) => {
       toast.error(`Failed to update role: ${error.message}`)
@@ -98,9 +102,9 @@ export default function AdminUserEditPage() {
   })
 
   const revokeSessionMutation = trpc.admin.revokeUserSession.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Session revoked successfully!")
-      window.location.reload()
+      await utils.admin.listUserSessions.invalidate({ userId })
     },
     onError: (error) => {
       toast.error(`Failed to revoke session: ${error.message}`)
