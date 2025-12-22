@@ -19,7 +19,17 @@ export const requireAuth = async () => {
   return session
 }
 
-export const requireAdmin = async () => {
+export const requireStaff = async () => {
+  const session = await requireAuth()
+
+  if (!session.user.role || !["admin", "staff"].includes(session.user.role)) {
+    throw new Error("Forbidden: Staff access required")
+  }
+
+  return session
+}
+
+export const requireAdminOnly = async () => {
   const session = await requireAuth()
 
   if (session.user.role !== "admin") {
@@ -28,3 +38,6 @@ export const requireAdmin = async () => {
 
   return session
 }
+
+// Alias for backward compatibility
+export const requireAdmin = requireAdminOnly

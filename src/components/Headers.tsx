@@ -33,6 +33,7 @@ export const PublicHeader: React.FC = () => {
   }
 
   const isAdmin = session?.user?.role === "admin"
+  const isStaff = session?.user?.role === "staff"
 
   return (
     <header className="border-border-dark bg-background-dark/95 sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3 whitespace-nowrap backdrop-blur-md lg:px-10">
@@ -64,7 +65,7 @@ export const PublicHeader: React.FC = () => {
               Collection
             </Link>
           )}
-          {isAdmin && (
+          {(isAdmin || isStaff) && (
             <Link
               href="/admin"
               className="hover:text-primary text-sm font-medium text-white transition-colors"
@@ -148,6 +149,11 @@ export const PublicHeader: React.FC = () => {
                             ADMIN
                           </span>
                         )}
+                        {isStaff && (
+                          <span className="mt-2 inline-block rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-400">
+                            STAFF
+                          </span>
+                        )}
                       </div>
 
                       <div className="py-2">
@@ -181,7 +187,7 @@ export const PublicHeader: React.FC = () => {
                           </span>
                           Milestones
                         </Link>
-                        {isAdmin && (
+                        {(isAdmin || isStaff) && (
                           <Link
                             href="/admin"
                             onClick={() => setShowUserMenu(false)}

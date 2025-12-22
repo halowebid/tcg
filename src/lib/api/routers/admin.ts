@@ -13,10 +13,10 @@ import {
   userProfiles,
   users,
 } from "@/lib/db/schema"
-import { adminProcedure, router } from "../trpc"
+import { adminProcedure, router, staffProcedure } from "../trpc"
 
 export const adminRouter = router({
-  getDashboardStats: adminProcedure.query(async ({ ctx }) => {
+  getDashboardStats: staffProcedure.query(async ({ ctx }) => {
     const cached = await getCached<typeof stats>(
       CACHE_KEYS.ADMIN_DASHBOARD_STATS,
     )
@@ -164,14 +164,14 @@ export const adminRouter = router({
       return userTransactions
     }),
 
-  getAllEvents: adminProcedure.query(async ({ ctx }) => {
+  getAllEvents: staffProcedure.query(async ({ ctx }) => {
     const events = await ctx.db.query.gachaEvents.findMany({
       orderBy: [desc(gachaEvents.createdAt)],
     })
     return events
   }),
 
-  getEventById: adminProcedure
+  getEventById: staffProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const event = await ctx.db.query.gachaEvents.findFirst({
@@ -185,7 +185,7 @@ export const adminRouter = router({
       return event
     }),
 
-  createEvent: adminProcedure
+  createEvent: staffProcedure
     .input(
       z.object({
         name: z.string().min(1).max(100),
@@ -215,7 +215,7 @@ export const adminRouter = router({
       return event
     }),
 
-  updateEvent: adminProcedure
+  updateEvent: staffProcedure
     .input(
       z.object({
         id: z.string(),
@@ -256,7 +256,7 @@ export const adminRouter = router({
       return updated
     }),
 
-  deleteEvent: adminProcedure
+  deleteEvent: staffProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(gachaEvents).where(eq(gachaEvents.id, input.id))
@@ -269,18 +269,26 @@ export const adminRouter = router({
         email: z.string().email(),
         password: z.string().min(8),
         name: z.string(),
-        role: z.enum(["user", "admin"]).default("user"),
+        role: z.enum(["user", "staff", "admin"]).default("user"),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const user = await auth.api.createUser({
         body: {
           email: input.email,
           password: input.password,
           name: input.name,
-          role: input.role,
+          role: input.role === "staff" ? "user" : input.role,
         },
       })
+
+      if (input.role === "staff") {
+        await ctx.db
+          .update(users)
+          .set({ role: "staff" })
+          .where(eq(users.id, user.user.id))
+      }
+
       return user
     }),
 
@@ -310,17 +318,19 @@ export const adminRouter = router({
     .input(
       z.object({
         userId: z.string(),
-        role: z.enum(["user", "admin"]),
+        role: z.enum(["user", "staff", "admin"]),
       }),
     )
-    .mutation(async ({ input }) => {
-      await auth.api.setRole({
-        body: {
-          userId: input.userId,
-          role: input.role,
-        },
-        headers: await headers(),
-      })
+    .mutation(async ({ ctx, input }) => {
+      if (input.userId === ctx.session.user.id) {
+        throw new Error("Cannot change your own role")
+      }
+
+      await ctx.db
+        .update(users)
+        .set({ role: input.role })
+        .where(eq(users.id, input.userId))
+
       return { success: true }
     }),
 

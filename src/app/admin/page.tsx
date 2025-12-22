@@ -3,12 +3,14 @@
 import { useRouter } from "next/navigation"
 
 import { DashboardHeader } from "@/components/Headers"
+import { useSession } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
 export default function AdminPage() {
   const router = useRouter()
   const { data: stats, isLoading } = trpc.admin.getDashboardStats.useQuery()
+  const { data: session } = useSession()
 
   if (isLoading) {
     return (
@@ -160,6 +162,20 @@ export default function AdminPage() {
           </div>
           <div className="z-10 space-y-3">
             <button
+              onClick={() => router.push("/admin/users")}
+              className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">
+                  group
+                </span>
+                <p className="text-sm font-bold text-white">User Management</p>
+              </div>
+              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
+                chevron_right
+              </span>
+            </button>
+            <button
               onClick={() => router.push("/admin/inventory")}
               className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
             >
@@ -187,20 +203,24 @@ export default function AdminPage() {
                 chevron_right
               </span>
             </button>
-            <button
-              onClick={() => router.push("/admin/settings")}
-              className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  tune
+            {session?.user?.role === "admin" && (
+              <button
+                onClick={() => router.push("/admin/settings")}
+                className="bg-surface-highlight hover:border-primary/30 group flex w-full items-center justify-between rounded-lg border border-transparent p-4 transition-all hover:bg-[#4a3e33]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">
+                    tune
+                  </span>
+                  <p className="text-sm font-bold text-white">
+                    System Settings
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
+                  chevron_right
                 </span>
-                <p className="text-sm font-bold text-white">System Settings</p>
-              </div>
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">
-                chevron_right
-              </span>
-            </button>
+              </button>
+            )}
           </div>
         </div>
       </div>

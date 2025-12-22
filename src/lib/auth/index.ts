@@ -31,6 +31,7 @@ export const auth = betterAuth({
     admin({
       defaultRole: "user",
       adminRoles: ["admin"],
+      impersonationSessionDuration: 60 * 60,
     }),
   ],
   secret: process.env["BETTER_AUTH_SECRET"]!,

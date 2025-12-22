@@ -26,6 +26,15 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url))
     }
 
+    if (pathname.startsWith("/admin")) {
+      if (
+        !session.user.role ||
+        !["admin", "staff"].includes(session.user.role)
+      ) {
+        return NextResponse.redirect(new URL("/", request.url))
+      }
+    }
+
     return NextResponse.next()
   }
 

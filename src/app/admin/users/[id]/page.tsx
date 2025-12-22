@@ -22,7 +22,9 @@ export default function AdminUserEditPage() {
 
   const [banConfirm, setBanConfirm] = useState(false)
   const [roleChangeConfirm, setRoleChangeConfirm] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<"user" | "admin">("user")
+  const [selectedRole, setSelectedRole] = useState<"user" | "staff" | "admin">(
+    "user",
+  )
 
   const {
     register,
@@ -128,7 +130,7 @@ export default function AdminUserEditPage() {
     })
   }
 
-  const handleRoleChange = (role: "user" | "admin") => {
+  const handleRoleChange = (role: "user" | "staff" | "admin") => {
     setSelectedRole(role)
     setRoleChangeConfirm(true)
   }
@@ -279,7 +281,11 @@ export default function AdminUserEditPage() {
                     Current Role
                   </label>
                   <p className="text-sm font-bold text-white">
-                    {user.role === "admin" ? "Administrator" : "User"}
+                    {user.role === "admin"
+                      ? "Administrator"
+                      : user.role === "staff"
+                        ? "Staff"
+                        : "User"}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -288,7 +294,16 @@ export default function AdminUserEditPage() {
                     disabled={user.role === "user" || setRoleMutation.isPending}
                     className="bg-surface-highlight border-border-dark hover:border-primary flex-1 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
                   >
-                    Set as User
+                    User
+                  </button>
+                  <button
+                    onClick={() => handleRoleChange("staff")}
+                    disabled={
+                      user.role === "staff" || setRoleMutation.isPending
+                    }
+                    className="flex-1 rounded-lg border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-500/20 disabled:opacity-50"
+                  >
+                    Staff
                   </button>
                   <button
                     onClick={() => handleRoleChange("admin")}
@@ -297,7 +312,7 @@ export default function AdminUserEditPage() {
                     }
                     className="bg-primary/10 border-primary/20 hover:bg-primary/20 flex-1 rounded-lg border px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
                   >
-                    Set as Admin
+                    Admin
                   </button>
                 </div>
               </div>
@@ -522,7 +537,7 @@ export default function AdminUserEditPage() {
         onClose={() => setRoleChangeConfirm(false)}
         onConfirm={confirmRoleChange}
         title="Change User Role"
-        message={`Are you sure you want to change this user's role to ${selectedRole === "admin" ? "Administrator" : "User"}? This will ${selectedRole === "admin" ? "grant them full admin privileges" : "remove their admin privileges"}.`}
+        message={`Are you sure you want to change this user's role to ${selectedRole === "admin" ? "Administrator" : selectedRole === "staff" ? "Staff" : "User"}? This will ${selectedRole === "admin" ? "grant them full admin privileges" : selectedRole === "staff" ? "grant them limited admin privileges" : "remove their admin privileges"}.`}
         confirmText="Change Role"
         cancelText="Cancel"
       />

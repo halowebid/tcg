@@ -13,18 +13,23 @@ interface User {
   level: number
   balance: number
   isBanned: boolean
+  role?: string
 }
 
 interface UserManagementTableProps {
   users: User[] | undefined
   onBanUser: (userId: string, banned: boolean) => Promise<void>
+  onChangeRole?: (userId: string, role: string) => Promise<void>
   isPending: boolean
+  currentUserId?: string
 }
 
 export function UserManagementTable({
   users,
   onBanUser,
+  onChangeRole,
   isPending,
+  currentUserId,
 }: UserManagementTableProps) {
   return (
     <Card>
@@ -39,6 +44,7 @@ export function UserManagementTable({
                 <th className="py-2 text-left">Username</th>
                 <th className="py-2 text-left">Level</th>
                 <th className="py-2 text-left">Balance</th>
+                {onChangeRole && <th className="py-2 text-left">Role</th>}
                 <th className="py-2 text-left">Status</th>
                 <th className="py-2 text-left">Actions</th>
               </tr>
@@ -49,6 +55,22 @@ export function UserManagementTable({
                   <td className="py-2">{user.username}</td>
                   <td className="py-2">{user.level}</td>
                   <td className="py-2">{formatUSD(user.balance)}</td>
+                  {onChangeRole && (
+                    <td className="py-2">
+                      <select
+                        value={user.role ?? "user"}
+                        onChange={(e) =>
+                          onChangeRole(user.userId, e.target.value)
+                        }
+                        disabled={isPending || user.userId === currentUserId}
+                        className="bg-background-dark border-border-dark rounded border px-2 py-1 text-sm text-white disabled:opacity-50"
+                      >
+                        <option value="user">User</option>
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                  )}
                   <td className="py-2">
                     <span
                       className={
