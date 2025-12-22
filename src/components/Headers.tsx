@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
 
-// --- Type 1: Public Header ---
 export const PublicHeader: React.FC = () => {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
@@ -96,7 +95,6 @@ export const PublicHeader: React.FC = () => {
         <div className="flex items-center gap-3">
           {session?.user ? (
             <>
-              {/* Wallet Display */}
               <div className="bg-surface-dark border-border-dark hidden items-center gap-2 rounded-xl border px-3 py-2 md:flex">
                 <span className="material-symbols-outlined text-primary text-[18px]">
                   monetization_on
@@ -106,7 +104,6 @@ export const PublicHeader: React.FC = () => {
                 </span>
               </div>
 
-              {/* Notifications */}
               <Link
                 href="/notifications"
                 className="bg-surface-dark border-border-dark hover:bg-surface-highlight flex size-10 items-center justify-center rounded-xl border text-white transition-colors"
@@ -116,7 +113,6 @@ export const PublicHeader: React.FC = () => {
                 </span>
               </Link>
 
-              {/* User Menu */}
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -128,17 +124,14 @@ export const PublicHeader: React.FC = () => {
                   }}
                 />
 
-                {/* Dropdown Menu */}
                 {showUserMenu && (
                   <>
-                    {/* Backdrop to close menu */}
                     <div
                       className="fixed inset-0 z-40"
                       onClick={() => setShowUserMenu(false)}
                     />
                     
                     <div className="bg-surface-dark border-border-dark absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border shadow-2xl">
-                      {/* User Info */}
                       <div className="border-border-dark border-b p-4">
                         <p className="font-bold text-white">
                           {session.user.name || session.user.email}
@@ -153,7 +146,6 @@ export const PublicHeader: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Menu Items */}
                       <div className="py-2">
                         <Link
                           href="/profile"
@@ -199,7 +191,6 @@ export const PublicHeader: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Sign Out */}
                       <div className="border-border-dark border-t p-2">
                         <button
                           onClick={handleSignOut}
@@ -217,7 +208,6 @@ export const PublicHeader: React.FC = () => {
               </div>
             </>
           ) : (
-            /* Guest State - Show Login/Signup */
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
@@ -239,7 +229,6 @@ export const PublicHeader: React.FC = () => {
   )
 }
 
-// --- Type 2: Dashboard Header (Admin / Contextual) ---
 interface DashboardHeaderProps {
   title: string
   breadcrumbs?: string[]
