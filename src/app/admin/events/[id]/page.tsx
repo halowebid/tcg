@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { use, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeftIcon } from "lucide-react"
@@ -14,7 +14,12 @@ import {
 } from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
 
-export default function EditEventPage({ params }: { params: { id: string } }) {
+export default function EditEventPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = use(params)
   const router = useRouter()
 
   const {
@@ -44,7 +49,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     data: event,
     isLoading,
     error,
-  } = trpc.admin.getEventById.useQuery({ id: params.id })
+  } = trpc.admin.getEventById.useQuery({ id })
 
   const updateMutation = trpc.admin.updateEvent.useMutation({
     onSuccess: () => {
@@ -89,7 +94,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     }
 
     updateMutation.mutate({
-      id: params.id,
+      id,
       ...data,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),

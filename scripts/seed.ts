@@ -47,8 +47,7 @@ async function seed() {
     displayName: "Admin",
     level: 99,
     exp: 999999,
-    coins: 100000,
-    gems: 10000,
+    balance: "1000.00",
     isAdmin: true,
   })
 
@@ -79,8 +78,7 @@ async function seed() {
     displayName: "Test User",
     level: 5,
     exp: 1500,
-    coins: 5000,
-    gems: 100,
+    balance: "50.00",
     isAdmin: false,
   })
 
@@ -328,12 +326,12 @@ async function seed() {
       "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800",
     startDate: now,
     endDate: oneMonthFromNow,
-    packPriceCoins: 500,
-    packPriceGems: 50,
-    legendaryRate: "0.02", // 2%
-    epicRate: "0.08", // 8%
-    rareRate: "0.20", // 20%
-    commonRate: "0.70", // 70%
+    singlePullPrice: "5.00",
+    tenPullPrice: "47.50",
+    legendaryRate: "0.02",
+    epicRate: "0.08",
+    rareRate: "0.20",
+    commonRate: "0.70",
     isActive: true,
   })
 
