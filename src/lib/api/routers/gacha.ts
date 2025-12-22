@@ -80,7 +80,6 @@ export const gachaRouter = router({
     .input(
       z.object({
         eventId: z.string(),
-        useGems: z.boolean().default(false),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -102,20 +101,10 @@ export const gachaRouter = router({
         throw new Error("User profile not found")
       }
 
-      const cost = input.useGems
-        ? (event.packPriceGems ?? 0)
-        : event.packPriceCoins
+      const cost = parseFloat(event.singlePullPrice)
 
-      if (input.useGems && cost === 0) {
-        throw new Error("Gems not accepted for this event")
-      }
-
-      if (input.useGems && profile.gems < cost) {
-        throw new Error("Insufficient gems")
-      }
-
-      if (!input.useGems && profile.coins < cost) {
-        throw new Error("Insufficient coins")
+      if (parseFloat(profile.balance) < cost) {
+        throw new Error("Insufficient balance")
       }
 
       const selectedCard = await selectRandomCard(ctx.db, input.eventId, event)
@@ -126,8 +115,7 @@ export const gachaRouter = router({
         await tx
           .update(userProfiles)
           .set({
-            coins: input.useGems ? profile.coins : profile.coins - cost,
-            gems: input.useGems ? profile.gems - cost : profile.gems,
+            balance: (parseFloat(profile.balance) - cost).toFixed(2),
             updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, userId))
@@ -137,8 +125,7 @@ export const gachaRouter = router({
           eventId: input.eventId,
           cardId: selectedCard.id,
           rarityAtPull: selectedCard.rarity,
-          costCoins: input.useGems ? null : cost,
-          costGems: input.useGems ? cost : null,
+          cost: cost.toFixed(2),
           sessionId,
         })
 
@@ -151,8 +138,7 @@ export const gachaRouter = router({
         await tx.insert(transactions).values({
           userId,
           type: "gacha_pull",
-          coinsChange: input.useGems ? 0 : -cost,
-          gemsChange: input.useGems ? -cost : 0,
+          amountChange: (-cost).toFixed(2),
           description: `Gacha pull: ${selectedCard.name}`,
         })
       })
@@ -169,7 +155,6 @@ export const gachaRouter = router({
     .input(
       z.object({
         eventId: z.string(),
-        useGems: z.boolean().default(false),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -191,21 +176,10 @@ export const gachaRouter = router({
         throw new Error("User profile not found")
       }
 
-      const costPerPull = input.useGems
-        ? (event.packPriceGems ?? 0)
-        : event.packPriceCoins
-      const totalCost = costPerPull * 10
+      const totalCost = parseFloat(event.tenPullPrice)
 
-      if (input.useGems && costPerPull === 0) {
-        throw new Error("Gems not accepted for this event")
-      }
-
-      if (input.useGems && profile.gems < totalCost) {
-        throw new Error("Insufficient gems")
-      }
-
-      if (!input.useGems && profile.coins < totalCost) {
-        throw new Error("Insufficient coins")
+      if (parseFloat(profile.balance) < totalCost) {
+        throw new Error("Insufficient balance")
       }
 
       const selectedCards = await Promise.all(
@@ -215,13 +189,13 @@ export const gachaRouter = router({
       )
 
       const sessionId = crypto.randomUUID()
+      const costPerPull = totalCost / 10
 
       await ctx.db.transaction(async (tx) => {
         await tx
           .update(userProfiles)
           .set({
-            coins: input.useGems ? profile.coins : profile.coins - totalCost,
-            gems: input.useGems ? profile.gems - totalCost : profile.gems,
+            balance: (parseFloat(profile.balance) - totalCost).toFixed(2),
             updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, userId))
@@ -232,8 +206,7 @@ export const gachaRouter = router({
             eventId: input.eventId,
             cardId: card.id,
             rarityAtPull: card.rarity,
-            costCoins: input.useGems ? null : costPerPull,
-            costGems: input.useGems ? costPerPull : null,
+            cost: costPerPull.toFixed(2),
             sessionId,
           })
 
@@ -247,8 +220,7 @@ export const gachaRouter = router({
         await tx.insert(transactions).values({
           userId,
           type: "gacha_pull",
-          coinsChange: input.useGems ? 0 : -totalCost,
-          gemsChange: input.useGems ? -totalCost : 0,
+          amountChange: (-totalCost).toFixed(2),
           description: `10x Gacha pull`,
         })
       })

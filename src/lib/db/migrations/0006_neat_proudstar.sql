@@ -1,0 +1,1 @@
+ALTER TABLE "milestones" ALTER COLUMN "reward_type" SET DEFAULT 'currency';

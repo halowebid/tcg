@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -21,8 +22,9 @@ export const userProfiles = pgTable("user_profiles", {
   displayName: text("display_name").notNull(),
   level: integer("level").default(1).notNull(),
   exp: integer("exp").default(0).notNull(),
-  coins: integer("coins").default(1000).notNull(),
-  gems: integer("gems").default(0).notNull(),
+  balance: numeric("balance", { precision: 10, scale: 2 })
+    .default("0.00")
+    .notNull(),
   isAdmin: boolean("is_admin").default(false).notNull(),
   isBanned: boolean("is_banned").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

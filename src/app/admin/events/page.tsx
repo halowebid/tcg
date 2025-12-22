@@ -38,8 +38,8 @@ export default function AdminEventsPage() {
       bannerUrl: "",
       startDate: "",
       endDate: "",
-      packPriceCoins: 100,
-      packPriceGems: 0,
+      singlePullPrice: 1.00,
+      tenPullPrice: 10.00,
       commonRate: "0.7000",
       rareRate: "0.2000",
       epicRate: "0.0800",
@@ -227,31 +227,33 @@ export default function AdminEventsPage() {
                 </div>
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                    Pack Price (Coins)
+                    Single Pull Price (USD)
                   </label>
                   <input
                     type="number"
-                    {...register("packPriceCoins", { valueAsNumber: true })}
+                    step="0.01"
+                    {...register("singlePullPrice", { valueAsNumber: true })}
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   />
-                  {errors.packPriceCoins && (
+                  {errors.singlePullPrice && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors.packPriceCoins.message}
+                      {errors.singlePullPrice.message}
                     </p>
                   )}
                 </div>
                 <div>
                   <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                    Pack Price (Gems)
+                    10x Pull Price (USD)
                   </label>
                   <input
                     type="number"
-                    {...register("packPriceGems", { valueAsNumber: true })}
+                    step="0.01"
+                    {...register("tenPullPrice", { valueAsNumber: true })}
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   />
-                  {errors.packPriceGems && (
+                  {errors.tenPullPrice && (
                     <p className="mt-1 text-xs text-red-500">
-                      {errors.packPriceGems.message}
+                      {errors.tenPullPrice.message}
                     </p>
                   )}
                 </div>
@@ -380,9 +382,9 @@ export default function AdminEventsPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-text-secondary text-xs">Pack Price</p>
+                      <p className="text-text-secondary text-xs">Single Pull</p>
                       <p className="text-sm font-bold text-white">
-                        {event.packPriceCoins} Coins
+                        ${parseFloat(event.singlePullPrice).toFixed(2)}
                       </p>
                     </div>
                     <div>

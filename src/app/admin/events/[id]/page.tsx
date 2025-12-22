@@ -30,8 +30,8 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
       bannerUrl: "",
       startDate: "",
       endDate: "",
-      packPriceCoins: 100,
-      packPriceGems: 0,
+      singlePullPrice: 1.00,
+      tenPullPrice: 10.00,
       commonRate: "0.7000",
       rareRate: "0.2000",
       epicRate: "0.0800",
@@ -63,8 +63,8 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         bannerUrl: event.bannerUrl ?? "",
         startDate: new Date(event.startDate).toISOString().slice(0, 16),
         endDate: new Date(event.endDate).toISOString().slice(0, 16),
-        packPriceCoins: event.packPriceCoins,
-        packPriceGems: event.packPriceGems ?? 0,
+        singlePullPrice: parseFloat(event.singlePullPrice),
+        tenPullPrice: parseFloat(event.tenPullPrice),
         commonRate: event.commonRate,
         rareRate: event.rareRate,
         epicRate: event.epicRate,
@@ -224,35 +224,37 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                  Pack Price (Coins)
+                  Single Pull Price (USD)
                 </label>
                 <input
-                  {...register("packPriceCoins", { valueAsNumber: true })}
+                  {...register("singlePullPrice", { valueAsNumber: true })}
                   type="number"
+                  step="0.01"
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors.packPriceCoins ? "border-red-500" : ""
+                    errors.singlePullPrice ? "border-red-500" : ""
                   }`}
                 />
-                {errors.packPriceCoins && (
+                {errors.singlePullPrice && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors.packPriceCoins.message}
+                    {errors.singlePullPrice.message}
                   </p>
                 )}
               </div>
               <div>
                 <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                  Pack Price (Gems)
+                  10x Pull Price (USD)
                 </label>
                 <input
-                  {...register("packPriceGems", { valueAsNumber: true })}
+                  {...register("tenPullPrice", { valueAsNumber: true })}
                   type="number"
+                  step="0.01"
                   className={`bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none ${
-                    errors.packPriceGems ? "border-red-500" : ""
+                    errors.tenPullPrice ? "border-red-500" : ""
                   }`}
                 />
-                {errors.packPriceGems && (
+                {errors.tenPullPrice && (
                   <p className="mt-1 text-xs text-red-500">
-                    {errors.packPriceGems.message}
+                    {errors.tenPullPrice.message}
                   </p>
                 )}
               </div>

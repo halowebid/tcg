@@ -92,12 +92,14 @@ export const gachaEventFormSchema = z.object({
   bannerUrl: z.string().url("Must be a valid URL"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
-  packPriceCoins: z.number().int().positive("Price must be greater than 0"),
-  packPriceGems: z
+  singlePullPrice: z
     .number()
-    .int()
     .positive("Price must be greater than 0")
-    .optional(),
+    .refine((val) => Number.isFinite(val), "Must be a valid number"),
+  tenPullPrice: z
+    .number()
+    .positive("Price must be greater than 0")
+    .refine((val) => Number.isFinite(val), "Must be a valid number"),
   commonRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
   rareRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
   epicRate: z.string().regex(/^\d+(\.\d{1,4})?$/, "Must be a valid rate"),
@@ -110,30 +112,16 @@ export const systemSettingsFormSchema = insertSystemSettingsSchema.extend({
     .min(1, "Game title is required")
     .max(100, "Must be less than 100 characters"),
   supportEmail: z.string().email("Must be a valid email address"),
-  currencyName: z
-    .string()
-    .min(1, "Currency name is required")
-    .max(50, "Must be less than 50 characters"),
-  premiumCurrencyName: z
-    .string()
-    .min(1, "Premium currency name is required")
-    .max(50, "Must be less than 50 characters"),
-  exchangeRate: z
-    .number()
-    .int()
-    .positive("Exchange rate must be a positive number"),
 })
 
 export const walletUpdateSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
-  coinsChange: z.number().int(),
-  gemsChange: z.number().int(),
+  amountChange: z.number(),
   reason: z.string().min(1, "Reason is required"),
 })
 
 export const walletUpdateFormSchema = z.object({
-  coinsChange: z.number().int(),
-  gemsChange: z.number().int(),
+  amountChange: z.number(),
   reason: z.string().min(1, "Reason is required"),
 })
 
@@ -155,7 +143,7 @@ export const milestoneFormSchema = z.object({
     .number()
     .int()
     .positive("Requirement value must be positive"),
-  rewardType: z.enum(["coins", "gems", "badge", "frame", "title"]),
+  rewardType: z.enum(["currency", "badge", "frame", "title"]),
   rewardValue: z.string().min(1, "Reward value is required"),
 })
 

@@ -1,18 +1,13 @@
 import { Button } from "@/components/ui"
+import { formatUSD } from "@/lib/utils/currency"
 
 interface PullButtonsProps {
   onSinglePull: () => void
   onTenPull: () => void
   isSinglePullPending: boolean
   isTenPullPending: boolean
-  singlePullPrice: {
-    coins: number
-    gems: number
-  }
-  tenPullPrice: {
-    coins: number
-    gems: number
-  }
+  singlePullPrice: number
+  tenPullPrice: number
 }
 
 export function PullButtons({
@@ -27,11 +22,10 @@ export function PullButtons({
     <div className="space-y-2">
       <div className="text-sm">
         <div>
-          Single Pull: {singlePullPrice.coins} coins / {singlePullPrice.gems}{" "}
-          gems
+          Single Pull: {formatUSD(singlePullPrice)}
         </div>
         <div>
-          10x Pull: {tenPullPrice.coins} coins / {tenPullPrice.gems} gems
+          10x Pull: {formatUSD(tenPullPrice)}
         </div>
       </div>
       <div className="mt-2 space-y-2">

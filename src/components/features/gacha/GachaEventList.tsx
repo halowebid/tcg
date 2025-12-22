@@ -9,8 +9,8 @@ interface GachaEvent {
   epicRate: string
   rareRate: string
   commonRate: string
-  packPriceCoins: number
-  packPriceGems: number | null
+  singlePullPrice: number
+  tenPullPrice: number
 }
 
 interface GachaEventListProps {

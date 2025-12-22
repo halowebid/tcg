@@ -12,6 +12,7 @@ import {
   LoadingSpinner,
 } from "@/components/ui"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 interface Card {
   id: string
@@ -84,9 +85,9 @@ export const LandingScreen: React.FC = () => {
               >
                 <span className="material-symbols-outlined">stars</span>
                 Pull 10x •{" "}
-                {firstEvent?.packPriceCoins
-                  ? `${firstEvent.packPriceCoins * 10} Coins`
-                  : "500 Credits"}
+                {firstEvent?.tenPullPrice
+                  ? formatUSD(parseFloat(firstEvent.tenPullPrice))
+                  : "$5.00"}
               </Link>
               <Link
                 href="/gacha"
@@ -149,9 +150,9 @@ export const LandingScreen: React.FC = () => {
                     </div>
                     <button className="flex w-fit items-center gap-2 rounded-lg border border-white/5 bg-white/10 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20">
                       <span className="material-symbols-outlined text-primary text-sm">
-                        diamond
+                        attach_money
                       </span>{" "}
-                      {event.packPriceCoins}
+                      {formatUSD(parseFloat(event.singlePullPrice))}
                     </button>
                   </div>
                   <div className="relative h-full w-1/2">
@@ -211,7 +212,7 @@ export const LandingScreen: React.FC = () => {
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-text-secondary text-xs">Value</span>
                     <span className="text-primary text-sm font-bold">
-                      {card.marketValue ?? "250"} G
+                      ${card.marketValue ?? "2.50"}
                     </span>
                   </div>
                 </div>
@@ -316,7 +317,7 @@ export const MarketplaceScreen: React.FC = () => {
               className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
             >
               <span className="material-symbols-outlined">bolt</span> Pull Now -
-              500 Coins
+              $5.00
             </Link>
           </div>
         </div>
@@ -405,7 +406,7 @@ export const MarketplaceScreen: React.FC = () => {
                         </span>
                         <div className="flex items-center gap-1">
                           <span className="material-symbols-outlined text-primary text-[16px]">
-                            monetization_on
+                            attach_money
                           </span>
                           <span className="text-lg font-bold text-white">
                             {card.marketValue ?? "100"}
@@ -584,12 +585,12 @@ export const GachaPullScreen: React.FC = () => {
 
   const handleSinglePull = () => {
     if (!activeEvent) return
-    pullMutation.mutate({ eventId: activeEvent.id, useGems: false })
+    pullMutation.mutate({ eventId: activeEvent.id })
   }
 
   const handleTenPull = () => {
     if (!activeEvent) return
-    pullTenMutation.mutate({ eventId: activeEvent.id, useGems: false })
+    pullTenMutation.mutate({ eventId: activeEvent.id })
   }
 
   const closeResultModal = () => {
@@ -720,9 +721,9 @@ export const GachaPullScreen: React.FC = () => {
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <span className="material-symbols-outlined text-xs">
-                      diamond
+                      attach_money
                     </span>{" "}
-                    {activeEvent.packPriceCoins}
+                    {formatUSD(parseFloat(activeEvent.singlePullPrice))}
                   </span>
                 </button>
                 <button
@@ -735,9 +736,9 @@ export const GachaPullScreen: React.FC = () => {
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <span className="material-symbols-outlined text-xs">
-                      diamond
+                      attach_money
                     </span>{" "}
-                    {activeEvent.packPriceCoins * 10}
+                    {formatUSD(parseFloat(activeEvent.tenPullPrice))}
                   </span>
                 </button>
               </div>
@@ -1158,7 +1159,7 @@ export const UserMilestonesScreen: React.FC = () => {
           <div className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4">
             <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
               <span className="material-symbols-outlined z-10 text-4xl text-white">
-                diamond
+                attach_money
               </span>
               <div className="absolute inset-0 bg-blue-500/20"></div>
             </div>
@@ -1167,7 +1168,7 @@ export const UserMilestonesScreen: React.FC = () => {
                 LEVEL 10
               </span>
               <h3 className="mt-1 text-lg font-bold text-white">
-                500 Bonus Gems
+                $5.00 Bonus Currency
               </h3>
             </div>
             <button className="bg-surface-highlight border-border-dark mt-auto w-full rounded-lg border py-2 font-bold text-white hover:bg-white/10">

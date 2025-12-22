@@ -195,7 +195,7 @@ export default function AdminEditCardPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-white">
-                  Market Value (Coins)
+                  Market Value (USD)
                 </label>
                 <input
                   {...register("marketValue")}

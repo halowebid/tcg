@@ -36,6 +36,20 @@
       "when": 1766214449495,
       "tag": "0004_organic_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1766400965031,
+      "tag": "0005_migrate_to_usd",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1766400985417,
+      "tag": "0006_neat_proudstar",
+      "breakpoints": true
     }
   ]
 }

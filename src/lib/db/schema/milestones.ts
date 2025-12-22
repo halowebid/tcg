@@ -17,8 +17,7 @@ export const requirementTypeEnum = pgEnum("requirement_type", [
 ])
 
 export const rewardTypeEnum = pgEnum("reward_type", [
-  "coins",
-  "gems",
+  "currency",
   "badge",
   "frame",
   "title",
@@ -33,7 +32,7 @@ export const milestones = pgTable("milestones", {
     .default("collection_size")
     .notNull(),
   requirementValue: integer("requirement_value").notNull(),
-  rewardType: rewardTypeEnum("reward_type").default("coins").notNull(),
+  rewardType: rewardTypeEnum("reward_type").default("currency").notNull(),
   rewardValue: text("reward_value").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 export default function MarketplaceDetailPage() {
   const params = useParams()
@@ -65,7 +66,7 @@ export default function MarketplaceDetailPage() {
   }
 
   const price = card.marketValue ? parseFloat(card.marketValue) : 100
-  const canAfford = (wallet?.coins ?? 0) >= price
+  const canAfford = (wallet?.balance ?? 0) >= price
 
   const handlePurchaseClick = () => {
     setShowPurchaseConfirm(true)
@@ -82,7 +83,7 @@ export default function MarketplaceDetailPage() {
         onClose={() => setShowPurchaseConfirm(false)}
         onConfirm={handleConfirmPurchase}
         title="Confirm Purchase"
-        message={`Are you sure you want to purchase "${card.name}" for ${price} Coins? ${!canAfford ? "\n\nWarning: You don't have enough coins!" : ""}`}
+        message={`Are you sure you want to purchase "${card.name}" for ${formatUSD(price)}? ${!canAfford ? "\n\nWarning: You don't have enough balance!" : ""}`}
         confirmText="Purchase"
         cancelText="Cancel"
         variant="primary"
@@ -129,14 +130,14 @@ export default function MarketplaceDetailPage() {
           <div className="mb-8 flex flex-col gap-4">
             <div className="border-primary/30 relative flex items-center justify-between overflow-hidden rounded-xl border bg-gradient-to-br from-[#3d2c1e] to-[#2a221b] p-5">
               <span className="material-symbols-outlined text-primary absolute top-[-20px] right-[-20px] rotate-12 text-9xl opacity-10">
-                monetization_on
+                attach_money
               </span>
               <div className="relative z-10">
                 <p className="text-primary mb-1 text-sm font-bold uppercase">
                   Direct Purchase
                 </p>
                 <span className="text-3xl font-bold text-white">
-                  {price} Coins
+                  {formatUSD(price)}
                 </span>
               </div>
               <button
@@ -229,10 +230,9 @@ export default function MarketplaceDetailPage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-mono text-sm font-bold">
-                      {relatedCard.marketValue
+                      {formatUSD(relatedCard.marketValue
                         ? parseFloat(relatedCard.marketValue)
-                        : 100}{" "}
-                      Coins
+                        : 100)}
                     </span>
                   </div>
                 </div>

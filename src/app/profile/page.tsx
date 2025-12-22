@@ -11,6 +11,7 @@ import {
   type ProfileUpdateInput,
 } from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 export default function ProfilePage() {
   const { data: session } = useSession()
@@ -153,15 +154,9 @@ export default function ProfilePage() {
             <h3 className="mb-4 font-bold text-white">Wallet</h3>
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
-                <span className="text-text-secondary">Coins</span>
+                <span className="text-text-secondary">Balance</span>
                 <span className="font-bold text-white">
-                  {wallet?.coins ?? 0}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary">Gems</span>
-                <span className="font-bold text-white">
-                  {wallet?.gems ?? 0}
+                  {formatUSD(wallet?.balance ?? 0)}
                 </span>
               </div>
               <div className="border-border-dark border-t pt-4">

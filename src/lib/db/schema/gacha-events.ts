@@ -1,6 +1,5 @@
 import {
   boolean,
-  integer,
   numeric,
   pgTable,
   text,
@@ -17,8 +16,11 @@ export const gachaEvents = pgTable("gacha_events", {
   bannerUrl: text("banner_url"),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
-  packPriceCoins: integer("pack_price_coins").notNull(),
-  packPriceGems: integer("pack_price_gems"),
+  singlePullPrice: numeric("single_pull_price", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  tenPullPrice: numeric("ten_pull_price", { precision: 10, scale: 2 }).notNull(),
   legendaryRate: numeric("legendary_rate", {
     precision: 5,
     scale: 4,

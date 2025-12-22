@@ -1,7 +1,12 @@
 import { and, eq, sql } from "drizzle-orm"
 import { z } from "zod"
 
-import { milestones, userMilestones, userProfiles } from "@/lib/db/schema"
+import {
+  milestones,
+  transactions,
+  userMilestones,
+  userProfiles,
+} from "@/lib/db/schema"
 import { adminProcedure, protectedProcedure, router } from "../trpc"
 
 export const milestonesRouter = router({
@@ -69,24 +74,22 @@ export const milestonesRouter = router({
             ),
           )
 
-        if (milestone.rewardType === "coins") {
-          const rewardValue = parseInt(milestone.rewardValue)
+        if (milestone.rewardType === "currency") {
+          const rewardValue = parseFloat(milestone.rewardValue)
           await tx
             .update(userProfiles)
             .set({
-              coins: sql`${userProfiles.coins} + ${rewardValue}`,
+              balance: sql`${userProfiles.balance} + ${rewardValue}`,
               updatedAt: new Date(),
             })
             .where(eq(userProfiles.userId, userId))
-        } else if (milestone.rewardType === "gems") {
-          const rewardValue = parseInt(milestone.rewardValue)
-          await tx
-            .update(userProfiles)
-            .set({
-              gems: sql`${userProfiles.gems} + ${rewardValue}`,
-              updatedAt: new Date(),
-            })
-            .where(eq(userProfiles.userId, userId))
+
+          await tx.insert(transactions).values({
+            userId,
+            type: "milestone_reward",
+            amountChange: rewardValue.toFixed(2),
+            description: `Milestone reward: ${milestone.title}`,
+          })
         }
       })
 
@@ -107,7 +110,7 @@ export const milestonesRouter = router({
           "login_streak",
         ]),
         requirementValue: z.number().int(),
-        rewardType: z.enum(["coins", "gems", "badge", "frame", "title"]),
+        rewardType: z.enum(["currency", "badge", "frame", "title"]),
         rewardValue: z.string(),
       }),
     )
@@ -138,7 +141,7 @@ export const milestonesRouter = router({
           .optional(),
         requirementValue: z.number().int().optional(),
         rewardType: z
-          .enum(["coins", "gems", "badge", "frame", "title"])
+          .enum(["currency", "badge", "frame", "title"])
           .optional(),
         rewardValue: z.string().optional(),
         isActive: z.boolean().optional(),

@@ -1,5 +1,5 @@
 import {
-  integer,
+  numeric,
   pgEnum,
   pgTable,
   text,
@@ -23,8 +23,9 @@ export const transactions = pgTable("transactions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   type: transactionTypeEnum("type").default("card_purchase").notNull(),
-  coinsChange: integer("coins_change").default(0).notNull(),
-  gemsChange: integer("gems_change").default(0).notNull(),
+  amountChange: numeric("amount_change", { precision: 10, scale: 2 })
+    .default("0.00")
+    .notNull(),
   description: text("description").notNull(),
   referenceId: uuid("reference_id"),
   createdBy: text("created_by").references(() => users.id, {

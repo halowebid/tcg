@@ -61,8 +61,7 @@ export const usersRouter = router({
     }
 
     const wallet = {
-      coins: profile.coins,
-      gems: profile.gems,
+      balance: parseFloat(profile.balance),
     }
 
     await setCached(cacheKey, wallet, CACHE_TTL.USER_WALLET)

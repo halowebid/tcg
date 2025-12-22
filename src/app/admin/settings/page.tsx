@@ -26,9 +26,6 @@ export default function AdminSettingsPage() {
       gameTitle: "TCG Gacha System",
       supportEmail: "support@tcg-gacha.com",
       maintenanceMode: false,
-      currencyName: "Coins",
-      premiumCurrencyName: "Gems",
-      exchangeRate: 100,
     },
   })
 
@@ -38,9 +35,6 @@ export default function AdminSettingsPage() {
         gameTitle: settings.gameTitle,
         supportEmail: settings.supportEmail,
         maintenanceMode: settings.maintenanceMode,
-        currencyName: settings.currencyName,
-        premiumCurrencyName: settings.premiumCurrencyName,
-        exchangeRate: settings.exchangeRate,
       })
     }
   }, [settings, reset])
@@ -144,52 +138,6 @@ export default function AdminSettingsPage() {
               Economy Settings
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                  Currency Name
-                </label>
-                <input
-                  {...register("currencyName")}
-                  className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                />
-                {errors.currencyName && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.currencyName.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                  Premium Currency Name
-                </label>
-                <input
-                  {...register("premiumCurrencyName")}
-                  className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                />
-                {errors.premiumCurrencyName && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.premiumCurrencyName.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="text-text-secondary mb-1 block text-xs font-bold uppercase">
-                  Exchange Rate ($1 USD)
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    {...register("exchangeRate", { valueAsNumber: true })}
-                    className="bg-background-dark border-border-dark w-full rounded-lg border px-3 py-2 text-white"
-                  />
-                  <span className="font-bold text-white">Coins</span>
-                </div>
-                {errors.exchangeRate && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.exchangeRate.message}
-                  </p>
-                )}
-              </div>
             </div>
           </section>
 

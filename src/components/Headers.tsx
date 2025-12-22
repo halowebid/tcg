@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 
 import { useSession, signOut } from "@/lib/auth/client"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 export const PublicHeader: React.FC = () => {
   const router = useRouter()
@@ -97,10 +98,10 @@ export const PublicHeader: React.FC = () => {
             <>
               <div className="bg-surface-dark border-border-dark hidden items-center gap-2 rounded-xl border px-3 py-2 md:flex">
                 <span className="material-symbols-outlined text-primary text-[18px]">
-                  monetization_on
+                  attach_money
                 </span>
                 <span className="text-sm font-bold text-white">
-                  {wallet?.coins?.toLocaleString() ?? "0"}
+                  {formatUSD(wallet?.balance ?? 0)}
                 </span>
               </div>
 

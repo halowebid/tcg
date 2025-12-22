@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
@@ -9,9 +9,6 @@ export const systemSettings = pgTable("system_settings", {
     .notNull()
     .default("support@tcg-gacha.com"),
   maintenanceMode: boolean("maintenance_mode").notNull().default(false),
-  currencyName: text("currency_name").notNull().default("Coins"),
-  premiumCurrencyName: text("premium_currency_name").notNull().default("Gems"),
-  exchangeRate: integer("exchange_rate").notNull().default(100),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })

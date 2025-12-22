@@ -30,7 +30,7 @@ export default function AdminMilestonesPage() {
       icon: "",
       requirementType: "collection_size",
       requirementValue: 1,
-      rewardType: "coins",
+      rewardType: "currency",
       rewardValue: "",
     },
   })
@@ -216,8 +216,7 @@ export default function AdminMilestonesPage() {
                     {...register("rewardType")}
                     className="bg-background-dark border-border-dark focus:border-primary w-full rounded-lg border px-3 py-2 text-white outline-none"
                   >
-                    <option value="coins">Coins</option>
-                    <option value="gems">Gems</option>
+                    <option value="currency">Currency (USD)</option>
                     <option value="badge">Badge</option>
                     <option value="frame">Frame</option>
                     <option value="title">Title</option>
@@ -316,9 +315,8 @@ export default function AdminMilestonesPage() {
                     emoji_events
                   </span>
                   <span className="text-sm font-bold text-white">
-                    {milestone.rewardType === "coins" ||
-                    milestone.rewardType === "gems"
-                      ? `${milestone.rewardValue} ${milestone.rewardType}`
+                    {milestone.rewardType === "currency"
+                      ? `$${parseFloat(milestone.rewardValue).toFixed(2)}`
                       : milestone.rewardValue}
                   </span>
                 </div>

@@ -28,7 +28,7 @@ export const adminRouter = router({
         ctx.db.select({ count: sql<number>`count(*)` }).from(pullHistory),
         ctx.db
           .select({
-            total: sql<number>`sum(abs(${transactions.coinsChange}))`,
+            total: sql<number>`sum(abs(${transactions.amountChange}))`,
           })
           .from(transactions)
           .where(eq(transactions.type, "gacha_pull")),
@@ -100,8 +100,7 @@ export const adminRouter = router({
     .input(
       z.object({
         userId: z.string(),
-        coinsChange: z.number().int(),
-        gemsChange: z.number().int(),
+        amountChange: z.number(),
         reason: z.string(),
       }),
     )
@@ -110,8 +109,7 @@ export const adminRouter = router({
         await tx
           .update(userProfiles)
           .set({
-            coins: sql`${userProfiles.coins} + ${input.coinsChange}`,
-            gems: sql`${userProfiles.gems} + ${input.gemsChange}`,
+            balance: sql`${userProfiles.balance} + ${input.amountChange}`,
             updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, input.userId))
@@ -119,8 +117,7 @@ export const adminRouter = router({
         await tx.insert(transactions).values({
           userId: input.userId,
           type: "admin_adjustment",
-          coinsChange: input.coinsChange,
-          gemsChange: input.gemsChange,
+          amountChange: input.amountChange.toFixed(2),
           description: input.reason,
           createdBy: ctx.session.user.id,
         })
@@ -196,8 +193,8 @@ export const adminRouter = router({
         bannerUrl: z.string().url(),
         startDate: z.date(),
         endDate: z.date(),
-        packPriceCoins: z.number().int().positive(),
-        packPriceGems: z.number().int().positive().optional(),
+        singlePullPrice: z.number().positive(),
+        tenPullPrice: z.number().positive(),
         commonRate: z.string(),
         rareRate: z.string(),
         epicRate: z.string(),
@@ -209,6 +206,8 @@ export const adminRouter = router({
         .insert(gachaEvents)
         .values({
           ...input,
+          singlePullPrice: input.singlePullPrice.toFixed(2),
+          tenPullPrice: input.tenPullPrice.toFixed(2),
           isActive: true,
         })
         .returning()
@@ -225,8 +224,8 @@ export const adminRouter = router({
         bannerUrl: z.string().url().optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-        packPriceCoins: z.number().int().positive().optional(),
-        packPriceGems: z.number().int().positive().optional(),
+        singlePullPrice: z.number().positive().optional(),
+        tenPullPrice: z.number().positive().optional(),
         commonRate: z.string().optional(),
         rareRate: z.string().optional(),
         epicRate: z.string().optional(),
@@ -235,14 +234,22 @@ export const adminRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input
+      const { id, singlePullPrice, tenPullPrice, ...data } = input
+
+      const updateData = {
+        ...data,
+        ...(singlePullPrice !== undefined && {
+          singlePullPrice: singlePullPrice.toFixed(2),
+        }),
+        ...(tenPullPrice !== undefined && {
+          tenPullPrice: tenPullPrice.toFixed(2),
+        }),
+        updatedAt: new Date(),
+      }
 
       const [updated] = await ctx.db
         .update(gachaEvents)
-        .set({
-          ...data,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(gachaEvents.id, id))
         .returning()
 

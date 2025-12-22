@@ -17,8 +17,7 @@ import {
 interface WalletUpdateFormProps {
   onUpdate: (data: {
     userId: string
-    coinsChange: number
-    gemsChange: number
+    amountChange: number
     reason: string
   }) => Promise<void>
   isPending: boolean
@@ -41,8 +40,7 @@ export function WalletUpdateForm({
     ),
     defaultValues: {
       userId: "",
-      coinsChange: 0,
-      gemsChange: 0,
+      amountChange: 0,
       reason: "",
     },
   })
@@ -50,8 +48,7 @@ export function WalletUpdateForm({
   const onSubmit = async (data: WalletUpdateFormInput & { userId: string }) => {
     await onUpdate({
       userId: data.userId,
-      coinsChange: data.coinsChange,
-      gemsChange: data.gemsChange,
+      amountChange: data.amountChange,
       reason: data.reason,
     })
 
@@ -78,37 +75,21 @@ export function WalletUpdateForm({
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Coins Change
-              </label>
-              <Input
-                {...register("coinsChange", { valueAsNumber: true })}
-                type="number"
-                placeholder="0"
-              />
-              {errors.coinsChange && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.coinsChange.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Gems Change
-              </label>
-              <Input
-                {...register("gemsChange", { valueAsNumber: true })}
-                type="number"
-                placeholder="0"
-              />
-              {errors.gemsChange && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.gemsChange.message}
-                </p>
-              )}
-            </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Amount Change (USD)
+            </label>
+            <Input
+              {...register("amountChange", { valueAsNumber: true })}
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+            />
+            {errors.amountChange && (
+              <p className="mt-1 text-xs text-red-500">
+                {errors.amountChange.message}
+              </p>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Reason</label>

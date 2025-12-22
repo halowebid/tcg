@@ -88,22 +88,18 @@ export default function MilestonesPage() {
                   </span>
                   <div
                     className={`absolute inset-0 ${
-                      milestone.rewardType === "coins"
+                      milestone.rewardType === "currency"
                         ? "bg-primary/20"
-                        : milestone.rewardType === "gems"
-                          ? "bg-blue-500/20"
-                          : "bg-purple-500/20"
+                        : "bg-purple-500/20"
                     }`}
                   ></div>
                 </div>
                 <div>
                   <span
                     className={`rounded px-2 py-0.5 text-xs font-bold ${
-                      milestone.rewardType === "coins"
+                      milestone.rewardType === "currency"
                         ? "text-primary bg-primary/20"
-                        : milestone.rewardType === "gems"
-                          ? "rounded bg-blue-500/20 text-blue-400"
-                          : "rounded bg-purple-500/20 text-purple-400"
+                        : "rounded bg-purple-500/20 text-purple-400"
                     }`}
                   >
                     {milestone.requirementType.toUpperCase()}
@@ -115,12 +111,9 @@ export default function MilestonesPage() {
                     {milestone.description}
                   </p>
                   <p className="text-text-secondary mt-2 text-xs">
-                    Reward: {milestone.rewardValue}{" "}
-                    {milestone.rewardType === "coins"
-                      ? "Coins"
-                      : milestone.rewardType === "gems"
-                        ? "Gems"
-                        : milestone.rewardType}
+                    Reward: {milestone.rewardType === "currency"
+                      ? `$${parseFloat(milestone.rewardValue).toFixed(2)}`
+                      : milestone.rewardValue}
                   </p>
                 </div>
                 <button

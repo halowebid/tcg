@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 function CheckoutContent() {
   const router = useRouter()
@@ -70,9 +71,9 @@ function CheckoutContent() {
   }
 
   const price = card.marketValue ? parseFloat(card.marketValue) : 100
-  const tax = price * 0.0 // No tax for now
+  const tax = price * 0.0
   const total = price + tax
-  const canAfford = (wallet?.coins ?? 0) >= total
+  const canAfford = (wallet?.balance ?? 0) >= total
 
   const handleCheckout = () => {
     setShowOrderConfirm(true)
@@ -89,7 +90,7 @@ function CheckoutContent() {
         onClose={() => setShowOrderConfirm(false)}
         onConfirm={handleConfirmOrder}
         title="Confirm Order"
-        message={`Place order for "${card.name}"?\n\nTotal: ${total} Coins${!canAfford ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
+        message={`Place order for "${card.name}"?\n\nTotal: ${formatUSD(total)}${!canAfford ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
         confirmText="Place Order"
         cancelText="Cancel"
         variant="primary"
@@ -148,22 +149,22 @@ function CheckoutContent() {
                 <div className="flex-1">
                   <p className="text-sm font-bold text-white">{card.name}</p>
                   <p className="text-text-secondary text-xs">{card.rarity}</p>
-                  <p className="text-primary mt-1 font-bold">{price} Coins</p>
+                  <p className="text-primary mt-1 font-bold">{formatUSD(price)}</p>
                 </div>
               </div>
             </div>
             <div className="border-border-dark flex flex-col gap-2 border-t pt-4">
               <div className="text-text-secondary flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>{price} Coins</span>
+                <span>{formatUSD(price)}</span>
               </div>
               <div className="text-text-secondary flex justify-between text-sm">
                 <span>Tax</span>
-                <span>{tax} Coins</span>
+                <span>{formatUSD(tax)}</span>
               </div>
               <div className="mt-2 flex justify-between text-lg font-bold text-white">
                 <span>Total</span>
-                <span>{total} Coins</span>
+                <span>{formatUSD(total)}</span>
               </div>
             </div>
             <button

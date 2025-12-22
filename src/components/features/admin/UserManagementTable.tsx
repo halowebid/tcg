@@ -5,13 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui"
+import { formatUSD } from "@/lib/utils/currency"
 
 interface User {
   userId: string
   username: string
   level: number
-  coins: number
-  gems: number
+  balance: number
   isBanned: boolean
 }
 
@@ -38,8 +38,7 @@ export function UserManagementTable({
               <tr className="border-b">
                 <th className="py-2 text-left">Username</th>
                 <th className="py-2 text-left">Level</th>
-                <th className="py-2 text-left">Coins</th>
-                <th className="py-2 text-left">Gems</th>
+                <th className="py-2 text-left">Balance</th>
                 <th className="py-2 text-left">Status</th>
                 <th className="py-2 text-left">Actions</th>
               </tr>
@@ -49,8 +48,7 @@ export function UserManagementTable({
                 <tr key={user.userId} className="border-b">
                   <td className="py-2">{user.username}</td>
                   <td className="py-2">{user.level}</td>
-                  <td className="py-2">{user.coins}</td>
-                  <td className="py-2">{user.gems}</td>
+                  <td className="py-2">{formatUSD(user.balance)}</td>
                   <td className="py-2">
                     <span
                       className={

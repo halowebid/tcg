@@ -72,15 +72,15 @@ export const marketplaceRouter = router({
 
       const price = card.marketValue ? parseFloat(card.marketValue) : 100
 
-      if (profile.coins < price) {
-        throw new Error("Insufficient coins")
+      if (parseFloat(profile.balance) < price) {
+        throw new Error("Insufficient balance")
       }
 
       await ctx.db.transaction(async (tx) => {
         await tx
           .update(userProfiles)
           .set({
-            coins: profile.coins - price,
+            balance: (parseFloat(profile.balance) - price).toFixed(2),
             updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, userId))
@@ -94,8 +94,7 @@ export const marketplaceRouter = router({
         await tx.insert(transactions).values({
           userId,
           type: "card_purchase",
-          coinsChange: -price,
-          gemsChange: 0,
+          amountChange: (-price).toFixed(2),
           description: `Purchased card: ${card.name}`,
         })
       })

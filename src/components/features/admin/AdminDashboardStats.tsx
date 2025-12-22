@@ -1,4 +1,5 @@
 import { StatCard } from "@/components/ui"
+import { formatUSD } from "@/lib/utils/currency"
 
 interface DashboardStats {
   totalUsers: number
@@ -17,7 +18,7 @@ export function AdminDashboardStats({ stats }: AdminDashboardStatsProps) {
       <StatCard title="Total Pulls" value={stats?.totalPulls ?? 0} />
       <StatCard
         title="Total Revenue"
-        value={`${stats?.totalRevenue ?? 0} coins`}
+        value={formatUSD(stats?.totalRevenue ?? 0)}
       />
     </div>
   )

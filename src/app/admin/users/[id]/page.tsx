@@ -13,6 +13,7 @@ import {
   type WalletUpdateFormInput,
 } from "@/lib/db/schema/validations"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 export default function AdminUserEditPage() {
   const params = useParams()
@@ -31,8 +32,7 @@ export default function AdminUserEditPage() {
   } = useForm<WalletUpdateFormInput>({
     resolver: zodResolver(walletUpdateFormSchema),
     defaultValues: {
-      coinsChange: 0,
-      gemsChange: 0,
+      amountChange: 0,
       reason: "",
     },
   })
@@ -97,7 +97,7 @@ export default function AdminUserEditPage() {
     },
   })
 
-  const handleUpdateWallet = (type: "coins" | "gems") => {
+  const handleUpdateWallet = () => {
     const formValues = getValues()
 
     if (!formValues.reason.trim()) {
@@ -105,18 +105,14 @@ export default function AdminUserEditPage() {
       return
     }
 
-    const coins = type === "coins" ? formValues.coinsChange : 0
-    const gems = type === "gems" ? formValues.gemsChange : 0
-
-    if (coins === 0 && gems === 0) {
+    if (formValues.amountChange === 0) {
       toast.error("Please enter a valid amount")
       return
     }
 
     updateWalletMutation.mutate({
       userId,
-      coinsChange: coins,
-      gemsChange: gems,
+      amountChange: formValues.amountChange,
       reason: formValues.reason,
     })
   }
@@ -317,58 +313,31 @@ export default function AdminUserEditPage() {
                 </span>
                 Wallet Management
               </h3>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-text-secondary text-sm">Coins</span>
-                    <span className="material-symbols-outlined text-yellow-500">
-                      monetization_on
-                    </span>
-                  </div>
-                  <p className="mb-4 text-2xl font-bold text-white">
-                    {user.coins.toLocaleString()}
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      {...register("coinsChange", { valueAsNumber: true })}
-                      className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
-                      placeholder="+/- Amount"
-                      type="number"
-                    />
-                    <button
-                      onClick={() => handleUpdateWallet("coins")}
-                      disabled={updateWalletMutation.isPending}
-                      className="bg-primary text-background-dark rounded px-3 text-sm font-bold disabled:opacity-50"
-                    >
-                      Update
-                    </button>
-                  </div>
+              <div className="bg-background-dark border-border-dark rounded-xl border p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-text-secondary text-sm">Balance</span>
+                  <span className="material-symbols-outlined text-yellow-500">
+                    attach_money
+                  </span>
                 </div>
-                <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-text-secondary text-sm">Gems</span>
-                    <span className="material-symbols-outlined text-blue-400">
-                      diamond
-                    </span>
-                  </div>
-                  <p className="mb-4 text-2xl font-bold text-white">
-                    {user.gems.toLocaleString()}
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      {...register("gemsChange", { valueAsNumber: true })}
-                      className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
-                      placeholder="+/- Amount"
-                      type="number"
-                    />
-                    <button
-                      onClick={() => handleUpdateWallet("gems")}
-                      disabled={updateWalletMutation.isPending}
-                      className="bg-primary text-background-dark rounded px-3 text-sm font-bold disabled:opacity-50"
-                    >
-                      Update
-                    </button>
-                  </div>
+                <p className="mb-4 text-2xl font-bold text-white">
+                  {formatUSD(user.balance)}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    {...register("amountChange", { valueAsNumber: true })}
+                    className="bg-surface-dark border-border-dark focus:border-primary w-full rounded border px-2 text-sm text-white outline-none"
+                    placeholder="+/- Amount"
+                    type="number"
+                    step="0.01"
+                  />
+                  <button
+                    onClick={handleUpdateWallet}
+                    disabled={updateWalletMutation.isPending}
+                    className="bg-primary text-background-dark rounded px-3 text-sm font-bold disabled:opacity-50"
+                  >
+                    Update
+                  </button>
                 </div>
               </div>
               <div className="mt-4">
@@ -409,18 +378,10 @@ export default function AdminUserEditPage() {
                 </div>
                 <div className="bg-background-dark border-border-dark rounded-xl border p-4">
                   <p className="text-text-secondary text-xs uppercase">
-                    Total Coins
+                    Balance
                   </p>
                   <p className="mt-1 text-2xl font-bold text-white">
-                    {user.coins.toLocaleString()}
-                  </p>
-                </div>
-                <div className="bg-background-dark border-border-dark rounded-xl border p-4">
-                  <p className="text-text-secondary text-xs uppercase">
-                    Total Gems
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-white">
-                    {user.gems.toLocaleString()}
+                    {formatUSD(user.balance)}
                   </p>
                 </div>
               </div>
@@ -516,28 +477,16 @@ export default function AdminUserEditPage() {
                         </p>
                       </div>
                       <div className="ml-4 text-right">
-                        {tx.coinsChange !== 0 && (
+                        {parseFloat(tx.amountChange) !== 0 && (
                           <div
                             className={`text-sm font-bold ${
-                              tx.coinsChange > 0
+                              parseFloat(tx.amountChange) > 0
                                 ? "text-green-400"
                                 : "text-red-400"
                             }`}
                           >
-                            {tx.coinsChange > 0 ? "+" : ""}
-                            {tx.coinsChange} Coins
-                          </div>
-                        )}
-                        {tx.gemsChange !== 0 && (
-                          <div
-                            className={`text-sm font-bold ${
-                              tx.gemsChange > 0
-                                ? "text-green-400"
-                                : "text-red-400"
-                            }`}
-                          >
-                            {tx.gemsChange > 0 ? "+" : ""}
-                            {tx.gemsChange} Gems
+                            {parseFloat(tx.amountChange) > 0 ? "+" : ""}
+                            {formatUSD(Math.abs(parseFloat(tx.amountChange)))}
                           </div>
                         )}
                       </div>

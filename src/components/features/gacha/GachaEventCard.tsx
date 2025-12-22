@@ -19,8 +19,8 @@ interface GachaEvent {
   epicRate: string
   rareRate: string
   commonRate: string
-  packPriceCoins: number
-  packPriceGems: number | null
+  singlePullPrice: number
+  tenPullPrice: number
 }
 
 interface GachaEventCardProps {
@@ -69,14 +69,8 @@ export function GachaEventCard({
             onTenPull={() => onTenPull(event.id)}
             isSinglePullPending={isSinglePullPending}
             isTenPullPending={isTenPullPending}
-            singlePullPrice={{
-              coins: event.packPriceCoins,
-              gems: event.packPriceGems ?? 0,
-            }}
-            tenPullPrice={{
-              coins: event.packPriceCoins * 10,
-              gems: (event.packPriceGems ?? 0) * 10,
-            }}
+            singlePullPrice={event.singlePullPrice}
+            tenPullPrice={event.tenPullPrice}
           />
         </div>
       </CardContent>

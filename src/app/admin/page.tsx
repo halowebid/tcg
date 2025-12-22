@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 
 import { DashboardHeader } from "@/components/Headers"
 import { trpc } from "@/lib/trpc/client"
+import { formatUSD } from "@/lib/utils/currency"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -49,7 +50,7 @@ export default function AdminPage() {
           },
           {
             label: "Total Revenue",
-            value: `${stats?.totalRevenue.toLocaleString() ?? "0"} coins`,
+            value: formatUSD(stats?.totalRevenue ?? 0),
             change: "From gacha",
             icon: "payments",
             color: "text-primary",

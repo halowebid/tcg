@@ -12,15 +12,11 @@ export const settingsRouter = router({
     })
 
     if (!settings) {
-      // Return defaults if no settings exist
       return {
         id: "default",
         gameTitle: "TCG Gacha System",
         supportEmail: "support@tcg-gacha.com",
         maintenanceMode: false,
-        currencyName: "Coins",
-        premiumCurrencyName: "Gems",
-        exchangeRate: 100,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -35,9 +31,6 @@ export const settingsRouter = router({
         gameTitle: z.string().optional(),
         supportEmail: z.string().email().optional(),
         maintenanceMode: z.boolean().optional(),
-        currencyName: z.string().optional(),
-        premiumCurrencyName: z.string().optional(),
-        exchangeRate: z.number().int().positive().optional(),
       }),
     )
     .mutation(async ({ input }) => {
