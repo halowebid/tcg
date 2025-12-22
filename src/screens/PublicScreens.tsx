@@ -245,7 +245,7 @@ export const LandingScreen: React.FC = () => {
 // Helper function for rarity styles
 const getRarityStyles = (rarity: string) => {
   const rarityMap: Record<string, string> = {
-    legendary: "bg-purple-900/80 text-purple-200 border-purple-500/30",
+    legendary: "bg-orange-900/80 text-orange-200 border-orange-500/30",
     epic: "bg-yellow-600/80 text-yellow-100 border-yellow-400/30",
     rare: "bg-blue-900/80 text-blue-200 border-blue-500/30",
     common: "bg-gray-700/80 text-gray-200 border-gray-500/30",
@@ -683,7 +683,7 @@ export const GachaPullScreen: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-purple-400">Legendary:</span>
+                      <span className="text-orange-400">Legendary:</span>
                       <span className="text-text-secondary">
                         {(dropRates.legendary * 100).toFixed(2)}%
                       </span>
@@ -1163,10 +1163,10 @@ export const UserMilestonesScreen: React.FC = () => {
           <div className="dark:bg-surface-dark border-border-dark flex flex-col gap-4 rounded-xl border bg-white p-4">
             <div className="bg-background-dark relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
               <PaletteIcon className="z-10 size-10 text-white" />
-              <div className="absolute inset-0 bg-purple-500/20"></div>
+              <div className="absolute inset-0 bg-orange-500/20"></div>
             </div>
             <div>
-              <span className="rounded bg-purple-500/20 px-2 py-0.5 text-xs font-bold text-purple-400">
+              <span className="rounded bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400">
                 LEVEL 5
               </span>
               <h3 className="mt-1 text-lg font-bold text-white">

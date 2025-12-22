@@ -158,7 +158,7 @@ export function SettingsForm() {
                 </div>
                 <div className="text-center">
                   <p className="text-xs text-gray-400">Epic</p>
-                  <p className="mt-1 text-lg font-bold text-purple-400">8%</p>
+                  <p className="mt-1 text-lg font-bold text-orange-400">8%</p>
                 </div>
                 <div className="text-center">
                   <p className="text-xs text-gray-400">Legendary</p>

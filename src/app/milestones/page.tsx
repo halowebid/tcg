@@ -92,7 +92,7 @@ export default function MilestonesPage() {
                     className={`absolute inset-0 ${
                       milestone.rewardType === "currency"
                         ? "bg-primary/20"
-                        : "bg-purple-500/20"
+                        : "bg-orange-500/20"
                     }`}
                   ></div>
                 </div>
@@ -101,7 +101,7 @@ export default function MilestonesPage() {
                     className={`rounded px-2 py-0.5 text-xs font-bold ${
                       milestone.rewardType === "currency"
                         ? "text-primary bg-primary/20"
-                        : "rounded bg-purple-500/20 text-purple-400"
+                        : "rounded bg-orange-500/20 text-orange-400"
                     }`}
                   >
                     {milestone.requirementType.toUpperCase()}

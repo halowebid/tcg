@@ -20,7 +20,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       default: "bg-gray-100 text-gray-800 border-gray-200",
       legendary:
         "bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-600 font-bold shadow-lg",
-      epic: "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-600 font-semibold",
+      epic: "bg-gradient-to-r from-orange-500 to-pink-500 text-white border-orange-600 font-semibold",
       rare: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-blue-600",
       common: "bg-gray-300 text-gray-700 border-gray-400",
       success: "bg-green-100 text-green-800 border-green-200",

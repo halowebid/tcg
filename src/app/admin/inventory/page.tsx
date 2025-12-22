@@ -180,7 +180,7 @@ export default function AdminInventoryPage() {
                           card.rarity === "legendary"
                             ? "border-primary/30 bg-primary/40 text-primary"
                             : card.rarity === "epic"
-                              ? "border-purple-500/30 bg-purple-900/40 text-purple-300"
+                              ? "border-orange-500/30 bg-orange-900/40 text-orange-300"
                               : card.rarity === "rare"
                                 ? "border-blue-500/30 bg-blue-900/40 text-blue-300"
                                 : "border-gray-500/30 bg-gray-900/40 text-gray-300"

@@ -118,7 +118,7 @@ export default function NotificationsPage() {
                     : notification.type === "order"
                       ? "border-blue-500"
                       : notification.type === "milestone"
-                        ? "border-purple-500"
+                        ? "border-orange-500"
                         : "border-gray-500"
                 }`}
                 onClick={() => {
@@ -141,7 +141,7 @@ export default function NotificationsPage() {
                         : notification.type === "order"
                           ? "bg-green-900/20 text-green-500"
                           : notification.type === "milestone"
-                            ? "bg-purple-900/20 text-purple-500"
+                            ? "bg-orange-900/20 text-orange-500"
                             : "bg-gray-900/20 text-gray-500"
                     }`}
                   >
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
                           : notification.type === "order"
                             ? "bg-blue-900/30 text-blue-400"
                             : notification.type === "milestone"
-                              ? "bg-purple-900/30 text-purple-400"
+                              ? "bg-orange-900/30 text-orange-400"
                               : "bg-gray-900/30 text-gray-400"
                       }`}
                     >

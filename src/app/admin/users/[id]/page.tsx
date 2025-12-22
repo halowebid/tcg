@@ -434,7 +434,7 @@ export default function AdminUserEditPage() {
                           {new Date(session.createdAt).toLocaleString()}
                         </p>
                         {session.impersonatedBy && (
-                          <p className="text-xs text-purple-400">
+                          <p className="text-xs text-orange-400">
                             Impersonation Session
                           </p>
                         )}
@@ -473,7 +473,7 @@ export default function AdminUserEditPage() {
                           <span
                             className={`text-xs font-bold uppercase ${
                               tx.type === "admin_adjustment"
-                                ? "text-purple-400"
+                                ? "text-orange-400"
                                 : tx.type === "gacha_pull"
                                   ? "text-blue-400"
                                   : tx.type === "card_purchase"
