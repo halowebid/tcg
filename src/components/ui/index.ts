@@ -6,6 +6,7 @@ export * from "./Badge"
 export * from "./Avatar"
 export * from "./Progress"
 export * from "./Modal"
+export * from "./Sheet"
 export * from "./Toaster"
 
 // State Components

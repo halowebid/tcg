@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server"
 import { and, eq, gte, lte } from "drizzle-orm"
 import { z } from "zod"
 
@@ -50,7 +51,10 @@ export const gachaRouter = router({
       })
 
       if (!event) {
-        throw new Error("Event not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Event not found",
+        })
       }
 
       await setCached(cacheKey, event, CACHE_TTL.EVENT_DETAILS)
@@ -65,7 +69,10 @@ export const gachaRouter = router({
       })
 
       if (!event) {
-        throw new Error("Event not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Event not found",
+        })
       }
 
       return {
@@ -90,7 +97,10 @@ export const gachaRouter = router({
       })
 
       if (!event) {
-        throw new Error("Event not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Event not found",
+        })
       }
 
       const profile = await ctx.db.query.userProfiles.findFirst({
@@ -98,13 +108,24 @@ export const gachaRouter = router({
       })
 
       if (!profile) {
-        throw new Error("User profile not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User profile not found",
+        })
       }
 
       const cost = parseFloat(event.singlePullPrice)
 
       if (parseFloat(profile.balance) < cost) {
-        throw new Error("Insufficient balance")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: JSON.stringify({
+            type: "INSUFFICIENT_BALANCE",
+            cost,
+            balance: parseFloat(profile.balance),
+            eventId: input.eventId,
+          }),
+        })
       }
 
       const selectedCard = await selectRandomCard(ctx.db, input.eventId, event)
@@ -165,7 +186,10 @@ export const gachaRouter = router({
       })
 
       if (!event) {
-        throw new Error("Event not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Event not found",
+        })
       }
 
       const profile = await ctx.db.query.userProfiles.findFirst({
@@ -173,13 +197,24 @@ export const gachaRouter = router({
       })
 
       if (!profile) {
-        throw new Error("User profile not found")
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User profile not found",
+        })
       }
 
       const totalCost = parseFloat(event.tenPullPrice)
 
       if (parseFloat(profile.balance) < totalCost) {
-        throw new Error("Insufficient balance")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: JSON.stringify({
+            type: "INSUFFICIENT_BALANCE",
+            cost: totalCost,
+            balance: parseFloat(profile.balance),
+            eventId: input.eventId,
+          }),
+        })
       }
 
       const selectedCards = await Promise.all(
@@ -272,7 +307,10 @@ async function selectRandomCard(
   })
 
   if (availableCards.length === 0) {
-    throw new Error(`No cards available for rarity: ${selectedRarity}`)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `No cards available for rarity: ${selectedRarity}`,
+    })
   }
 
   const featuredCards = await db.query.eventFeaturedCards.findMany({

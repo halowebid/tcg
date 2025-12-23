@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
+import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
@@ -21,6 +22,7 @@ export default function MarketplaceDetailPage() {
   const router = useRouter()
   const cardId = params["id"] as string
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false)
+  const { addToCart } = useCart()
 
   const {
     data: card,
@@ -44,6 +46,10 @@ export default function MarketplaceDetailPage() {
       toast.error(`Purchase failed: ${error.message}`)
     },
   })
+
+  const handleAddToCart = async () => {
+    await addToCart(cardId)
+  }
 
   if (isLoading) {
     return (
@@ -145,18 +151,26 @@ export default function MarketplaceDetailPage() {
                   {formatUSD(price)}
                 </span>
               </div>
-              <button
-                onClick={handlePurchaseClick}
-                disabled={purchaseMutation.isPending}
-                className="bg-primary hover:bg-primary-hover relative z-10 flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white shadow-lg disabled:opacity-50"
-              >
-                {purchaseMutation.isPending ? (
-                  <HourglassIcon className="size-6" />
-                ) : (
-                  <ShoppingCartIcon className="size-6" />
-                )}
-                {purchaseMutation.isPending ? "Purchasing..." : "Buy Now"}
-              </button>
+              <div className="relative z-10 flex gap-2">
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-surface-dark border-border-dark hover:bg-surface-highlight flex items-center gap-2 rounded-lg border px-4 py-3 font-bold text-white shadow-lg transition-colors"
+                >
+                  <ShoppingCartIcon className="size-5" />
+                </button>
+                <button
+                  onClick={handlePurchaseClick}
+                  disabled={purchaseMutation.isPending}
+                  className="bg-primary hover:bg-primary-hover flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white shadow-lg disabled:opacity-50"
+                >
+                  {purchaseMutation.isPending ? (
+                    <HourglassIcon className="size-6" />
+                  ) : (
+                    <ShoppingCartIcon className="size-6" />
+                  )}
+                  {purchaseMutation.isPending ? "Purchasing..." : "Buy Now"}
+                </button>
+              </div>
             </div>
           </div>
 

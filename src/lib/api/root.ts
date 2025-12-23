@@ -1,6 +1,7 @@
 import { adminRouter } from "./routers/admin"
 import { cardSetsRouter } from "./routers/card-sets"
 import { cardsRouter } from "./routers/cards"
+import { cartRouter } from "./routers/cart"
 import { collectionRouter } from "./routers/collection"
 import { gachaRouter } from "./routers/gacha"
 import { itemRouter } from "./routers/item"
@@ -17,6 +18,7 @@ export const appRouter = router({
   gacha: gachaRouter,
   collection: collectionRouter,
   marketplace: marketplaceRouter,
+  cart: cartRouter,
   users: usersRouter,
   milestones: milestonesRouter,
   admin: adminRouter,

@@ -10,14 +10,17 @@ import {
   PackageIcon,
   SearchIcon,
   ShieldIcon,
+  ShoppingCartIcon,
   TrophyIcon,
   UserIcon,
   WandIcon,
 } from "lucide-react"
 
 import { signOut, useSession } from "@/lib/auth/client"
+import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
+import { CartBadge } from "./features/cart"
 
 export const PublicHeader: React.FC = () => {
   const router = useRouter()
@@ -27,6 +30,7 @@ export const PublicHeader: React.FC = () => {
   const { data: wallet } = trpc.users.getWallet.useQuery(undefined, {
     enabled: !!session?.user,
   })
+  const { setIsCartOpen, cartData } = useCart()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,6 +119,14 @@ export const PublicHeader: React.FC = () => {
                   {formatUSD(wallet?.balance ?? 0)}
                 </span>
               </div>
+
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="bg-surface-dark border-border-dark hover:bg-surface-highlight relative flex size-10 items-center justify-center rounded-xl border text-white transition-colors"
+              >
+                <ShoppingCartIcon className="size-5" />
+                <CartBadge itemCount={cartData?.itemCount ?? 0} />
+              </button>
 
               <Link
                 href="/notifications"

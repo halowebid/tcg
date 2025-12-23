@@ -15,6 +15,7 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
   "reward_claim",
   "admin_adjustment",
   "milestone_reward",
+  "deposit",
 ])
 
 export const transactions = pgTable("transactions", {

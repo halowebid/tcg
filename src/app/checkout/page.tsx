@@ -1,24 +1,41 @@
 "use client"
 
 /* eslint-disable @next/next/no-img-element */
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { MailIcon, WalletIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
+import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
 function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const source = searchParams.get("source")
   const cardId = searchParams.get("cardId")
+  const amount = searchParams.get("amount")
+  const pulls = searchParams.get("pulls")
+  const eventId = searchParams.get("eventId")
+  const errorMessage = searchParams.get("error")
   const [showOrderConfirm, setShowOrderConfirm] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "gateway">(
+    "gateway",
+  )
+  const { cartData } = useCart()
+  const utils = trpc.useUtils()
 
-  const { data: card, isLoading } = trpc.cards.getById.useQuery(
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage)
+    }
+  }, [errorMessage])
+
+  const { data: card, isLoading: cardLoading } = trpc.cards.getById.useQuery(
     { id: cardId ?? "" },
-    { enabled: !!cardId },
+    { enabled: source === "direct" && !!cardId },
   )
   const { data: wallet } = trpc.users.getWallet.useQuery()
 
@@ -34,13 +51,71 @@ function CheckoutContent() {
     },
   })
 
-  if (!cardId) {
+  const cartCheckoutMutation = trpc.cart.checkout.useMutation({
+    onSuccess: async () => {
+      setShowOrderConfirm(false)
+      await utils.cart.getItems.invalidate()
+      toast.success("Cart checkout completed successfully!")
+      setTimeout(() => {
+        router.push("/collection")
+      }, 500)
+    },
+    onError: (error) => {
+      setShowOrderConfirm(false)
+      toast.error(`Checkout failed: ${error.message}`)
+    },
+  })
+
+  const topUpMutation = trpc.users.topUp.useMutation({
+    onSuccess: (data) => {
+      setShowOrderConfirm(false)
+      toast.success("Payment successful! Redirecting to gacha...")
+      setTimeout(() => {
+        if (data.eventId && data.pullType) {
+          router.push(
+            `/gacha?triggerPull=true&eventId=${data.eventId}&pullType=${data.pullType}`,
+          )
+        } else {
+          router.push("/gacha")
+        }
+      }, 1500)
+    },
+    onError: (error) => {
+      setShowOrderConfirm(false)
+      toast.error(`Payment failed: ${error.message}`)
+    },
+  })
+
+  const isCartCheckout = source === "cart"
+  const isGachaCheckout = source === "gacha"
+  const isLoading = cardLoading
+
+  if (!isCartCheckout && !isGachaCheckout && !cardId) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <h2 className="mb-2 text-xl font-bold text-white">
-            No Items in Cart
+            No Items Selected
           </h2>
+          <p className="text-text-secondary mb-4">
+            Add items to your cart to checkout
+          </p>
+          <button
+            onClick={() => router.push("/marketplace")}
+            className="bg-primary text-background-dark rounded-lg px-4 py-2 font-bold"
+          >
+            Browse Marketplace
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (isCartCheckout && (!cartData || cartData.itemCount === 0)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 text-xl font-bold text-white">Cart is Empty</h2>
           <p className="text-text-secondary mb-4">
             Add items to your cart to checkout
           </p>
@@ -63,7 +138,7 @@ function CheckoutContent() {
     )
   }
 
-  if (!card) {
+  if (!isCartCheckout && !isGachaCheckout && !card) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-text-secondary">Card not found</div>
@@ -71,9 +146,18 @@ function CheckoutContent() {
     )
   }
 
-  const price = card.marketValue ? parseFloat(card.marketValue) : 100
-  const tax = price * 0.0
-  const total = price + tax
+  const subtotal =
+    isCartCheckout && cartData
+      ? cartData.totalPrice
+      : isGachaCheckout && amount
+        ? parseFloat(amount)
+        : card
+          ? card.marketValue
+            ? parseFloat(card.marketValue)
+            : 100
+          : 0
+  const tax = subtotal * 0.0
+  const total = subtotal + tax
   const canAfford = (wallet?.balance ?? 0) >= total
 
   const handleCheckout = () => {
@@ -81,7 +165,18 @@ function CheckoutContent() {
   }
 
   const handleConfirmOrder = () => {
-    purchaseMutation.mutate({ cardId: card.id })
+    if (isCartCheckout) {
+      cartCheckoutMutation.mutate({ paymentMethod })
+    } else if (isGachaCheckout && amount && eventId) {
+      topUpMutation.mutate({
+        amount: parseFloat(amount),
+        paymentMethod: "gateway",
+        eventId,
+        pullType: pulls === "10" ? "ten" : "single",
+      })
+    } else if (card) {
+      purchaseMutation.mutate({ cardId: card.id })
+    }
   }
 
   return (
@@ -91,11 +186,19 @@ function CheckoutContent() {
         onClose={() => setShowOrderConfirm(false)}
         onConfirm={handleConfirmOrder}
         title="Confirm Order"
-        message={`Place order for "${card.name}"?\n\nTotal: ${formatUSD(total)}${!canAfford ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
+        message={`${
+          isGachaCheckout
+            ? `Add ${formatUSD(total)} to your wallet for gacha pull?`
+            : `Place order for ${isCartCheckout ? `${cartData?.itemCount} item(s)` : `"${card?.name}"`}?`
+        }\n\nTotal: ${formatUSD(total)}${!canAfford && !isGachaCheckout ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
         confirmText="Place Order"
         cancelText="Cancel"
         variant="primary"
-        isLoading={purchaseMutation.isPending}
+        isLoading={
+          purchaseMutation.isPending ||
+          cartCheckoutMutation.isPending ||
+          topUpMutation.isPending
+        }
       />
 
       <div className="flex w-full max-w-[1200px] flex-col gap-12 lg:flex-row">
@@ -117,16 +220,46 @@ function CheckoutContent() {
                 <WalletIcon className="text-primary size-5" /> Payment Method
               </h3>
               <div className="mb-4 flex gap-2">
-                <button className="bg-primary text-background-dark flex-1 rounded-lg py-2 font-bold">
-                  Wallet
-                </button>
-                <button className="bg-background-dark text-text-secondary border-border-dark flex-1 rounded-lg border py-2">
+                {!isGachaCheckout && (
+                  <button
+                    onClick={() => setPaymentMethod("wallet")}
+                    disabled={!canAfford}
+                    className={`flex-1 rounded-lg py-2 font-bold ${
+                      paymentMethod === "wallet"
+                        ? "bg-primary text-background-dark"
+                        : "bg-background-dark text-text-secondary border-border-dark border"
+                    } disabled:opacity-50`}
+                  >
+                    Wallet
+                  </button>
+                )}
+                <button
+                  onClick={() => setPaymentMethod("gateway")}
+                  className={`${isGachaCheckout ? "w-full" : "flex-1"} rounded-lg py-2 font-bold ${
+                    paymentMethod === "gateway"
+                      ? "bg-primary text-background-dark"
+                      : "bg-background-dark text-text-secondary border-border-dark border"
+                  }`}
+                >
                   Card (Mock)
                 </button>
               </div>
-              <p className="text-text-secondary text-sm">
-                Payment will be deducted from your wallet balance
-              </p>
+              {paymentMethod === "wallet" && (
+                <p className="text-text-secondary text-sm">
+                  Current balance: {formatUSD(wallet?.balance ?? 0)}
+                  {!canAfford && (
+                    <span className="mt-2 block font-semibold text-red-400">
+                      Insufficient balance!
+                    </span>
+                  )}
+                </p>
+              )}
+              {paymentMethod === "gateway" && (
+                <p className="text-text-secondary text-sm">
+                  This is a mock payment gateway. No actual charges will be
+                  made.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -135,25 +268,64 @@ function CheckoutContent() {
           <div className="bg-surface-dark border-border-dark sticky top-24 rounded-xl border p-6">
             <h3 className="mb-4 text-lg font-bold text-white">Order Summary</h3>
             <div className="mb-6 flex flex-col gap-4">
-              <div className="flex gap-3">
-                <img
-                  src={card.imageUrl || "https://via.placeholder.com/100"}
-                  alt={card.name}
-                  className="border-border-dark h-20 w-16 rounded-lg border object-cover"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-white">{card.name}</p>
-                  <p className="text-text-secondary text-xs">{card.rarity}</p>
+              {isCartCheckout && cartData ? (
+                cartData.items.map((item) => (
+                  <div key={item.id} className="flex gap-3">
+                    <img
+                      src={item.imageUrl ?? "https://via.placeholder.com/100"}
+                      alt={item.name}
+                      className="border-border-dark h-20 w-16 rounded-lg border object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-white">
+                        {item.name}
+                      </p>
+                      <p className="text-text-secondary text-xs">
+                        {item.rarity}
+                      </p>
+                      <p className="text-primary mt-1 font-bold">
+                        {formatUSD(item.price)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : isGachaCheckout && pulls ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-bold text-white">Gacha Pull</p>
+                  <p className="text-text-secondary text-xs">
+                    {pulls === "1" ? "Single Pull" : `${pulls}x Multi Pull`}
+                  </p>
                   <p className="text-primary mt-1 font-bold">
-                    {formatUSD(price)}
+                    {formatUSD(parseFloat(amount ?? "0"))}
+                  </p>
+                  <p className="text-text-secondary mt-2 text-xs">
+                    Funds will be added to your wallet, then you'll be
+                    redirected to complete your pull.
                   </p>
                 </div>
-              </div>
+              ) : card ? (
+                <div className="flex gap-3">
+                  <img
+                    src={card.imageUrl || "https://via.placeholder.com/100"}
+                    alt={card.name}
+                    className="border-border-dark h-20 w-16 rounded-lg border object-cover"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white">{card.name}</p>
+                    <p className="text-text-secondary text-xs">{card.rarity}</p>
+                    <p className="text-primary mt-1 font-bold">
+                      {formatUSD(
+                        card.marketValue ? parseFloat(card.marketValue) : 100,
+                      )}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="border-border-dark flex flex-col gap-2 border-t pt-4">
               <div className="text-text-secondary flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>{formatUSD(price)}</span>
+                <span>{formatUSD(subtotal)}</span>
               </div>
               <div className="text-text-secondary flex justify-between text-sm">
                 <span>Tax</span>
@@ -166,10 +338,20 @@ function CheckoutContent() {
             </div>
             <button
               onClick={handleCheckout}
-              disabled={purchaseMutation.isPending}
+              disabled={
+                purchaseMutation.isPending ||
+                cartCheckoutMutation.isPending ||
+                topUpMutation.isPending ||
+                (paymentMethod === "wallet" && !canAfford) ||
+                (isGachaCheckout && paymentMethod === "wallet")
+              }
               className="bg-primary hover:bg-primary-hover text-background-dark mt-6 w-full rounded-xl py-3 font-bold disabled:opacity-50"
             >
-              {purchaseMutation.isPending ? "Processing..." : "Place Order"}
+              {purchaseMutation.isPending ||
+              cartCheckoutMutation.isPending ||
+              topUpMutation.isPending
+                ? "Processing..."
+                : "Place Order"}
             </button>
           </div>
         </div>

@@ -81,4 +81,52 @@ export const usersRouter = router({
 
       return activity
     }),
+
+  topUp: protectedProcedure
+    .input(
+      z.object({
+        amount: z.number().min(0.01),
+        paymentMethod: z.enum(["gateway"]),
+        eventId: z.string().optional(),
+        pullType: z.enum(["single", "ten"]).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id
+
+      const profile = await ctx.db.query.userProfiles.findFirst({
+        where: eq(userProfiles.userId, userId),
+      })
+
+      if (!profile) {
+        throw new Error("Profile not found")
+      }
+
+      const newBalance = parseFloat(profile.balance) + input.amount
+
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(userProfiles)
+          .set({
+            balance: newBalance.toFixed(2),
+            updatedAt: new Date(),
+          })
+          .where(eq(userProfiles.userId, userId))
+
+        await tx.insert(transactions).values({
+          userId,
+          type: "deposit",
+          amountChange: input.amount.toFixed(2),
+          description: `Wallet top-up via ${input.paymentMethod}`,
+        })
+      })
+
+      await invalidatePattern(`user:wallet:${userId}`)
+
+      return {
+        balance: newBalance,
+        eventId: input.eventId,
+        pullType: input.pullType,
+      }
+    }),
 })

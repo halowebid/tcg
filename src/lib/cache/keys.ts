@@ -7,6 +7,7 @@ export const CACHE_KEYS = {
   USER_COLLECTION: (userId: string) => `user:collection:${userId}`,
   USER_WALLET: (userId: string) => `user:wallet:${userId}`,
   USER_PROFILE: (userId: string) => `user:profile:${userId}`,
+  USER_CART: (userId: string) => `user:cart:${userId}`,
   ADMIN_DASHBOARD_STATS: "admin:stats:dashboard",
   MARKETPLACE_LIST: (filters: string) => `marketplace:list:${filters}`,
   MILESTONES_LIST: "milestones:list",
@@ -21,6 +22,7 @@ export const CACHE_TTL = {
   USER_COLLECTION: 30,
   USER_WALLET: 30,
   USER_PROFILE: 300,
+  USER_CART: 300, // 5 minutes
   ADMIN_DASHBOARD: 120,
   MARKETPLACE: 60,
   MILESTONES: 300,

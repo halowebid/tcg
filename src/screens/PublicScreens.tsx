@@ -3,6 +3,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   CalendarOffIcon,
   CheckCheckIcon,
@@ -27,6 +28,7 @@ import {
   XIcon,
   ZapIcon,
 } from "lucide-react"
+import { toast } from "sonner"
 
 import {
   CardGridSkeleton,
@@ -35,6 +37,7 @@ import {
   ErrorDisplay,
   LoadingSpinner,
 } from "@/components/ui"
+import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
@@ -260,8 +263,8 @@ export const MarketplaceScreen: React.FC = () => {
     "common" | "rare" | "epic" | "legendary" | undefined
   >()
   const [searchQuery, setSearchQuery] = React.useState("")
+  const { addToCart } = useCart()
 
-  // Check for URL search params on mount
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
@@ -283,6 +286,10 @@ export const MarketplaceScreen: React.FC = () => {
     rarity: selectedRarity,
     search: searchQuery || undefined,
   })
+
+  const handleAddToCart = async (cardId: string) => {
+    await addToCart(cardId)
+  }
 
   const purchaseMutation = trpc.marketplace.purchase.useMutation({
     onSuccess: () => {
@@ -425,13 +432,21 @@ export const MarketplaceScreen: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handlePurchase(card.id)}
-                        disabled={purchaseMutation.isPending}
-                        className="bg-surface-highlight border-border-dark flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black disabled:opacity-50"
-                      >
-                        {purchaseMutation.isPending ? "Buying..." : "Buy"}
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleAddToCart(card.id)}
+                          className="bg-surface-highlight border-border-dark flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-white hover:text-black"
+                        >
+                          <ShoppingCartIcon className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => handlePurchase(card.id)}
+                          disabled={purchaseMutation.isPending}
+                          className="bg-primary flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                        >
+                          {purchaseMutation.isPending ? "..." : "Buy"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -545,7 +560,12 @@ export const ProductDetailScreen: React.FC = () => {
 }
 
 // --- Screen 4: Gacha Pull Animation ---
-export const GachaPullScreen: React.FC = () => {
+export const GachaPullScreen: React.FC<{
+  triggerPull?: boolean
+  eventId?: string | null
+  pullType?: "single" | "ten" | null
+}> = ({ triggerPull = false, pullType = null }) => {
+  const router = useRouter()
   const [showResult, setShowResult] = React.useState(false)
   const [pulledCards, setPulledCards] = React.useState<Card[]>([])
   const [showDropRates, setShowDropRates] = React.useState(false)
@@ -569,7 +589,18 @@ export const GachaPullScreen: React.FC = () => {
       setShowResult(true)
     },
     onError: (error) => {
-      alert(error.message)
+      try {
+        const errorData = JSON.parse(error.message)
+        if (errorData.type === "INSUFFICIENT_BALANCE") {
+          router.push(
+            `/checkout?source=gacha&eventId=${errorData.eventId}&amount=${errorData.cost}&pulls=1&error=${encodeURIComponent("Insufficient balance for gacha pull")}`,
+          )
+          return
+        }
+      } catch {
+        // Failed to parse error, continue to show generic error
+      }
+      toast.error(error.message)
     },
   })
 
@@ -579,7 +610,18 @@ export const GachaPullScreen: React.FC = () => {
       setShowResult(true)
     },
     onError: (error) => {
-      alert(error.message)
+      try {
+        const errorData = JSON.parse(error.message)
+        if (errorData.type === "INSUFFICIENT_BALANCE") {
+          router.push(
+            `/checkout?source=gacha&eventId=${errorData.eventId}&amount=${errorData.cost}&pulls=10&error=${encodeURIComponent("Insufficient balance for gacha pull")}`,
+          )
+          return
+        }
+      } catch {
+        // Failed to parse error, continue to show generic error
+      }
+      toast.error(error.message)
     },
   })
 
@@ -597,6 +639,29 @@ export const GachaPullScreen: React.FC = () => {
     setShowResult(false)
     setPulledCards([])
   }
+
+  React.useEffect(() => {
+    if (
+      triggerPull &&
+      activeEvent &&
+      !pullMutation.isPending &&
+      !pullTenMutation.isPending
+    ) {
+      if (pullType === "ten") {
+        pullTenMutation.mutate({ eventId: activeEvent.id })
+      } else if (pullType === "single") {
+        pullMutation.mutate({ eventId: activeEvent.id })
+      }
+      router.replace("/gacha")
+    }
+  }, [
+    triggerPull,
+    activeEvent,
+    pullType,
+    pullMutation,
+    pullTenMutation,
+    router,
+  ])
 
   if (eventsLoading) {
     return (
