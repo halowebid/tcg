@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { PencilIcon } from "lucide-react"
+import { PencilIcon, Wallet } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -14,12 +15,17 @@ import {
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
 
-export default function ProfilePage() {
+function ProfileContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const shouldShowTopUp = searchParams.get("topup") === "true"
   const { data: session } = useSession()
   const { data: profile, isLoading: profileLoading } =
     trpc.users.getProfile.useQuery()
   const { data: wallet, isLoading: walletLoading } =
     trpc.users.getWallet.useQuery()
+  const [showTopUp, setShowTopUp] = useState(false)
+  const [topUpAmount, setTopUpAmount] = useState("")
 
   const {
     register,
@@ -39,6 +45,14 @@ export default function ProfilePage() {
     }
   }, [profile, reset])
 
+  useEffect(() => {
+    if (shouldShowTopUp) {
+      setShowTopUp(true)
+      // Remove the query parameter from URL
+      router.replace("/profile", { scroll: false })
+    }
+  }, [shouldShowTopUp, router])
+
   const updateProfile = trpc.users.updateProfile.useMutation({
     onSuccess: () => {
       toast.success("Profile updated successfully!")
@@ -54,6 +68,19 @@ export default function ProfilePage() {
       displayName: data.displayName ?? undefined,
       username: data.username ?? undefined,
     })
+  }
+
+  const handleTopUp = () => {
+    const amount = parseFloat(topUpAmount)
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount")
+      return
+    }
+    router.push(`/checkout?source=topup&amount=${amount}`)
+  }
+
+  const quickTopUp = (amount: number) => {
+    router.push(`/checkout?source=topup&amount=${amount}`)
   }
 
   const isLoading = profileLoading || walletLoading
@@ -152,13 +179,81 @@ export default function ProfilePage() {
           </div>
 
           <div className="bg-surface-dark border-border-dark rounded-2xl border p-6">
-            <h3 className="mb-4 font-bold text-white">Wallet</h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-bold text-white">Wallet</h3>
+              <Wallet className="text-primary h-5 w-5" />
+            </div>
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Balance</span>
-                <span className="font-bold text-white">
+                <span className="text-primary text-xl font-bold">
                   {formatUSD(wallet?.balance ?? 0)}
                 </span>
+              </div>
+              <div className="border-border-dark border-t pt-4">
+                {!showTopUp ? (
+                  <button
+                    onClick={() => setShowTopUp(true)}
+                    className="bg-primary hover:bg-primary-hover w-full rounded-lg py-3 font-bold text-white"
+                  >
+                    Add Funds
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => quickTopUp(10)}
+                        className="bg-background-dark hover:bg-border-dark flex-1 rounded-lg py-2 text-sm font-bold text-white"
+                      >
+                        $10
+                      </button>
+                      <button
+                        onClick={() => quickTopUp(25)}
+                        className="bg-background-dark hover:bg-border-dark flex-1 rounded-lg py-2 text-sm font-bold text-white"
+                      >
+                        $25
+                      </button>
+                      <button
+                        onClick={() => quickTopUp(50)}
+                        className="bg-background-dark hover:bg-border-dark flex-1 rounded-lg py-2 text-sm font-bold text-white"
+                      >
+                        $50
+                      </button>
+                      <button
+                        onClick={() => quickTopUp(100)}
+                        className="bg-background-dark hover:bg-border-dark flex-1 rounded-lg py-2 text-sm font-bold text-white"
+                      >
+                        $100
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        value={topUpAmount}
+                        onChange={(e) => setTopUpAmount(e.target.value)}
+                        placeholder="Custom amount"
+                        className="bg-background-dark border-border-dark flex-1 rounded-lg border px-3 py-2 text-white"
+                        min="1"
+                        step="0.01"
+                      />
+                      <button
+                        onClick={handleTopUp}
+                        className="bg-primary hover:bg-primary-hover rounded-lg px-6 py-2 font-bold text-white"
+                      >
+                        Go
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowTopUp(false)
+                        setTopUpAmount("")
+                      }}
+                      className="text-text-secondary w-full text-sm hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="border-border-dark border-t pt-4">
                 <div className="flex justify-between text-sm">
@@ -173,5 +268,19 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-text-secondary">Loading profile...</div>
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   )
 }

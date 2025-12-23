@@ -113,12 +113,15 @@ export const PublicHeader: React.FC = () => {
         <div className="flex items-center gap-3">
           {session?.user ? (
             <>
-              <div className="bg-surface-dark border-border-dark hidden items-center gap-2 rounded-xl border px-3 py-2 md:flex">
+              <Link
+                href="/profile?topup=true"
+                className="bg-surface-dark border-border-dark hover:bg-surface-highlight hidden items-center gap-2 rounded-xl border px-3 py-2 transition-colors md:flex"
+              >
                 <DollarSignIcon className="text-primary size-[18px]" />
                 <span className="text-sm font-bold text-white">
                   {formatUSD(wallet?.balance ?? 0)}
                 </span>
-              </div>
+              </Link>
 
               <button
                 onClick={() => setIsCartOpen(true)}

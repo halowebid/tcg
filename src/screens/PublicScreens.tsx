@@ -569,6 +569,7 @@ export const GachaPullScreen: React.FC<{
   const [showResult, setShowResult] = React.useState(false)
   const [pulledCards, setPulledCards] = React.useState<Card[]>([])
   const [showDropRates, setShowDropRates] = React.useState(false)
+  const utils = trpc.useUtils()
 
   const {
     data: events,
@@ -584,9 +585,10 @@ export const GachaPullScreen: React.FC<{
   )
 
   const pullMutation = trpc.gacha.pull.useMutation({
-    onSuccess: (card) => {
+    onSuccess: async (card) => {
       setPulledCards([card])
       setShowResult(true)
+      await utils.users.getWallet.invalidate()
     },
     onError: (error) => {
       try {
@@ -605,9 +607,10 @@ export const GachaPullScreen: React.FC<{
   })
 
   const pullTenMutation = trpc.gacha.pullTen.useMutation({
-    onSuccess: (cards) => {
+    onSuccess: async (cards) => {
       setPulledCards(cards)
       setShowResult(true)
+      await utils.users.getWallet.invalidate()
     },
     onError: (error) => {
       try {

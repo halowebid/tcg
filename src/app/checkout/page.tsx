@@ -40,8 +40,9 @@ function CheckoutContent() {
   const { data: wallet } = trpc.users.getWallet.useQuery()
 
   const purchaseMutation = trpc.marketplace.purchase.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setShowOrderConfirm(false)
+      await utils.users.getWallet.invalidate()
       toast.success("Purchase completed successfully!")
       router.push("/collection")
     },
@@ -55,6 +56,7 @@ function CheckoutContent() {
     onSuccess: async () => {
       setShowOrderConfirm(false)
       await utils.cart.getItems.invalidate()
+      await utils.users.getWallet.invalidate()
       toast.success("Cart checkout completed successfully!")
       setTimeout(() => {
         router.push("/collection")
@@ -67,16 +69,17 @@ function CheckoutContent() {
   })
 
   const topUpMutation = trpc.users.topUp.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setShowOrderConfirm(false)
-      toast.success("Payment successful! Redirecting to gacha...")
+      await utils.users.getWallet.invalidate()
+      toast.success("Funds added successfully!")
       setTimeout(() => {
         if (data.eventId && data.pullType) {
           router.push(
             `/gacha?triggerPull=true&eventId=${data.eventId}&pullType=${data.pullType}`,
           )
         } else {
-          router.push("/gacha")
+          router.push("/profile")
         }
       }, 1500)
     },
@@ -88,9 +91,10 @@ function CheckoutContent() {
 
   const isCartCheckout = source === "cart"
   const isGachaCheckout = source === "gacha"
+  const isTopUpCheckout = source === "topup"
   const isLoading = cardLoading
 
-  if (!isCartCheckout && !isGachaCheckout && !cardId) {
+  if (!isCartCheckout && !isGachaCheckout && !isTopUpCheckout && !cardId) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -138,10 +142,21 @@ function CheckoutContent() {
     )
   }
 
-  if (!isCartCheckout && !isGachaCheckout && !card) {
+  if (!isCartCheckout && !isGachaCheckout && !isTopUpCheckout && !card) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-text-secondary">Card not found</div>
+        <div className="text-center">
+          <h2 className="mb-2 text-xl font-bold text-white">Card Not Found</h2>
+          <p className="text-text-secondary mb-4">
+            The card you're looking for doesn't exist
+          </p>
+          <button
+            onClick={() => router.push("/marketplace")}
+            className="bg-primary text-background-dark rounded-lg px-4 py-2 font-bold"
+          >
+            Browse Marketplace
+          </button>
+        </div>
       </div>
     )
   }
@@ -151,11 +166,13 @@ function CheckoutContent() {
       ? cartData.totalPrice
       : isGachaCheckout && amount
         ? parseFloat(amount)
-        : card
-          ? card.marketValue
-            ? parseFloat(card.marketValue)
-            : 100
-          : 0
+        : isTopUpCheckout && amount
+          ? parseFloat(amount)
+          : card
+            ? card.marketValue
+              ? parseFloat(card.marketValue)
+              : 100
+            : 0
   const tax = subtotal * 0.0
   const total = subtotal + tax
   const canAfford = (wallet?.balance ?? 0) >= total
@@ -174,6 +191,11 @@ function CheckoutContent() {
         eventId,
         pullType: pulls === "10" ? "ten" : "single",
       })
+    } else if (isTopUpCheckout && amount) {
+      topUpMutation.mutate({
+        amount: parseFloat(amount),
+        paymentMethod: "gateway",
+      })
     } else if (card) {
       purchaseMutation.mutate({ cardId: card.id })
     }
@@ -189,8 +211,10 @@ function CheckoutContent() {
         message={`${
           isGachaCheckout
             ? `Add ${formatUSD(total)} to your wallet for gacha pull?`
-            : `Place order for ${isCartCheckout ? `${cartData?.itemCount} item(s)` : `"${card?.name}"`}?`
-        }\n\nTotal: ${formatUSD(total)}${!canAfford && !isGachaCheckout ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
+            : isTopUpCheckout
+              ? `Add ${formatUSD(total)} to your wallet?`
+              : `Place order for ${isCartCheckout ? `${cartData?.itemCount} item(s)` : `"${card?.name}"`}?`
+        }\n\nTotal: ${formatUSD(total)}${!canAfford && !isGachaCheckout && !isTopUpCheckout ? "\n\nWarning: Insufficient wallet balance!" : ""}`}
         confirmText="Place Order"
         cancelText="Cancel"
         variant="primary"
@@ -220,7 +244,7 @@ function CheckoutContent() {
                 <WalletIcon className="text-primary size-5" /> Payment Method
               </h3>
               <div className="mb-4 flex gap-2">
-                {!isGachaCheckout && (
+                {!isGachaCheckout && !isTopUpCheckout && (
                   <button
                     onClick={() => setPaymentMethod("wallet")}
                     disabled={!canAfford}
@@ -235,7 +259,7 @@ function CheckoutContent() {
                 )}
                 <button
                   onClick={() => setPaymentMethod("gateway")}
-                  className={`${isGachaCheckout ? "w-full" : "flex-1"} rounded-lg py-2 font-bold ${
+                  className={`${isGachaCheckout || isTopUpCheckout ? "w-full" : "flex-1"} rounded-lg py-2 font-bold ${
                     paymentMethod === "gateway"
                       ? "bg-primary text-background-dark"
                       : "bg-background-dark text-text-secondary border-border-dark border"
@@ -301,6 +325,20 @@ function CheckoutContent() {
                   <p className="text-text-secondary mt-2 text-xs">
                     Funds will be added to your wallet, then you'll be
                     redirected to complete your pull.
+                  </p>
+                </div>
+              ) : isTopUpCheckout ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-bold text-white">Wallet Top-Up</p>
+                  <p className="text-text-secondary text-xs">
+                    Add funds to your wallet
+                  </p>
+                  <p className="text-primary mt-1 font-bold">
+                    {formatUSD(parseFloat(amount ?? "0"))}
+                  </p>
+                  <p className="text-text-secondary mt-2 text-xs">
+                    Funds will be added to your wallet balance immediately after
+                    payment.
                   </p>
                 </div>
               ) : card ? (
