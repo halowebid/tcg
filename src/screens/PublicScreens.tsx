@@ -198,7 +198,7 @@ export const LandingScreen: React.FC = () => {
                   <div className="relative h-full w-1/2">
                     <img
                       src={
-                        event.bannerUrl ||
+                        event.bannerUrl ??
                         "https://images.pokemontcg.io/swsh35/logo.png"
                       }
                       alt={event.name}

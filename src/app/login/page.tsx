@@ -14,7 +14,7 @@ import { loginSchema, type LoginInput } from "@/lib/db/schema/validations"
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/collection"
+  const redirect = searchParams.get("redirect") ?? "/collection"
   const [showPassword, setShowPassword] = React.useState(false)
   const [error, setError] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
