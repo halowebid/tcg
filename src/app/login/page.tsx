@@ -1,8 +1,8 @@
 "use client"
 
-import React from "react"
+import React, { Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -11,8 +11,10 @@ import { toast } from "sonner"
 import { signIn } from "@/lib/auth/client"
 import { loginSchema, type LoginInput } from "@/lib/db/schema/validations"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/collection"
   const [showPassword, setShowPassword] = React.useState(false)
   const [error, setError] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
@@ -39,7 +41,7 @@ export default function LoginPage() {
         {
           onSuccess: () => {
             toast.success("Logged in successfully!")
-            router.push("/collection")
+            router.push(redirect)
           },
           onError: (ctx) => {
             setIsLoading(false)
@@ -54,7 +56,7 @@ export default function LoginPage() {
 
       if (!result.error) {
         toast.success("Logged in successfully!")
-        router.push("/collection")
+        router.push(redirect)
       }
     } catch (err: unknown) {
       setIsLoading(false)
@@ -169,5 +171,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-text-secondary">Loading...</div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   )
 }

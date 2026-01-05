@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner"
 
 import { ConfirmModal } from "@/components/ui"
+import { useSession } from "@/lib/auth/client"
 import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
@@ -22,6 +23,7 @@ export default function MarketplaceDetailPage() {
   const router = useRouter()
   const cardId = params["id"] as string
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false)
+  const { data: session } = useSession()
   const { addToCart } = useCart()
 
   const {
@@ -48,6 +50,11 @@ export default function MarketplaceDetailPage() {
   })
 
   const handleAddToCart = async () => {
+    if (!session?.user) {
+      toast.error("Please login to add items to cart")
+      router.push(`/login?redirect=/marketplace/${cardId}`)
+      return
+    }
     await addToCart(cardId)
   }
 
@@ -82,6 +89,11 @@ export default function MarketplaceDetailPage() {
   const canAfford = (wallet?.balance ?? 0) >= price
 
   const handlePurchaseClick = () => {
+    if (!session?.user) {
+      toast.error("Please login to purchase")
+      router.push(`/login?redirect=/marketplace/${cardId}`)
+      return
+    }
     setShowPurchaseConfirm(true)
   }
 

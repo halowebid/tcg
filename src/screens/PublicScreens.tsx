@@ -37,6 +37,7 @@ import {
   ErrorDisplay,
   LoadingSpinner,
 } from "@/components/ui"
+import { useSession } from "@/lib/auth/client"
 import { useCart } from "@/lib/hooks/useCart"
 import { trpc } from "@/lib/trpc/client"
 import { formatUSD } from "@/lib/utils/currency"
@@ -790,6 +791,7 @@ export const GachaPullScreen: React.FC<{
   const [showResult, setShowResult] = React.useState(false)
   const [pulledCards, setPulledCards] = React.useState<Card[]>([])
   const [showDropRates, setShowDropRates] = React.useState(false)
+  const { data: session } = useSession()
   const utils = trpc.useUtils()
 
   const {
@@ -849,10 +851,20 @@ export const GachaPullScreen: React.FC<{
   })
 
   const handleSinglePull = (eventId: string) => {
+    if (!session?.user) {
+      toast.error("Please login to pull gacha")
+      router.push(`/login?redirect=/gacha/${eventId}`)
+      return
+    }
     pullMutation.mutate({ eventId })
   }
 
   const handleTenPull = (eventId: string) => {
+    if (!session?.user) {
+      toast.error("Please login to pull gacha")
+      router.push(`/login?redirect=/gacha/${eventId}`)
+      return
+    }
     pullTenMutation.mutate({ eventId })
   }
 
