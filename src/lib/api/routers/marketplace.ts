@@ -3,10 +3,10 @@ import { z } from "zod"
 
 import { invalidatePattern } from "@/lib/cache/redis"
 import { cards, transactions, userCards, userProfiles } from "@/lib/db/schema"
-import { protectedProcedure, router } from "../trpc"
+import { protectedProcedure, publicProcedure, router } from "../trpc"
 
 export const marketplaceRouter = router({
-  list: protectedProcedure
+  list: publicProcedure
     .input(
       z.object({
         page: z.number().min(1).default(1),
@@ -31,7 +31,7 @@ export const marketplaceRouter = router({
       return items
     }),
 
-  getCardPrice: protectedProcedure
+  getCardPrice: publicProcedure
     .input(z.object({ cardId: z.string() }))
     .query(async ({ ctx, input }) => {
       const card = await ctx.db.query.cards.findFirst({
@@ -105,7 +105,7 @@ export const marketplaceRouter = router({
       return { success: true }
     }),
 
-  getRelatedCards: protectedProcedure
+  getRelatedCards: publicProcedure
     .input(
       z.object({
         cardId: z.string(),

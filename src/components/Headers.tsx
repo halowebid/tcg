@@ -13,7 +13,6 @@ import {
   ShoppingCartIcon,
   TrophyIcon,
   UserIcon,
-  WandIcon,
 } from "lucide-react"
 
 import { signOut, useSession } from "@/lib/auth/client"
@@ -54,9 +53,6 @@ export const PublicHeader: React.FC = () => {
     <header className="border-border-dark bg-background-dark/95 sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3 whitespace-nowrap backdrop-blur-md lg:px-10">
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-4 text-white">
-          <div className="text-primary size-8">
-            <WandIcon className="size-8" />
-          </div>
           <h2 className="text-xl font-bold tracking-tight text-white">TCG</h2>
         </Link>
         <div className="hidden items-center gap-8 lg:flex">

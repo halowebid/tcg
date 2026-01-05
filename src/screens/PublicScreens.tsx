@@ -85,8 +85,9 @@ export const LandingScreen: React.FC = () => {
           <div
             className="absolute inset-0 h-full w-full bg-cover bg-center transition-transform duration-700 hover:scale-105"
             style={{
-              backgroundImage:
-                'linear-gradient(180deg, rgba(24,20,17,0) 0%, rgba(24,20,17,0.8) 60%, rgba(24,20,17,1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCblfj9j0D5n4sdowefElB3DYUr0WJsmhzZFJGlqZsSPgD_B1janepkYX9R71QfQ9atKXbsyrlzk-7_4tQ71rfJ29V5UrZmLjkb1yTKfvq4jf5hNEbHErCVBSVJvX5VemR5yArsOaTUTQJMfG_yCNCyGrBdVgYDC_wXOyX9jnkYzabVA86Wqq6L7wz3kgP3wlzAvcOmMDuvWsPfsgtIWkL6ZBY1wa0zf0i2pXd8fcH5aFVs5wEAgrV4PO_LdWqz6tro-r9T8DBl8QF2")',
+              backgroundImage: firstEvent?.bannerUrl
+                ? `linear-gradient(180deg, rgba(24,20,17,0) 0%, rgba(24,20,17,0.8) 60%, rgba(24,20,17,1) 100%), url("${firstEvent.bannerUrl}")`
+                : 'linear-gradient(180deg, rgba(24,20,17,0) 0%, rgba(24,20,17,0.8) 60%, rgba(24,20,17,1) 100%), url("https://images.pokemontcg.io/swsh35/logo.png")',
             }}
           ></div>
           <div className="relative z-10 flex max-w-2xl flex-col items-start gap-4">
@@ -105,7 +106,7 @@ export const LandingScreen: React.FC = () => {
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <Link
-                href="/gacha"
+                href={firstEvent ? `/gacha/${firstEvent.id}` : "/gacha"}
                 className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105"
               >
                 <SparklesIcon className="size-6" />
@@ -115,7 +116,7 @@ export const LandingScreen: React.FC = () => {
                   : "$5.00"}
               </Link>
               <Link
-                href="/gacha"
+                href={firstEvent ? `/gacha/${firstEvent.id}` : "/gacha"}
                 className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20"
               >
                 <SparklesIcon className="size-6" />
@@ -154,7 +155,7 @@ export const LandingScreen: React.FC = () => {
             {events.slice(0, 3).map((event, i) => (
               <Link
                 key={event.id}
-                href="/gacha"
+                href={`/gacha/${event.id}`}
                 className="bg-surface-dark border-border-dark hover:border-primary/50 group relative h-64 cursor-pointer overflow-hidden rounded-2xl border transition-all"
               >
                 <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-600 to-cyan-400 opacity-10 transition-opacity group-hover:opacity-20"></div>
@@ -287,6 +288,10 @@ export const MarketplaceScreen: React.FC = () => {
     search: searchQuery || undefined,
   })
 
+  const { data: events, isLoading: eventsLoading } =
+    trpc.gacha.getActiveEvents.useQuery()
+  const featuredEvent = events?.[0]
+
   const handleAddToCart = async (cardId: string) => {
     await addToCart(cardId)
   }
@@ -320,30 +325,66 @@ export const MarketplaceScreen: React.FC = () => {
   return (
     <div className="flex w-full flex-col items-center px-4 py-8 lg:px-10">
       <div className="flex w-full max-w-[1400px] flex-col gap-8">
-        <div className="bg-surface-dark relative mb-8 flex min-h-[300px] items-center overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
-          <div
-            className="absolute top-0 right-0 h-full w-3/4 bg-cover bg-center opacity-80"
-            style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD56GECvrND1qO0VJ6sTBopfw_-ERkKWrs_EWdjQffPV9-TJGhrFJxurNdP8ygteM0U2pYfXTgsiiXnqUJPTN8cKWYuaux1xydiQKk_9bUtrV_lqMYHIWkYlxb6drzmsiTQAitkat1Ngoo4gzDXHaNHY0R7QEcKiwzQXppBuUAe2WmvMhotAZudm7AMoqJ59NBh6rrbulhSy2r6GJj8L6e7I805btVQDc6w56Iwi1KovYVbi5P6T-56prw4bDkPCgNfVjXjIdo_Q0mk")',
-            }}
-          ></div>
-          <div className="relative z-20 p-8 md:w-1/2 md:p-12">
-            <span className="bg-primary/20 text-primary mb-2 inline-block rounded px-2 py-1 text-xs font-bold tracking-wider uppercase">
-              New Drop
-            </span>
-            <h1 className="mb-4 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl">
-              Unlock the Future of Cards
-            </h1>
-            <Link
-              href="/gacha"
-              className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
-            >
-              <ZapIcon className="size-5" /> Pull Now - $5.00
-            </Link>
+        {eventsLoading ? (
+          <div className="bg-surface-dark relative mb-8 flex min-h-[300px] items-center justify-center overflow-hidden rounded-2xl">
+            <LoadingSpinner message="Loading..." />
           </div>
-        </div>
+        ) : featuredEvent ? (
+          <div className="bg-surface-dark relative mb-8 flex min-h-[300px] items-center overflow-hidden rounded-2xl">
+            <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
+            <div
+              className="absolute top-0 right-0 h-full w-3/4 bg-cover bg-center opacity-80"
+              style={{
+                backgroundImage: featuredEvent.bannerUrl
+                  ? `url("${featuredEvent.bannerUrl}")`
+                  : 'url("https://images.pokemontcg.io/swsh35/logo.png")',
+              }}
+            ></div>
+            <div className="relative z-20 p-8 md:w-1/2 md:p-12">
+              <span className="bg-primary/20 text-primary mb-2 inline-block rounded px-2 py-1 text-xs font-bold tracking-wider uppercase">
+                Featured Event
+              </span>
+              <h1 className="mb-4 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl">
+                {featuredEvent.name}
+              </h1>
+              <p className="text-text-secondary mb-4 text-sm">
+                {featuredEvent.description}
+              </p>
+              <Link
+                href="/gacha"
+                className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
+              >
+                <ZapIcon className="size-5" /> Pull Now -{" "}
+                {formatUSD(parseFloat(featuredEvent.singlePullPrice))}
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-surface-dark relative mb-8 flex min-h-[300px] items-center overflow-hidden rounded-2xl">
+            <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
+            <div
+              className="absolute top-0 right-0 h-full w-3/4 bg-cover bg-center opacity-80"
+              style={{
+                backgroundImage:
+                  'url("https://images.pokemontcg.io/swsh35/logo.png")',
+              }}
+            ></div>
+            <div className="relative z-20 p-8 md:w-1/2 md:p-12">
+              <span className="bg-primary/20 text-primary mb-2 inline-block rounded px-2 py-1 text-xs font-bold tracking-wider uppercase">
+                New Drop
+              </span>
+              <h1 className="mb-4 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl">
+                Unlock the Future of Cards
+              </h1>
+              <Link
+                href="/gacha"
+                className="bg-primary flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-transform hover:scale-105"
+              >
+                <ZapIcon className="size-5" /> Explore Gacha
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="relative">
@@ -559,17 +600,9 @@ export const ProductDetailScreen: React.FC = () => {
   )
 }
 
-// --- Screen 4: Gacha Pull Animation ---
-export const GachaPullScreen: React.FC<{
-  triggerPull?: boolean
-  eventId?: string | null
-  pullType?: "single" | "ten" | null
-}> = ({ triggerPull = false, pullType = null }) => {
+// --- Screen 4a: Gacha Listing (All Events as Cards) ---
+export const GachaListingScreen: React.FC = () => {
   const router = useRouter()
-  const [showResult, setShowResult] = React.useState(false)
-  const [pulledCards, setPulledCards] = React.useState<Card[]>([])
-  const [showDropRates, setShowDropRates] = React.useState(false)
-  const utils = trpc.useUtils()
 
   const {
     data: events,
@@ -577,11 +610,172 @@ export const GachaPullScreen: React.FC<{
     error: eventsError,
     refetch: refetchEvents,
   } = trpc.gacha.getActiveEvents.useQuery()
-  const activeEvent = events?.[0]
+
+  if (eventsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <LoadingSpinner message="Loading gacha events..." />
+      </div>
+    )
+  }
+
+  if (eventsError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <ErrorDisplay
+          title="Failed to load events"
+          message={eventsError.message}
+          onRetry={() => refetchEvents()}
+        />
+      </div>
+    )
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <EmptyState
+          icon={CalendarOffIcon}
+          title="No active gacha events"
+          description="There are currently no active gacha events. Check back later!"
+          actions={[
+            { label: "Browse Marketplace", href: "/marketplace" },
+            { label: "View Collection", href: "/collection" },
+          ]}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex w-full flex-col items-center px-4 py-8 lg:px-10">
+      <div className="flex w-full max-w-[1400px] flex-col gap-8">
+        {/* Header */}
+        <div className="border-border-dark flex flex-col items-end justify-between gap-4 border-b pb-6 md:flex-row">
+          <div>
+            <h1 className="mb-2 text-4xl font-black text-white">
+              Gacha Events
+            </h1>
+            <p className="text-text-secondary">
+              Try your luck and pull amazing cards from these limited-time events!
+            </p>
+          </div>
+        </div>
+
+        {/* Events Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {events.map((event) => (
+            <div
+              key={event.id}
+              onClick={() => router.push(`/gacha/${event.id}`)}
+              className="bg-surface-dark border-border-dark hover:border-primary/50 group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border transition-all hover:-translate-y-1 hover:shadow-2xl"
+            >
+              {/* Event Banner */}
+              <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-[#3d2c1e] to-[#2a221b]">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <img
+                  src={event.bannerUrl ?? "https://images.pokemontcg.io/swsh35/logo.png"}
+                  alt={event.name}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="bg-primary/90 text-background-dark rounded-full px-3 py-1 text-xs font-bold uppercase backdrop-blur-sm">
+                    Active
+                  </span>
+                </div>
+              </div>
+
+              {/* Event Info */}
+              <div className="flex flex-col p-6">
+                <h3 className="group-hover:text-primary mb-2 text-xl font-bold text-white transition-colors">
+                  {event.name}
+                </h3>
+                <p className="text-text-secondary mb-4 line-clamp-2 text-sm">
+                  {event.description}
+                </p>
+
+                {/* Pricing */}
+                <div className="border-border-dark mt-auto flex items-center justify-between border-t pt-4">
+                  <div className="flex flex-col">
+                    <span className="text-text-secondary text-xs">Single Pull</span>
+                    <div className="flex items-center gap-1">
+                      <DollarSignIcon className="text-primary size-4" />
+                      <span className="text-lg font-bold text-white">
+                        {parseFloat(event.singlePullPrice).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-text-secondary text-xs">10x Pull</span>
+                    <div className="flex items-center gap-1">
+                      <DollarSignIcon className="text-primary size-4" />
+                      <span className="text-lg font-bold text-white">
+                        {parseFloat(event.tenPullPrice).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Drop Rates Preview */}
+                <div className="bg-surface-highlight mt-4 rounded-lg p-3">
+                  <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                    <div>
+                      <div className="text-orange-400 font-bold">
+                        {(parseFloat(event.legendaryRate) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-text-secondary">Legendary</div>
+                    </div>
+                    <div>
+                      <div className="text-pink-400 font-bold">
+                        {(parseFloat(event.epicRate) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-text-secondary">Epic</div>
+                    </div>
+                    <div>
+                      <div className="text-blue-400 font-bold">
+                        {(parseFloat(event.rareRate) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-text-secondary">Rare</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 font-bold">
+                        {(parseFloat(event.commonRate) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-text-secondary">Common</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// --- Screen 4b: Gacha Event Detail (Pull Screen) ---
+export const GachaPullScreen: React.FC<{
+  eventId: string
+  triggerPull?: boolean
+  pullType?: "single" | "ten" | null
+}> = ({ eventId, triggerPull = false, pullType = null }) => {
+  const router = useRouter()
+  const [showResult, setShowResult] = React.useState(false)
+  const [pulledCards, setPulledCards] = React.useState<Card[]>([])
+  const [showDropRates, setShowDropRates] = React.useState(false)
+  const utils = trpc.useUtils()
+
+  const {
+    data: event,
+    isLoading: eventLoading,
+    error: eventError,
+    refetch: refetchEvent,
+  } = trpc.gacha.getEventById.useQuery({ id: eventId })
 
   const { data: dropRates } = trpc.gacha.getDropRates.useQuery(
-    { eventId: activeEvent?.id ?? "" },
-    { enabled: !!activeEvent?.id },
+    { eventId },
+    { enabled: !!eventId },
   )
 
   const pullMutation = trpc.gacha.pull.useMutation({
@@ -628,14 +822,12 @@ export const GachaPullScreen: React.FC<{
     },
   })
 
-  const handleSinglePull = () => {
-    if (!activeEvent) return
-    pullMutation.mutate({ eventId: activeEvent.id })
+  const handleSinglePull = (eventId: string) => {
+    pullMutation.mutate({ eventId })
   }
 
-  const handleTenPull = () => {
-    if (!activeEvent) return
-    pullTenMutation.mutate({ eventId: activeEvent.id })
+  const handleTenPull = (eventId: string) => {
+    pullTenMutation.mutate({ eventId })
   }
 
   const closeResultModal = () => {
@@ -643,59 +835,64 @@ export const GachaPullScreen: React.FC<{
     setPulledCards([])
   }
 
+  const toggleDropRates = () => {
+    setShowDropRates((prev) => !prev)
+  }
+
   React.useEffect(() => {
     if (
       triggerPull &&
-      activeEvent &&
+      event &&
       !pullMutation.isPending &&
       !pullTenMutation.isPending
     ) {
       if (pullType === "ten") {
-        pullTenMutation.mutate({ eventId: activeEvent.id })
+        pullTenMutation.mutate({ eventId: event.id })
       } else if (pullType === "single") {
-        pullMutation.mutate({ eventId: activeEvent.id })
+        pullMutation.mutate({ eventId: event.id })
       }
-      router.replace("/gacha")
+      router.replace(`/gacha/${eventId}`)
     }
   }, [
     triggerPull,
-    activeEvent,
+    event,
     pullType,
     pullMutation,
     pullTenMutation,
     router,
+    eventId,
   ])
 
-  if (eventsLoading) {
+  if (eventLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <LoadingSpinner message="Loading gacha events..." />
+        <LoadingSpinner message="Loading gacha event..." />
       </div>
     )
   }
 
-  if (eventsError) {
+  if (eventError) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <ErrorDisplay
-          title="Failed to load events"
-          message={eventsError.message}
-          onRetry={() => refetchEvents()}
+          title="Failed to load event"
+          message={eventError.message}
+          onRetry={() => refetchEvent()}
         />
       </div>
     )
   }
 
-  if (!activeEvent) {
+  if (!event) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <EmptyState
           icon={CalendarOffIcon}
-          title="No active gacha events"
-          description="There are currently no active gacha events. Check back later!"
+          title="Event not found"
+          description="This gacha event does not exist or is no longer active."
           actions={[
+            { label: "View All Events", href: "/gacha" },
             { label: "Browse Marketplace", href: "/marketplace" },
-            { label: "View Collection", href: "/collection" },
           ]}
         />
       </div>
@@ -705,19 +902,23 @@ export const GachaPullScreen: React.FC<{
   return (
     <div className="flex flex-1 justify-center px-4 py-8 sm:px-10">
       <div className="flex max-w-[1024px] flex-1 flex-col gap-12">
-        <section className="bg-surface-dark border-border-dark relative flex min-h-[600px] items-center justify-center overflow-hidden rounded-3xl border shadow-2xl">
+        {/* Single event display */}
+        <section
+          className="bg-surface-dark border-border-dark relative flex min-h-[600px] items-center justify-center overflow-hidden rounded-3xl border shadow-2xl"
+        >
           <div className="absolute inset-0 bg-gradient-to-b from-[#2a221b] to-[#181411]"></div>
           <div className="bg-primary/5 pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"></div>
 
           <div className="relative z-10 flex w-full flex-col items-center gap-12 p-8 md:flex-row">
             <div className="flex flex-1 justify-center">
-              <div className="perspective-1000 group relative aspect-[4/5] w-full max-w-[320px] animate-pulse cursor-pointer">
+              <div className="perspective-1000 group relative aspect-[4/5] w-full max-w-[320px] cursor-pointer">
                 <div className="bg-primary/20 absolute inset-0 rounded-full blur-[50px]"></div>
                 <img
                   src={
-                    activeEvent.bannerUrl ??
-                    "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k"
+                    event.bannerUrl ??
+                    "https://images.pokemontcg.io/swsh35/logo.png"
                   }
+                  alt={event.name}
                   className="relative z-10 h-full w-full transform object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-105"
                 />
               </div>
@@ -729,15 +930,15 @@ export const GachaPullScreen: React.FC<{
                 </span>
               </div>
               <h1 className="mb-4 text-5xl leading-none font-black text-white md:text-6xl">
-                {activeEvent.name}
+                {event.name}
               </h1>
               <p className="text-text-secondary mx-auto mb-4 max-w-md text-lg md:mx-0">
-                {activeEvent.description}
+                {event.description}
               </p>
 
               {/* Drop Rates Button */}
               <button
-                onClick={() => setShowDropRates(!showDropRates)}
+                onClick={() => toggleDropRates()}
                 className="text-primary hover:text-primary-hover mb-6 text-sm underline"
               >
                 {showDropRates ? "Hide" : "Show"} Drop Rates
@@ -753,25 +954,25 @@ export const GachaPullScreen: React.FC<{
                     <div className="flex justify-between">
                       <span className="text-orange-400">Legendary:</span>
                       <span className="text-text-secondary">
-                        {(dropRates.legendary * 100).toFixed(2)}%
+                        {(parseFloat(event.legendaryRate) * 100).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-pink-400">Epic:</span>
                       <span className="text-text-secondary">
-                        {(dropRates.epic * 100).toFixed(2)}%
+                        {(parseFloat(event.epicRate) * 100).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-blue-400">Rare:</span>
                       <span className="text-text-secondary">
-                        {(dropRates.rare * 100).toFixed(2)}%
+                        {(parseFloat(event.rareRate) * 100).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Common:</span>
                       <span className="text-text-secondary">
-                        {(dropRates.common * 100).toFixed(2)}%
+                        {(parseFloat(event.commonRate) * 100).toFixed(2)}%
                       </span>
                     </div>
                   </div>
@@ -780,7 +981,7 @@ export const GachaPullScreen: React.FC<{
 
               <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
                 <button
-                  onClick={handleSinglePull}
+                  onClick={() => handleSinglePull(event.id)}
                   disabled={pullMutation.isPending}
                   className="bg-primary hover:bg-primary-hover text-background-dark shadow-primary/20 flex min-w-[160px] flex-col items-center rounded-xl px-8 py-4 text-lg font-bold shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -789,11 +990,11 @@ export const GachaPullScreen: React.FC<{
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <DollarSignIcon className="size-3" />{" "}
-                    {formatUSD(parseFloat(activeEvent.singlePullPrice))}
+                    {formatUSD(parseFloat(event.singlePullPrice))}
                   </span>
                 </button>
                 <button
-                  onClick={handleTenPull}
+                  onClick={() => handleTenPull(event.id)}
                   disabled={pullTenMutation.isPending}
                   className="bg-surface-highlight border-primary/50 text-primary hover:bg-primary/10 flex min-w-[160px] flex-col items-center rounded-xl border-2 px-8 py-4 text-lg font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -802,7 +1003,7 @@ export const GachaPullScreen: React.FC<{
                   </span>
                   <span className="mt-1 flex items-center gap-1 text-xs font-normal opacity-80">
                     <DollarSignIcon className="size-3" />{" "}
-                    {formatUSD(parseFloat(activeEvent.tenPullPrice))}
+                    {formatUSD(parseFloat(event.tenPullPrice))}
                   </span>
                 </button>
               </div>
