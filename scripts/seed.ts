@@ -1,8 +1,8 @@
-import { hash } from "bcryptjs"
+import { eq } from "drizzle-orm"
 
+import { auth } from "../src/lib/auth"
 import { db } from "../src/lib/db"
 import {
-  accounts,
   cards,
   gachaEvents,
   userProfiles,
@@ -12,75 +12,197 @@ import {
 async function seed() {
   console.log("🌱 Starting database seeding...")
 
-  // Clear existing data
+  // Clear existing data (only app-specific tables, not auth tables)
   console.log("🗑️  Clearing existing data...")
-  await db.delete(userProfiles)
-  await db.delete(accounts)
-  await db.delete(users)
+  
+  // First, delete dependent tables
   await db.delete(gachaEvents)
   await db.delete(cards)
+  
+  // Note: We don't delete userProfiles, users, accounts, or sessions
+  // as they are managed by better-auth and may cause FK constraint issues
 
-  // Create admin user
+  // Create admin user using better-auth
   console.log("👤 Creating admin user...")
-  const adminUserId = crypto.randomUUID()
-  const adminPassword = await hash("admin123", 10)
+  const adminEmail = "admin@tcg.com"
+  const adminPassword = "admin123456"
 
-  await db.insert(users).values({
-    id: adminUserId,
-    name: "Admin User",
-    email: "admin@tcg.com",
-    emailVerified: true,
-    role: "admin",
-  })
+  try {
+    const adminUser = await auth.api.signUpEmail({
+      body: {
+        email: adminEmail,
+        password: adminPassword,
+        name: "Admin User",
+      },
+    })
 
-  await db.insert(accounts).values({
-    id: crypto.randomUUID(),
-    userId: adminUserId,
-    accountId: "admin@tcg.com",
-    providerId: "email",
-    password: adminPassword,
-  })
+    if (adminUser?.user?.id) {
+      console.log(`✅ Admin user created with ID: ${adminUser.user.id}`)
+      
+      // Update user role to admin directly in database
+      await db
+        .update(users)
+        .set({ role: "admin", emailVerified: true })
+        .where(eq(users.id, adminUser.user.id))
 
-  await db.insert(userProfiles).values({
-    userId: adminUserId,
-    username: "admin",
-    displayName: "Admin",
-    level: 99,
-    exp: 999999,
-    balance: "1000.00",
-    isAdmin: true,
-  })
+      // Check if profile already exists
+      const existingProfile = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, adminUser.user.id))
+        .limit(1)
 
-  // Create test user
+      if (existingProfile.length === 0) {
+        // Create admin profile
+        await db.insert(userProfiles).values({
+          userId: adminUser.user.id,
+          username: "admin",
+          displayName: "Admin",
+          level: 99,
+          exp: 999999,
+          balance: "1000.00",
+          isAdmin: true,
+        })
+        console.log("✅ Admin profile created successfully")
+      } else {
+        console.log("⚠️  Admin profile already exists, skipping...")
+      }
+    }
+  } catch (error: any) {
+    console.log(`⚠️  Admin user creation failed: ${error?.message || "Unknown error"}`)
+    console.log("Attempting to find existing admin user...")
+    
+    // Try to find existing admin user and ensure profile exists
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, adminEmail))
+      .limit(1)
+    
+    if (existingUser.length > 0) {
+      console.log("✅ Found existing admin user")
+      const userId = existingUser[0].id
+      
+      // Ensure user is admin and verified
+      await db
+        .update(users)
+        .set({ role: "admin", emailVerified: true })
+        .where(eq(users.id, userId))
+      
+      console.log("✅ Admin user updated")
+      
+      // Check if profile exists
+      const existingProfile = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId))
+        .limit(1)
+      
+      if (existingProfile.length === 0) {
+        await db.insert(userProfiles).values({
+          userId: userId,
+          username: "admin",
+          displayName: "Admin",
+          level: 99,
+          exp: 999999,
+          balance: "1000.00",
+          isAdmin: true,
+        })
+        console.log("✅ Admin profile created for existing user")
+      }
+    }
+  }
+
+  // Create test user using better-auth
   console.log("👤 Creating test user...")
-  const testUserId = crypto.randomUUID()
-  const testPassword = await hash("test123", 10)
+  const testEmail = "test@tcg.com"
+  const testPassword = "test123456"
 
-  await db.insert(users).values({
-    id: testUserId,
-    name: "Test User",
-    email: "test@tcg.com",
-    emailVerified: true,
-    role: "user",
-  })
+  try {
+    const testUser = await auth.api.signUpEmail({
+      body: {
+        email: testEmail,
+        password: testPassword,
+        name: "Test User",
+      },
+    })
 
-  await db.insert(accounts).values({
-    id: crypto.randomUUID(),
-    userId: testUserId,
-    accountId: "test@tcg.com",
-    providerId: "email",
-    password: testPassword,
-  })
+    if (testUser?.user?.id) {
+      console.log(`✅ Test user created with ID: ${testUser.user.id}`)
+      
+      // Update email verified status
+      await db
+        .update(users)
+        .set({ emailVerified: true })
+        .where(eq(users.id, testUser.user.id))
 
-  await db.insert(userProfiles).values({
-    userId: testUserId,
-    username: "testuser",
-    displayName: "Test User",
-    level: 5,
-    exp: 1500,
-    balance: "50.00",
-    isAdmin: false,
-  })
+      // Check if profile already exists
+      const existingProfile = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, testUser.user.id))
+        .limit(1)
+
+      if (existingProfile.length === 0) {
+        // Create test user profile
+        await db.insert(userProfiles).values({
+          userId: testUser.user.id,
+          username: "testuser",
+          displayName: "Test User",
+          level: 5,
+          exp: 1500,
+          balance: "50.00",
+          isAdmin: false,
+        })
+        console.log("✅ Test user profile created successfully")
+      } else {
+        console.log("⚠️  Test user profile already exists, skipping...")
+      }
+    }
+  } catch (error: any) {
+    console.log(`⚠️  Test user creation failed: ${error?.message || "Unknown error"}`)
+    console.log("Attempting to find existing test user...")
+    
+    // Try to find existing test user and ensure profile exists
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, testEmail))
+      .limit(1)
+    
+    if (existingUser.length > 0) {
+      console.log("✅ Found existing test user")
+      const userId = existingUser[0].id
+      
+      // Ensure user is verified
+      await db
+        .update(users)
+        .set({ emailVerified: true })
+        .where(eq(users.id, userId))
+      
+      console.log("✅ Test user updated")
+      
+      // Check if profile exists
+      const existingProfile = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId))
+        .limit(1)
+      
+      if (existingProfile.length === 0) {
+        await db.insert(userProfiles).values({
+          userId: userId,
+          username: "testuser",
+          displayName: "Test User",
+          level: 5,
+          exp: 1500,
+          balance: "50.00",
+          isAdmin: false,
+        })
+        console.log("✅ Test user profile created for existing user")
+      }
+    }
+  }
 
   // Create cards
   console.log("🃏 Creating Pokemon cards...")
@@ -372,8 +494,8 @@ async function seed() {
 
   console.log("✅ Database seeding completed!")
   console.log("\n📝 Login credentials:")
-  console.log("Admin - Email: admin@tcg.com, Password: admin123")
-  console.log("Test User - Email: test@tcg.com, Password: test123")
+  console.log("Admin - Email: admin@tcg.com, Password: admin123456")
+  console.log("Test User - Email: test@tcg.com, Password: test123456")
 
   process.exit(0)
 }
