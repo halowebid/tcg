@@ -2,23 +2,18 @@ import { eq } from "drizzle-orm"
 
 import { auth } from "../src/lib/auth"
 import { db } from "../src/lib/db"
-import {
-  cards,
-  gachaEvents,
-  userProfiles,
-  users,
-} from "../src/lib/db/schema"
+import { cards, gachaEvents, userProfiles, users } from "../src/lib/db/schema"
 
 async function seed() {
   console.log("🌱 Starting database seeding...")
 
   // Clear existing data (only app-specific tables, not auth tables)
   console.log("🗑️  Clearing existing data...")
-  
+
   // First, delete dependent tables
   await db.delete(gachaEvents)
   await db.delete(cards)
-  
+
   // Note: We don't delete userProfiles, users, accounts, or sessions
   // as they are managed by better-auth and may cause FK constraint issues
 
@@ -38,7 +33,7 @@ async function seed() {
 
     if (adminUser?.user?.id) {
       console.log(`✅ Admin user created with ID: ${adminUser.user.id}`)
-      
+
       // Update user role to admin directly in database
       await db
         .update(users)
@@ -69,35 +64,37 @@ async function seed() {
       }
     }
   } catch (error: any) {
-    console.log(`⚠️  Admin user creation failed: ${error?.message || "Unknown error"}`)
+    console.log(
+      `⚠️  Admin user creation failed: ${error?.message || "Unknown error"}`,
+    )
     console.log("Attempting to find existing admin user...")
-    
+
     // Try to find existing admin user and ensure profile exists
     const existingUser = await db
       .select()
       .from(users)
       .where(eq(users.email, adminEmail))
       .limit(1)
-    
+
     if (existingUser.length > 0) {
       console.log("✅ Found existing admin user")
       const userId = existingUser[0].id
-      
+
       // Ensure user is admin and verified
       await db
         .update(users)
         .set({ role: "admin", emailVerified: true })
         .where(eq(users.id, userId))
-      
+
       console.log("✅ Admin user updated")
-      
+
       // Check if profile exists
       const existingProfile = await db
         .select()
         .from(userProfiles)
         .where(eq(userProfiles.userId, userId))
         .limit(1)
-      
+
       if (existingProfile.length === 0) {
         await db.insert(userProfiles).values({
           userId: userId,
@@ -129,7 +126,7 @@ async function seed() {
 
     if (testUser?.user?.id) {
       console.log(`✅ Test user created with ID: ${testUser.user.id}`)
-      
+
       // Update email verified status
       await db
         .update(users)
@@ -160,35 +157,37 @@ async function seed() {
       }
     }
   } catch (error: any) {
-    console.log(`⚠️  Test user creation failed: ${error?.message || "Unknown error"}`)
+    console.log(
+      `⚠️  Test user creation failed: ${error?.message || "Unknown error"}`,
+    )
     console.log("Attempting to find existing test user...")
-    
+
     // Try to find existing test user and ensure profile exists
     const existingUser = await db
       .select()
       .from(users)
       .where(eq(users.email, testEmail))
       .limit(1)
-    
+
     if (existingUser.length > 0) {
       console.log("✅ Found existing test user")
       const userId = existingUser[0].id
-      
+
       // Ensure user is verified
       await db
         .update(users)
         .set({ emailVerified: true })
         .where(eq(users.id, userId))
-      
+
       console.log("✅ Test user updated")
-      
+
       // Check if profile exists
       const existingProfile = await db
         .select()
         .from(userProfiles)
         .where(eq(userProfiles.userId, userId))
         .limit(1)
-      
+
       if (existingProfile.length === 0) {
         await db.insert(userProfiles).values({
           userId: userId,
@@ -211,8 +210,7 @@ async function seed() {
     {
       name: "Charizard VMAX",
       description: "Gigantamax Charizard - The ultimate fire-breathing dragon",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh4/20_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh4/20_hires.png",
       rarity: "legendary" as const,
       attackPower: 3300,
       defensePower: 2800,
@@ -222,8 +220,7 @@ async function seed() {
     {
       name: "Mewtwo GX",
       description: "The legendary psychic Pokemon with incredible power",
-      imageUrl:
-        "https://images.pokemontcg.io/sm35/72_hires.png",
+      imageUrl: "https://images.pokemontcg.io/sm35/72_hires.png",
       rarity: "legendary" as const,
       attackPower: 3100,
       defensePower: 3200,
@@ -233,8 +230,7 @@ async function seed() {
     {
       name: "Rayquaza VMAX",
       description: "Sky High Pokemon - Master of the atmosphere",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh7/111_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh7/111_hires.png",
       rarity: "legendary" as const,
       attackPower: 3500,
       defensePower: 2700,
@@ -245,8 +241,7 @@ async function seed() {
     {
       name: "Pikachu VMAX",
       description: "The iconic Electric Mouse Pokemon at max power",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh4/44_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh4/44_hires.png",
       rarity: "epic" as const,
       attackPower: 2700,
       defensePower: 2400,
@@ -256,8 +251,7 @@ async function seed() {
     {
       name: "Gengar VMAX",
       description: "Shadow Pokemon that lurks in the darkness",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh3/157_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh3/157_hires.png",
       rarity: "epic" as const,
       attackPower: 2600,
       defensePower: 2300,
@@ -267,8 +261,7 @@ async function seed() {
     {
       name: "Lucario GX",
       description: "Aura Pokemon with powerful fighting abilities",
-      imageUrl:
-        "https://images.pokemontcg.io/sm9/122_hires.png",
+      imageUrl: "https://images.pokemontcg.io/sm9/122_hires.png",
       rarity: "epic" as const,
       attackPower: 2500,
       defensePower: 2800,
@@ -278,8 +271,7 @@ async function seed() {
     {
       name: "Blastoise VMAX",
       description: "Shellfish Pokemon with devastating water attacks",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh3/103_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh3/103_hires.png",
       rarity: "epic" as const,
       attackPower: 2800,
       defensePower: 2500,
@@ -290,8 +282,7 @@ async function seed() {
     {
       name: "Raichu V",
       description: "Electric Pokemon evolved from Pikachu",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh4/45_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh4/45_hires.png",
       rarity: "rare" as const,
       attackPower: 2000,
       defensePower: 1800,
@@ -301,8 +292,7 @@ async function seed() {
     {
       name: "Venusaur V",
       description: "Seed Pokemon with powerful grass attacks",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh3/1_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh3/1_hires.png",
       rarity: "rare" as const,
       attackPower: 1900,
       defensePower: 2200,
@@ -312,8 +302,7 @@ async function seed() {
     {
       name: "Lapras V",
       description: "Transport Pokemon that glides through water",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh2/49_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh2/49_hires.png",
       rarity: "rare" as const,
       attackPower: 1800,
       defensePower: 2100,
@@ -323,8 +312,7 @@ async function seed() {
     {
       name: "Dragonite V",
       description: "Dragon Pokemon with incredible flying speed",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh7/192_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh7/192_hires.png",
       rarity: "rare" as const,
       attackPower: 2100,
       defensePower: 1900,
@@ -334,8 +322,7 @@ async function seed() {
     {
       name: "Corviknight V",
       description: "Raven Pokemon with powerful steel wings",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh1/109_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh1/109_hires.png",
       rarity: "rare" as const,
       attackPower: 1850,
       defensePower: 2050,
@@ -346,8 +333,7 @@ async function seed() {
     {
       name: "Pikachu",
       description: "Everyone's favorite Electric Mouse Pokemon",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh4/28_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh4/28_hires.png",
       rarity: "common" as const,
       attackPower: 1200,
       defensePower: 1100,
@@ -357,8 +343,7 @@ async function seed() {
     {
       name: "Charmander",
       description: "Lizard Pokemon with a flame on its tail",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh3/24_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh3/24_hires.png",
       rarity: "common" as const,
       attackPower: 1100,
       defensePower: 900,
@@ -368,8 +353,7 @@ async function seed() {
     {
       name: "Squirtle",
       description: "Tiny Turtle Pokemon with water abilities",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh3/36_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh3/36_hires.png",
       rarity: "common" as const,
       attackPower: 1000,
       defensePower: 1300,
@@ -379,8 +363,7 @@ async function seed() {
     {
       name: "Bulbasaur",
       description: "Seed Pokemon with a bulb on its back",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh1/1_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh1/1_hires.png",
       rarity: "common" as const,
       attackPower: 1050,
       defensePower: 1250,
@@ -390,8 +373,7 @@ async function seed() {
     {
       name: "Eevee",
       description: "Evolution Pokemon with many possible evolutions",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh1/125_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh1/125_hires.png",
       rarity: "common" as const,
       attackPower: 950,
       defensePower: 1050,
@@ -401,8 +383,7 @@ async function seed() {
     {
       name: "Jigglypuff",
       description: "Balloon Pokemon known for its soothing song",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh2/119_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh2/119_hires.png",
       rarity: "common" as const,
       attackPower: 800,
       defensePower: 1400,
@@ -412,8 +393,7 @@ async function seed() {
     {
       name: "Psyduck",
       description: "Duck Pokemon always suffering from headaches",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh2/58_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh2/58_hires.png",
       rarity: "common" as const,
       attackPower: 900,
       defensePower: 1100,
@@ -423,8 +403,7 @@ async function seed() {
     {
       name: "Snorlax",
       description: "Sleeping Pokemon with enormous defensive power",
-      imageUrl:
-        "https://images.pokemontcg.io/swsh1/140_hires.png",
+      imageUrl: "https://images.pokemontcg.io/swsh1/140_hires.png",
       rarity: "common" as const,
       attackPower: 850,
       defensePower: 1550,
@@ -446,8 +425,7 @@ async function seed() {
       name: "Champion's Path",
       description:
         "The ultimate collection featuring powerful Champion Pokemon! Guaranteed Rare or higher in every pack.",
-      bannerUrl:
-        "https://images.pokemontcg.io/swsh35/logo.png",
+      bannerUrl: "https://images.pokemontcg.io/swsh35/logo.png",
       startDate: now,
       endDate: oneMonthFromNow,
       singlePullPrice: "5.00",
@@ -462,8 +440,7 @@ async function seed() {
       name: "Vivid Voltage",
       description:
         "Electrifying Pokemon cards with stunning artwork! Featuring powerful Electric-type Pokemon.",
-      bannerUrl:
-        "https://images.pokemontcg.io/swsh4/logo.png",
+      bannerUrl: "https://images.pokemontcg.io/swsh4/logo.png",
       startDate: now,
       endDate: twoWeeksFromNow,
       singlePullPrice: "4.50",
@@ -478,8 +455,7 @@ async function seed() {
       name: "Evolving Skies",
       description:
         "Soar to new heights with Dragon and Flying-type Pokemon! Rare Eeveelutions included.",
-      bannerUrl:
-        "https://images.pokemontcg.io/swsh7/logo.png",
+      bannerUrl: "https://images.pokemontcg.io/swsh7/logo.png",
       startDate: now,
       endDate: oneMonthFromNow,
       singlePullPrice: "6.00",
