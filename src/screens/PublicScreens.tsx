@@ -91,38 +91,56 @@ export const LandingScreen: React.FC = () => {
             }}
           ></div>
           <div className="relative z-10 flex max-w-2xl flex-col items-start gap-4">
-            <div className="bg-primary/20 border-primary/30 flex items-center gap-2 rounded-full border px-3 py-1 backdrop-blur-sm">
-              <FlameIcon className="text-primary size-4" />
-              <span className="text-primary text-xs font-bold tracking-wider uppercase">
-                {firstEvent?.name ?? "Season 5: Dragon's Awakening"}
-              </span>
-            </div>
-            <h1 className="font-display text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Unleash the Draconic Fire.
-            </h1>
-            <p className="text-lg font-light text-gray-200 sm:text-xl">
-              {firstEvent?.description ??
-                "The S-Rank dragons have awakened. Pull from the new limited-time banner and collect the rarest holographic legends before they vanish."}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Link
-                href={firstEvent ? `/gacha/${firstEvent.id}` : "/gacha"}
-                className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105"
-              >
-                <SparklesIcon className="size-6" />
-                Pull 10x •{" "}
-                {firstEvent?.tenPullPrice
-                  ? formatUSD(parseFloat(firstEvent.tenPullPrice))
-                  : "$5.00"}
-              </Link>
-              <Link
-                href={firstEvent ? `/gacha/${firstEvent.id}` : "/gacha"}
-                className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20"
-              >
-                <SparklesIcon className="size-6" />
-                View Drop Rates
-              </Link>
-            </div>
+            {firstEvent && (
+              <>
+                <div className="bg-primary/20 border-primary/30 flex items-center gap-2 rounded-full border px-3 py-1 backdrop-blur-sm">
+                  <FlameIcon className="text-primary size-4" />
+                  <span className="text-primary text-xs font-bold tracking-wider uppercase">
+                    Limited Event
+                  </span>
+                </div>
+                <h1 className="font-display text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+                  {firstEvent.name}
+                </h1>
+                <p className="text-lg font-light text-gray-200 sm:text-xl">
+                  {firstEvent.description}
+                </p>
+                <div className="mt-6 flex flex-wrap gap-4">
+                  <Link
+                    href={`/gacha/${firstEvent.id}`}
+                    className="bg-primary text-background-dark hover:bg-primary-dark shadow-primary/20 flex h-14 items-center justify-center gap-2 rounded-xl px-8 text-lg font-bold shadow-lg transition-transform hover:scale-105"
+                  >
+                    <SparklesIcon className="size-6" />
+                    Pull 10x • {formatUSD(parseFloat(firstEvent.tenPullPrice))}
+                  </Link>
+                  <Link
+                    href={`/gacha/${firstEvent.id}`}
+                    className="flex h-14 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-6 text-lg font-bold text-white backdrop-blur-md transition-colors hover:bg-white/20"
+                  >
+                    <SparklesIcon className="size-6" />
+                    View Drop Rates
+                  </Link>
+                </div>
+              </>
+            )}
+            {!firstEvent && !eventsLoading && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <CalendarOffIcon className="text-text-secondary mb-4 size-16" />
+                <h2 className="mb-2 text-2xl font-bold text-white">
+                  No Active Events
+                </h2>
+                <p className="text-text-secondary mb-6 max-w-md">
+                  There are currently no active gacha events. Check back later
+                  for new packs!
+                </p>
+                <Link
+                  href="/marketplace"
+                  className="bg-primary text-background-dark hover:bg-primary-dark flex h-12 items-center justify-center gap-2 rounded-xl px-6 font-bold transition-transform hover:scale-105"
+                >
+                  Browse Marketplace
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -131,7 +149,7 @@ export const LandingScreen: React.FC = () => {
       <section className="w-full max-w-[1400px] px-4 pb-12 md:px-10">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-2xl font-bold text-white">
-            <SparklesIcon className="text-primary size-6" /> Featured Packs
+            Featured Packs
           </h2>
           <Link
             href="/gacha"
@@ -179,8 +197,8 @@ export const LandingScreen: React.FC = () => {
                   <div className="relative h-full w-1/2">
                     <img
                       src={
-                        event.bannerUrl ??
-                        "https://lh3.googleusercontent.com/aida-public/AB6AXuB4AxbRwdkXYKvWrHK8F9rrqDPiFe-1C1OJDu50OJ24W0jliDtW7f4F6IC5OvRIJFaTxbNEdbzp7xfCzCzXw4AQQIDg5Tio1sNIZWrb7_7IFraiePvkS0iYKv-bALPNG93IS-VeAbQxhCrm59w-p8Z-P9lb2gWdp4YX2zdwi3XeYWwA8QUIy_linEDf54jmuGcH6ubUatfH8Vkbm3RUh6lfmb1LUXDT2zTg45OHhy0Sv6mu7fAHU5xL7q1-SU7ALxISrSGJh3vxda6k"
+                        event.bannerUrl ||
+                        "https://images.pokemontcg.io/swsh35/logo.png"
                       }
                       alt={event.name}
                       className="absolute top-1/2 left-1/2 h-[120%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6"
@@ -657,7 +675,8 @@ export const GachaListingScreen: React.FC = () => {
               Gacha Events
             </h1>
             <p className="text-text-secondary">
-              Try your luck and pull amazing cards from these limited-time events!
+              Try your luck and pull amazing cards from these limited-time
+              events!
             </p>
           </div>
         </div>
@@ -674,7 +693,10 @@ export const GachaListingScreen: React.FC = () => {
               <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-[#3d2c1e] to-[#2a221b]">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <img
-                  src={event.bannerUrl ?? "https://images.pokemontcg.io/swsh35/logo.png"}
+                  src={
+                    event.bannerUrl ??
+                    "https://images.pokemontcg.io/swsh35/logo.png"
+                  }
                   alt={event.name}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -697,7 +719,9 @@ export const GachaListingScreen: React.FC = () => {
                 {/* Pricing */}
                 <div className="border-border-dark mt-auto flex items-center justify-between border-t pt-4">
                   <div className="flex flex-col">
-                    <span className="text-text-secondary text-xs">Single Pull</span>
+                    <span className="text-text-secondary text-xs">
+                      Single Pull
+                    </span>
                     <div className="flex items-center gap-1">
                       <DollarSignIcon className="text-primary size-4" />
                       <span className="text-lg font-bold text-white">
@@ -706,7 +730,9 @@ export const GachaListingScreen: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-text-secondary text-xs">10x Pull</span>
+                    <span className="text-text-secondary text-xs">
+                      10x Pull
+                    </span>
                     <div className="flex items-center gap-1">
                       <DollarSignIcon className="text-primary size-4" />
                       <span className="text-lg font-bold text-white">
@@ -720,25 +746,25 @@ export const GachaListingScreen: React.FC = () => {
                 <div className="bg-surface-highlight mt-4 rounded-lg p-3">
                   <div className="grid grid-cols-4 gap-2 text-center text-xs">
                     <div>
-                      <div className="text-orange-400 font-bold">
+                      <div className="font-bold text-orange-400">
                         {(parseFloat(event.legendaryRate) * 100).toFixed(1)}%
                       </div>
                       <div className="text-text-secondary">Legendary</div>
                     </div>
                     <div>
-                      <div className="text-pink-400 font-bold">
+                      <div className="font-bold text-pink-400">
                         {(parseFloat(event.epicRate) * 100).toFixed(1)}%
                       </div>
                       <div className="text-text-secondary">Epic</div>
                     </div>
                     <div>
-                      <div className="text-blue-400 font-bold">
+                      <div className="font-bold text-blue-400">
                         {(parseFloat(event.rareRate) * 100).toFixed(1)}%
                       </div>
                       <div className="text-text-secondary">Rare</div>
                     </div>
                     <div>
-                      <div className="text-gray-400 font-bold">
+                      <div className="font-bold text-gray-400">
                         {(parseFloat(event.commonRate) * 100).toFixed(1)}%
                       </div>
                       <div className="text-text-secondary">Common</div>
@@ -903,9 +929,7 @@ export const GachaPullScreen: React.FC<{
     <div className="flex flex-1 justify-center px-4 py-8 sm:px-10">
       <div className="flex max-w-[1024px] flex-1 flex-col gap-12">
         {/* Single event display */}
-        <section
-          className="bg-surface-dark border-border-dark relative flex min-h-[600px] items-center justify-center overflow-hidden rounded-3xl border shadow-2xl"
-        >
+        <section className="bg-surface-dark border-border-dark relative flex min-h-[600px] items-center justify-center overflow-hidden rounded-3xl border shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-b from-[#2a221b] to-[#181411]"></div>
           <div className="bg-primary/5 pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"></div>
 
