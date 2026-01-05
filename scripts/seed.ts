@@ -37,7 +37,7 @@ async function seed() {
     id: crypto.randomUUID(),
     userId: adminUserId,
     accountId: "admin@tcg.com",
-    providerId: "credential",
+    providerId: "email",
     password: adminPassword,
   })
 
@@ -68,7 +68,7 @@ async function seed() {
     id: crypto.randomUUID(),
     userId: testUserId,
     accountId: "test@tcg.com",
-    providerId: "credential",
+    providerId: "email",
     password: testPassword,
   })
 
@@ -83,93 +83,93 @@ async function seed() {
   })
 
   // Create cards
-  console.log("🃏 Creating cards...")
+  console.log("🃏 Creating Pokemon cards...")
   const cardData = [
     // Legendary cards
     {
-      name: "Celestial Dragon",
-      description: "A mythical dragon that commands the stars",
+      name: "Charizard VMAX",
+      description: "Gigantamax Charizard - The ultimate fire-breathing dragon",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400",
+        "https://images.pokemontcg.io/swsh4/20_hires.png",
       rarity: "legendary" as const,
-      attackPower: 3500,
-      defensePower: 3000,
+      attackPower: 3300,
+      defensePower: 2800,
       marketValue: "1500.00",
       dropWeight: "1.0",
     },
     {
-      name: "Phoenix Emperor",
-      description: "An immortal phoenix that rises from the ashes",
+      name: "Mewtwo GX",
+      description: "The legendary psychic Pokemon with incredible power",
       imageUrl:
-        "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=400",
+        "https://images.pokemontcg.io/sm35/72_hires.png",
       rarity: "legendary" as const,
-      attackPower: 3200,
-      defensePower: 3300,
+      attackPower: 3100,
+      defensePower: 3200,
       marketValue: "1400.00",
       dropWeight: "1.0",
     },
     {
-      name: "Void Keeper",
-      description: "Guardian of the space between dimensions",
+      name: "Rayquaza VMAX",
+      description: "Sky High Pokemon - Master of the atmosphere",
       imageUrl:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400",
+        "https://images.pokemontcg.io/swsh7/111_hires.png",
       rarity: "legendary" as const,
-      attackPower: 3600,
-      defensePower: 2800,
+      attackPower: 3500,
+      defensePower: 2700,
       marketValue: "1600.00",
       dropWeight: "0.8",
     },
     // Epic cards
     {
-      name: "Storm Wyvern",
-      description: "A fierce wyvern that controls thunderstorms",
+      name: "Pikachu VMAX",
+      description: "The iconic Electric Mouse Pokemon at max power",
       imageUrl:
-        "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=400",
+        "https://images.pokemontcg.io/swsh4/44_hires.png",
       rarity: "epic" as const,
-      attackPower: 2800,
+      attackPower: 2700,
       defensePower: 2400,
       marketValue: "800.00",
       dropWeight: "1.2",
     },
     {
-      name: "Shadow Assassin",
-      description: "A master of stealth and deadly precision",
+      name: "Gengar VMAX",
+      description: "Shadow Pokemon that lurks in the darkness",
       imageUrl:
-        "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400",
+        "https://images.pokemontcg.io/swsh3/157_hires.png",
       rarity: "epic" as const,
       attackPower: 2600,
-      defensePower: 2200,
+      defensePower: 2300,
       marketValue: "750.00",
       dropWeight: "1.1",
     },
     {
-      name: "Crystal Guardian",
-      description: "A mystical protector made of living crystal",
+      name: "Lucario GX",
+      description: "Aura Pokemon with powerful fighting abilities",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400",
+        "https://images.pokemontcg.io/sm9/122_hires.png",
       rarity: "epic" as const,
-      attackPower: 2400,
-      defensePower: 2900,
+      attackPower: 2500,
+      defensePower: 2800,
       marketValue: "820.00",
       dropWeight: "1.0",
     },
     {
-      name: "Flame Sorcerer",
-      description: "A powerful mage wielding the fires of creation",
+      name: "Blastoise VMAX",
+      description: "Shellfish Pokemon with devastating water attacks",
       imageUrl:
-        "https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400",
+        "https://images.pokemontcg.io/swsh3/103_hires.png",
       rarity: "epic" as const,
-      attackPower: 2700,
-      defensePower: 2300,
+      attackPower: 2800,
+      defensePower: 2500,
       marketValue: "780.00",
       dropWeight: "1.1",
     },
     // Rare cards
     {
-      name: "Thunder Knight",
-      description: "A warrior blessed with the power of lightning",
+      name: "Raichu V",
+      description: "Electric Pokemon evolved from Pikachu",
       imageUrl:
-        "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=400",
+        "https://images.pokemontcg.io/swsh4/45_hires.png",
       rarity: "rare" as const,
       attackPower: 2000,
       defensePower: 1800,
@@ -177,32 +177,32 @@ async function seed() {
       dropWeight: "1.3",
     },
     {
-      name: "Forest Druid",
-      description: "A nature spirit in tune with the ancient woods",
+      name: "Venusaur V",
+      description: "Seed Pokemon with powerful grass attacks",
       imageUrl:
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400",
+        "https://images.pokemontcg.io/swsh3/1_hires.png",
       rarity: "rare" as const,
-      attackPower: 1700,
-      defensePower: 2100,
+      attackPower: 1900,
+      defensePower: 2200,
       marketValue: "380.00",
       dropWeight: "1.4",
     },
     {
-      name: "Ice Mage",
-      description: "A frost wielder from the northern glaciers",
+      name: "Lapras V",
+      description: "Transport Pokemon that glides through water",
       imageUrl:
-        "https://images.unsplash.com/photo-1483086431886-3590a88317fe?w=400",
+        "https://images.pokemontcg.io/swsh2/49_hires.png",
       rarity: "rare" as const,
-      attackPower: 1900,
-      defensePower: 1700,
+      attackPower: 1800,
+      defensePower: 2100,
       marketValue: "420.00",
       dropWeight: "1.2",
     },
     {
-      name: "Dark Paladin",
-      description: "A fallen knight seeking redemption",
+      name: "Dragonite V",
+      description: "Dragon Pokemon with incredible flying speed",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400",
+        "https://images.pokemontcg.io/swsh7/192_hires.png",
       rarity: "rare" as const,
       attackPower: 2100,
       defensePower: 1900,
@@ -210,22 +210,22 @@ async function seed() {
       dropWeight: "1.1",
     },
     {
-      name: "Wind Archer",
-      description: "Swift and deadly with a bow",
+      name: "Corviknight V",
+      description: "Raven Pokemon with powerful steel wings",
       imageUrl:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400",
+        "https://images.pokemontcg.io/swsh1/109_hires.png",
       rarity: "rare" as const,
-      attackPower: 1800,
-      defensePower: 1600,
+      attackPower: 1850,
+      defensePower: 2050,
       marketValue: "370.00",
       dropWeight: "1.3",
     },
     // Common cards
     {
-      name: "Rookie Warrior",
-      description: "A brave novice taking their first steps",
+      name: "Pikachu",
+      description: "Everyone's favorite Electric Mouse Pokemon",
       imageUrl:
-        "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=400",
+        "https://images.pokemontcg.io/swsh4/28_hires.png",
       rarity: "common" as const,
       attackPower: 1200,
       defensePower: 1100,
@@ -233,10 +233,10 @@ async function seed() {
       dropWeight: "2.0",
     },
     {
-      name: "Apprentice Mage",
-      description: "A young student of the arcane arts",
+      name: "Charmander",
+      description: "Lizard Pokemon with a flame on its tail",
       imageUrl:
-        "https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400",
+        "https://images.pokemontcg.io/swsh3/24_hires.png",
       rarity: "common" as const,
       attackPower: 1100,
       defensePower: 900,
@@ -244,10 +244,10 @@ async function seed() {
       dropWeight: "2.1",
     },
     {
-      name: "Town Guard",
-      description: "A stalwart defender of the people",
+      name: "Squirtle",
+      description: "Tiny Turtle Pokemon with water abilities",
       imageUrl:
-        "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400",
+        "https://images.pokemontcg.io/swsh3/36_hires.png",
       rarity: "common" as const,
       attackPower: 1000,
       defensePower: 1300,
@@ -255,57 +255,57 @@ async function seed() {
       dropWeight: "1.9",
     },
     {
-      name: "Forest Scout",
-      description: "A skilled tracker and pathfinder",
+      name: "Bulbasaur",
+      description: "Seed Pokemon with a bulb on its back",
       imageUrl:
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400",
+        "https://images.pokemontcg.io/swsh1/1_hires.png",
       rarity: "common" as const,
-      attackPower: 1300,
-      defensePower: 1000,
+      attackPower: 1050,
+      defensePower: 1250,
       marketValue: "52.00",
       dropWeight: "2.0",
     },
     {
-      name: "Market Vendor",
-      description: "A shrewd trader with connections everywhere",
+      name: "Eevee",
+      description: "Evolution Pokemon with many possible evolutions",
       imageUrl:
-        "https://images.unsplash.com/photo-1483086431886-3590a88317fe?w=400",
+        "https://images.pokemontcg.io/swsh1/125_hires.png",
       rarity: "common" as const,
-      attackPower: 800,
-      defensePower: 800,
+      attackPower: 950,
+      defensePower: 1050,
       marketValue: "40.00",
       dropWeight: "2.2",
     },
     {
-      name: "Village Healer",
-      description: "A compassionate soul who mends wounds",
+      name: "Jigglypuff",
+      description: "Balloon Pokemon known for its soothing song",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400",
+        "https://images.pokemontcg.io/swsh2/119_hires.png",
       rarity: "common" as const,
-      attackPower: 600,
-      defensePower: 1500,
+      attackPower: 800,
+      defensePower: 1400,
       marketValue: "48.00",
       dropWeight: "1.8",
     },
     {
-      name: "Traveling Bard",
-      description: "A performer whose songs inspire courage",
+      name: "Psyduck",
+      description: "Duck Pokemon always suffering from headaches",
       imageUrl:
-        "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=400",
+        "https://images.pokemontcg.io/swsh2/58_hires.png",
       rarity: "common" as const,
-      attackPower: 700,
-      defensePower: 700,
+      attackPower: 900,
+      defensePower: 1100,
       marketValue: "42.00",
       dropWeight: "2.1",
     },
     {
-      name: "Stable Hand",
-      description: "A hardworking soul with a way with animals",
+      name: "Snorlax",
+      description: "Sleeping Pokemon with enormous defensive power",
       imageUrl:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400",
+        "https://images.pokemontcg.io/swsh1/140_hires.png",
       rarity: "common" as const,
-      attackPower: 900,
-      defensePower: 1100,
+      attackPower: 850,
+      defensePower: 1550,
       marketValue: "46.00",
       dropWeight: "2.0",
     },
@@ -313,27 +313,62 @@ async function seed() {
 
   await db.insert(cards).values(cardData)
 
-  // Create active gacha event
-  console.log("🎰 Creating gacha event...")
+  // Create active gacha events
+  console.log("🎰 Creating gacha events...")
   const now = new Date()
   const oneMonthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
 
-  await db.insert(gachaEvents).values({
-    name: "Cosmic Legends",
-    description:
-      "Unleash the power of the stars. Each pack contains cards with a guaranteed Rare or higher.",
-    bannerUrl:
-      "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800",
-    startDate: now,
-    endDate: oneMonthFromNow,
-    singlePullPrice: "5.00",
-    tenPullPrice: "47.50",
-    legendaryRate: "0.02",
-    epicRate: "0.08",
-    rareRate: "0.20",
-    commonRate: "0.70",
-    isActive: true,
-  })
+  await db.insert(gachaEvents).values([
+    {
+      name: "Champion's Path",
+      description:
+        "The ultimate collection featuring powerful Champion Pokemon! Guaranteed Rare or higher in every pack.",
+      bannerUrl:
+        "https://images.pokemontcg.io/swsh35/logo.png",
+      startDate: now,
+      endDate: oneMonthFromNow,
+      singlePullPrice: "5.00",
+      tenPullPrice: "47.50",
+      legendaryRate: "0.02",
+      epicRate: "0.08",
+      rareRate: "0.20",
+      commonRate: "0.70",
+      isActive: true,
+    },
+    {
+      name: "Vivid Voltage",
+      description:
+        "Electrifying Pokemon cards with stunning artwork! Featuring powerful Electric-type Pokemon.",
+      bannerUrl:
+        "https://images.pokemontcg.io/swsh4/logo.png",
+      startDate: now,
+      endDate: twoWeeksFromNow,
+      singlePullPrice: "4.50",
+      tenPullPrice: "42.00",
+      legendaryRate: "0.015",
+      epicRate: "0.075",
+      rareRate: "0.22",
+      commonRate: "0.69",
+      isActive: true,
+    },
+    {
+      name: "Evolving Skies",
+      description:
+        "Soar to new heights with Dragon and Flying-type Pokemon! Rare Eeveelutions included.",
+      bannerUrl:
+        "https://images.pokemontcg.io/swsh7/logo.png",
+      startDate: now,
+      endDate: oneMonthFromNow,
+      singlePullPrice: "6.00",
+      tenPullPrice: "55.00",
+      legendaryRate: "0.025",
+      epicRate: "0.09",
+      rareRate: "0.185",
+      commonRate: "0.70",
+      isActive: true,
+    },
+  ])
 
   console.log("✅ Database seeding completed!")
   console.log("\n📝 Login credentials:")

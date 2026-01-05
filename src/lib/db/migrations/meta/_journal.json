@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1766144347652,
-      "tag": "0000_little_ronan",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1766164913029,
-      "tag": "0001_faithful_luminals",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1766165870764,
-      "tag": "0002_broad_wasp",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1766212118555,
-      "tag": "0003_crazy_jack_flag",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1766214449495,
-      "tag": "0004_organic_barracuda",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1766400965031,
-      "tag": "0005_migrate_to_usd",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1766400985417,
-      "tag": "0006_neat_proudstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1766511520447,
-      "tag": "0007_steep_oracle",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1766511541706,
-      "tag": "0008_reflective_doctor_spectrum",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1766513070502,
-      "tag": "0009_loose_khan",
+      "when": 1767641273858,
+      "tag": "0000_peaceful_invisible_woman",
       "breakpoints": true
     }
   ]

@@ -1,8 +1,8 @@
 CREATE TYPE "public"."rarity" AS ENUM('common', 'rare', 'epic', 'legendary');--> statement-breakpoint
 CREATE TYPE "public"."acquired_via" AS ENUM('gacha', 'purchase', 'reward');--> statement-breakpoint
 CREATE TYPE "public"."requirement_type" AS ENUM('collection_size', 'total_spend', 'friend_count', 'pulls_count', 'login_streak');--> statement-breakpoint
-CREATE TYPE "public"."reward_type" AS ENUM('coins', 'gems', 'badge', 'frame', 'title');--> statement-breakpoint
-CREATE TYPE "public"."transaction_type" AS ENUM('gacha_pull', 'card_purchase', 'reward_claim', 'admin_adjustment', 'milestone_reward');--> statement-breakpoint
+CREATE TYPE "public"."reward_type" AS ENUM('currency', 'badge', 'frame', 'title');--> statement-breakpoint
+CREATE TYPE "public"."transaction_type" AS ENUM('gacha_pull', 'card_purchase', 'reward_claim', 'admin_adjustment', 'milestone_reward', 'deposit');--> statement-breakpoint
 CREATE TABLE "accounts" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
@@ -10,21 +10,26 @@ CREATE TABLE "accounts" (
 	"provider_id" text NOT NULL,
 	"access_token" text,
 	"refresh_token" text,
+	"access_token_expires_at" timestamp,
+	"refresh_token_expires_at" timestamp,
 	"id_token" text,
 	"expires_at" timestamp,
 	"password" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "sessions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"expires_at" timestamp NOT NULL,
+	"token" text NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
+	"impersonated_by" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp NOT NULL,
+	CONSTRAINT "sessions_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
@@ -33,6 +38,10 @@ CREATE TABLE "users" (
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
+	"role" text DEFAULT 'user' NOT NULL,
+	"banned" boolean DEFAULT false,
+	"ban_reason" text,
+	"ban_expires" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
@@ -54,8 +63,7 @@ CREATE TABLE "user_profiles" (
 	"display_name" text NOT NULL,
 	"level" integer DEFAULT 1 NOT NULL,
 	"exp" integer DEFAULT 0 NOT NULL,
-	"coins" integer DEFAULT 1000 NOT NULL,
-	"gems" integer DEFAULT 0 NOT NULL,
+	"balance" numeric(10, 2) DEFAULT '0.00' NOT NULL,
 	"is_admin" boolean DEFAULT false NOT NULL,
 	"is_banned" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -109,8 +117,8 @@ CREATE TABLE "gacha_events" (
 	"banner_url" text,
 	"start_date" timestamp NOT NULL,
 	"end_date" timestamp NOT NULL,
-	"pack_price_coins" integer NOT NULL,
-	"pack_price_gems" integer,
+	"single_pull_price" numeric(10, 2) NOT NULL,
+	"ten_pull_price" numeric(10, 2) NOT NULL,
 	"legendary_rate" numeric(5, 4) NOT NULL,
 	"epic_rate" numeric(5, 4) NOT NULL,
 	"rare_rate" numeric(5, 4) NOT NULL,
@@ -133,8 +141,7 @@ CREATE TABLE "pull_history" (
 	"event_id" uuid,
 	"card_id" uuid NOT NULL,
 	"rarity_at_pull" text NOT NULL,
-	"cost_coins" integer,
-	"cost_gems" integer,
+	"cost" numeric(10, 2),
 	"pulled_at" timestamp DEFAULT now() NOT NULL,
 	"session_id" uuid
 );
@@ -146,7 +153,7 @@ CREATE TABLE "milestones" (
 	"icon" text NOT NULL,
 	"requirement_type" "requirement_type" DEFAULT 'collection_size' NOT NULL,
 	"requirement_value" integer NOT NULL,
-	"reward_type" "reward_type" DEFAULT 'coins' NOT NULL,
+	"reward_type" "reward_type" DEFAULT 'currency' NOT NULL,
 	"reward_value" text NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -168,12 +175,39 @@ CREATE TABLE "transactions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" text NOT NULL,
 	"type" "transaction_type" DEFAULT 'card_purchase' NOT NULL,
-	"coins_change" integer DEFAULT 0 NOT NULL,
-	"gems_change" integer DEFAULT 0 NOT NULL,
+	"amount_change" numeric(10, 2) DEFAULT '0.00' NOT NULL,
 	"description" text NOT NULL,
 	"reference_id" uuid,
 	"created_by" text,
 	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "cart_items" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
+	"card_id" uuid NOT NULL,
+	"added_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "cart_items_user_id_card_id_unique" UNIQUE("user_id","card_id")
+);
+--> statement-breakpoint
+CREATE TABLE "notifications" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"type" text NOT NULL,
+	"title" text NOT NULL,
+	"message" text NOT NULL,
+	"image_url" text,
+	"is_read" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "system_settings" (
+	"id" text PRIMARY KEY DEFAULT 'default' NOT NULL,
+	"game_title" text DEFAULT 'TCG Gacha System' NOT NULL,
+	"support_email" text DEFAULT 'support@tcg-gacha.com' NOT NULL,
+	"maintenance_mode" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -189,4 +223,12 @@ ALTER TABLE "pull_history" ADD CONSTRAINT "pull_history_card_id_cards_id_fk" FOR
 ALTER TABLE "user_milestones" ADD CONSTRAINT "user_milestones_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_milestones" ADD CONSTRAINT "user_milestones_milestone_id_milestones_id_fk" FOREIGN KEY ("milestone_id") REFERENCES "public"."milestones"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_card_id_cards_id_fk" FOREIGN KEY ("card_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "account_userId_idx" ON "accounts" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "session_userId_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "verification_identifier_idx" ON "verification_tokens" USING btree ("identifier");--> statement-breakpoint
+CREATE INDEX "cart_items_user_id_idx" ON "cart_items" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "cart_items_card_id_idx" ON "cart_items" USING btree ("card_id");
